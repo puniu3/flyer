@@ -287,8 +287,9 @@ export function getView(state: GameState): GameView {
 // ==========================================
 
 function hasValidMove(state: GameState): boolean {
-  const { categories, dice } = state;
+  const { categories, dice, skillsUsed } = state;
 
+  // 1. Check if any category is satisfied by the current dice
   for (const id of ALL_CATEGORY_IDS) {
     if (categories[id]) continue;
 
@@ -299,8 +300,29 @@ function hasValidMove(state: GameState): boolean {
       return true;
     }
   }
+
+  // 2. Check if there are any usable skills
+  // If the player has an unlocked skill that hasn't been used yet,
+  // it counts as a valid move because it might alter the dice to satisfy a category.
+  for (const skillId of ALL_SKILL_IDS) {
+    const isUsed = skillsUsed[skillId];
+    const isUnlocked = isSkillUnlocked(skillId, categories);
+
+    if (!isUsed && isUnlocked) {
+      return true;
+    }
+  }
+
   return false;
 }
+
+function checkLoseCondition(state: GameState): GameState {
+  if (state.rollsUsed < MAX_ROLLS) return state;
+  if (hasValidMove(state)) return state;
+
+  return { ...state, status: 'lost' };
+}
+
 
 function checkLoseCondition(state: GameState): GameState {
   if (state.rollsUsed < MAX_ROLLS) return state;
