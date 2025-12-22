@@ -1,0 +1,16 @@
+{
+  "name": "flyer",
+  "version": "1.0.0",
+  "description": "Yhatzee-like rogue",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "build": "esbuild src/main.ts --bundle --format=esm --outdir=.",
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.3.0"
+  }
+}
