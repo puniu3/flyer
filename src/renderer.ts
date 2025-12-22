@@ -1,14 +1,14 @@
 import { GameView, CategoryId, SkillId } from './types';
 
 export class Renderer {
-  private root: HTMLElement | null;
+  private root: HTMLElement;
   private onRoll: () => void;
   private onReroll: (indexesToReroll: number[]) => void;
   private onUseSkill: (skillId: SkillId, targetDieIndex: number) => void;
   private onSelectCategory: (categoryId: CategoryId) => void;
 
   constructor(
-    root: HTMLElement | null,
+    root: HTMLElement,
     onRoll: () => void,
     onReroll: (indexesToReroll: number[]) => void,
     onUseSkill: (skillId: SkillId, targetDieIndex: number) => void,
@@ -22,7 +22,6 @@ export class Renderer {
   }
 
   update(view: GameView): void {
-    if (!this.root) return;
     // TODO: Implement rendering logic
   }
 }
