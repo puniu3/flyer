@@ -208,8 +208,7 @@ function getView(state2) {
     gameStatus: status
   };
 }
-function hasValidMove(state2) {
-  const { categories, dice } = state2;
+function canTakeAnyCategory(dice, categories) {
   for (const id of ALL_CATEGORY_IDS) {
     if (categories[id]) continue;
     const prereq = getPrerequisite(id);
@@ -219,6 +218,44 @@ function hasValidMove(state2) {
     }
   }
   return false;
+}
+function canReachValidState(dice, availableSkills, categories) {
+  if (canTakeAnyCategory(dice, categories)) {
+    return true;
+  }
+  for (let i = 0; i < availableSkills.length; i++) {
+    const skillId = availableSkills[i];
+    const remainingSkills = [...availableSkills];
+    remainingSkills.splice(i, 1);
+    for (let dieIndex = 0; dieIndex < dice.length; dieIndex++) {
+      const currentVal = dice[dieIndex];
+      let newVal = currentVal;
+      if (skillId === "skill_str_mighty") {
+        newVal = 6;
+      } else if (skillId === "skill_dex_acrobatics") {
+        newVal = Math.max(1, currentVal - 1);
+      } else if (skillId === "skill_int_metamorph") {
+        newVal = 7 - currentVal;
+      }
+      if (newVal === currentVal) continue;
+      const nextDice = [...dice];
+      nextDice[dieIndex] = newVal;
+      if (canReachValidState(nextDice, remainingSkills, categories)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+function hasValidMove(state2) {
+  const { categories, dice, skillsUsed } = state2;
+  const availableSkills = [];
+  for (const skillId of ALL_SKILL_IDS) {
+    if (!skillsUsed[skillId] && isSkillUnlocked(skillId, categories)) {
+      availableSkills.push(skillId);
+    }
+  }
+  return canReachValidState(dice, availableSkills, categories);
 }
 function checkLoseCondition(state2) {
   if (state2.rollsUsed < MAX_ROLLS) return state2;
