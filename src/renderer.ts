@@ -25,6 +25,7 @@ export class Renderer {
     this.onReroll = onReroll;
     this.onUseSkill = onUseSkill;
     this.onSelectCategory = onSelectCategory;
+    this.onGameOver = onGameOver;
   }
 
   update(view: GameView): void {
@@ -55,7 +56,7 @@ export class Renderer {
         if (view.gameStatus === 'won') statusText = 'You Won! 🎉';
         if (view.gameStatus === 'lost'){
           statusText = 'Game Over 💀';
-          onGameOver();
+          this.onGameOver();
         }
         statusDiv.textContent = statusText;
         this.root.appendChild(statusDiv);
