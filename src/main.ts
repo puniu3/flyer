@@ -5,7 +5,7 @@ import { playSound } from './playSound';
 
 const root = document.getElementById('fd-stage')!;
 let state: GameState = init();
-const renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory);
+const renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver);
 renderer.update(getView(state));
 
 function handleInput(action: PlayerAction): void {
@@ -48,3 +48,5 @@ function onSelectCategory(categoryId: CategoryId): void {
     categoryId
   });
 }
+
+function onGameOver(): void {playSound('lose');}

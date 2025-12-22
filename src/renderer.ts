@@ -17,7 +17,8 @@ export class Renderer {
     onRoll: () => void,
     onReroll: (indexesToReroll: number[]) => void,
     onUseSkill: (skillId: SkillId, targetDieIndex: number) => void,
-    onSelectCategory: (categoryId: CategoryId) => void
+    onSelectCategory: (categoryId: CategoryId) => void,
+    onGameOver: () => void
   ) {
     this.root = root;
     this.onRoll = onRoll;
@@ -52,7 +53,10 @@ export class Renderer {
         statusDiv.className = `game-status status-${view.gameStatus}`;
         let statusText = '';
         if (view.gameStatus === 'won') statusText = 'You Won! 🎉';
-        if (view.gameStatus === 'lost') statusText = 'Game Over 💀';
+        if (view.gameStatus === 'lost'){
+          statusText = 'Game Over 💀';
+          onGameOver();
+        }
         statusDiv.textContent = statusText;
         this.root.appendChild(statusDiv);
     }
