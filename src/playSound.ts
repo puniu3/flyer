@@ -22,16 +22,13 @@ class SoundManager {
 
   /**
    * Lazily initializes the AudioContext.
-   * Browsers require a user interaction before an AudioContext can run.
    */
   private getContext(): AudioContext {
     if (!this.audioContext) {
-      // Create AudioContext only when needed
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       this.audioContext = new AudioContextClass();
     }
 
-    // Ensure context is running (it might be suspended by default)
     if (this.audioContext.state === 'suspended') {
       this.audioContext.resume();
     }
@@ -80,59 +77,79 @@ class SoundManager {
   }
 
   /**
-   * Generates a noise-like sound for dice rolling.
-   * Refined to be lighter and crisper (shaking/clicking).
+   * Generates a sound like a die rolling on a ceramic surface.
+   * Uses high-frequency bandpass noise with multiple impacts.
    */
   private playRoll(ctx: AudioContext): void {
-    const duration = 0.2; // Short duration for a crisp sound
-    const bufferSize = ctx.sampleRate * duration;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
+    // Helper function to create a single "clink" sound
+    const playClick = (timeOffset: number, volume: number) => {
+      const duration = 0.05;
+      const bufferSize = ctx.sampleRate * duration;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
 
-    // Fill buffer with white noise
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+      // White noise
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
 
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
 
-    // Filter to remove low rumble and keep high frequencies (Highpass)
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 3000; // High frequency for "click" or "shake"
+      // Bandpass filter to simulate hard material resonance (ceramic)
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 2500 + Math.random() * 500; // High pitch around 2.5kHz - 3kHz
+      filter.Q.value = 5; // Resonant peak
 
-    // Gain envelope for percussive effect
-    const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(volume, ctx.currentTime + timeOffset);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + timeOffset + duration);
 
-    noise.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(ctx.destination);
+      noise.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(ctx.destination);
 
-    noise.start();
+      noise.start(ctx.currentTime + timeOffset);
+    };
+
+    // Trigger multiple clicks to simulate rolling/bouncing
+    playClick(0, 0.5);
+    playClick(0.06, 0.4);
+    playClick(0.13, 0.2);
   }
 
   /**
-   * Generates a strong, low-frequency sound (square wave).
+   * Generates a heroic, brass-like sound (Sawtooth wave).
+   * Positive and strong feel.
    */
   private playMighty(ctx: AudioContext): void {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
 
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(110, ctx.currentTime); // Low A2
-    osc.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.3); // Drop pitch
+    // Sawtooth creates a buzzy, brass-like timbre
+    osc.type = 'sawtooth';
+    // A perfect 5th power chord interval simulation (rapid arpeggio effect or just strong root)
+    // Here we use a stable strong note (C3 -> 130.81Hz or G2 -> 98Hz)
+    osc.frequency.setValueAtTime(130.81, ctx.currentTime); 
+    
+    // Lowpass filter envelope to mimic "blowing" into a horn (Wah effect)
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(200, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(3000, ctx.currentTime + 0.1); // Open filter quickly
+    filter.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.6); // Close filter slowly
 
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.05); // Attack
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6); // Decay
 
-    osc.connect(gainNode);
+    osc.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 0.3);
+    osc.stop(ctx.currentTime + 0.6);
   }
 
   /**
@@ -170,10 +187,10 @@ class SoundManager {
     // LFO for vibrato
     const lfo = ctx.createOscillator();
     lfo.type = 'sine';
-    lfo.frequency.value = 15; // 15Hz wobble
+    lfo.frequency.value = 15;
 
     const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 50; // Depth of modulation
+    lfoGain.gain.value = 50;
 
     lfo.connect(lfoGain);
     lfoGain.connect(osc.frequency);
@@ -197,7 +214,7 @@ class SoundManager {
    */
   private playWin(ctx: AudioContext): void {
     const now = ctx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C Major: C4, E4, G4, C5
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C Major
     const duration = 0.15;
 
     notes.forEach((freq, index) => {
@@ -243,26 +260,33 @@ class SoundManager {
   }
 
   /**
-   * Generates a heavy, deep thud or descending tone.
-   * Refined to be more audible.
+   * Generates a positive, ascending sound indicating forward movement.
+   * Replaces the heavy thud with a pleasant "step forward" chime.
    */
   private playDungeonProgress(ctx: AudioContext): void {
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
+    const now = ctx.currentTime;
+    // Play two notes in quick succession (Interval of a Major 3rd or 4th)
+    // Giving a feeling of "Upward" movement
+    const notes = [440, 554.37]; // A4 -> C#5 (Major 3rd interval)
 
-    // Use square wave for better audibility
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.5);
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
 
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+      osc.type = 'triangle'; // Triangle is softer/cleaner than square
+      osc.frequency.setValueAtTime(freq, now + i * 0.1);
 
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
+      // Short envelope
+      gainNode.gain.setValueAtTime(0, now + i * 0.1);
+      gainNode.gain.linearRampToValueAtTime(0.2, now + i * 0.1 + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.4);
 
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc.start(now + i * 0.1);
+      osc.stop(now + i * 0.1 + 0.4);
+    });
   }
 
   /**
