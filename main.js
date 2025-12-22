@@ -592,7 +592,198 @@ var Renderer = class {
 };
 
 // src/playSound.ts
+var SoundManager = class {
+  constructor() {
+    this.audioContext = null;
+    this.isMuted = false;
+  }
+  /**
+   * Lazily initializes the AudioContext.
+   * Browsers require a user interaction before an AudioContext can run.
+   */
+  getContext() {
+    if (!this.audioContext) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      this.audioContext = new AudioContextClass();
+    }
+    if (this.audioContext.state === "suspended") {
+      this.audioContext.resume();
+    }
+    return this.audioContext;
+  }
+  /**
+   * Plays a sound effect by name.
+   */
+  play(sound) {
+    if (this.isMuted) return;
+    try {
+      const ctx = this.getContext();
+      switch (sound) {
+        case "roll":
+          this.playRoll(ctx);
+          break;
+        case "mighty":
+          this.playMighty(ctx);
+          break;
+        case "acrobatics":
+          this.playAcrobatics(ctx);
+          break;
+        case "metamorph":
+          this.playMetamorph(ctx);
+          break;
+        case "win":
+          this.playWin(ctx);
+          break;
+        case "dungeon_progress":
+          this.playDungeonProgress(ctx);
+          break;
+        case "attribute_gain":
+          this.playAttributeGain(ctx);
+          break;
+      }
+    } catch (e) {
+      console.error("Failed to play sound:", e);
+    }
+  }
+  /**
+   * Generates a noise-like sound for dice rolling.
+   */
+  playRoll(ctx) {
+    const duration = 0.5;
+    const bufferSize = ctx.sampleRate * duration;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 1e3;
+    const gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+    noise.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    noise.start();
+  }
+  /**
+   * Generates a strong, low-frequency sound (square wave).
+   */
+  playMighty(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(110, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  }
+  /**
+   * Generates a quick, high-pitched sweep (sawtooth).
+   */
+  playAcrobatics(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(1200, ctx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.1);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  }
+  /**
+   * Generates a modulating or wobbling sound (magic feel).
+   */
+  playMetamorph(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(440, ctx.currentTime);
+    const lfo = ctx.createOscillator();
+    lfo.type = "sine";
+    lfo.frequency.value = 15;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 50;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.1);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.6);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    lfo.start();
+    osc.stop(ctx.currentTime + 0.6);
+    lfo.stop(ctx.currentTime + 0.6);
+  }
+  /**
+   * Generates a short victory jingle (major chord arpeggio).
+   */
+  playWin(ctx) {
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    const duration = 0.15;
+    notes.forEach((freq, index) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.value = freq;
+      const startTime = now + index * 0.1;
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
+      gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    });
+  }
+  /**
+   * Generates a heavy, deep thud or descending tone.
+   */
+  playDungeonProgress(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(80, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
+    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  }
+  /**
+   * Generates a short, high-pitched "ding" or ascending tone.
+   */
+  playAttributeGain(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.2);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+  }
+};
+var soundManager = new SoundManager();
 function playSound(sound) {
+  soundManager.play(sound);
 }
 
 // src/main.ts
