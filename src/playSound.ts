@@ -239,24 +239,51 @@ class SoundManager {
   }
 
   /**
-   * Generates a "Game Over" style sound (descending slide).
+   * Generates a dramatic "Game Over" sound.
+   * Uses a dissonant tritone interval sliding down with a heavy low-pass filter
+   * to create a sense of doom and failure.
    */
   private playLose(ctx: AudioContext): void {
-    const osc = ctx.createOscillator();
+    const now = ctx.currentTime;
+    const duration = 2.0;
+
+    // Create two oscillators for a dissonant interval (Tritone: Devil's interval)
+    // Base note: C3 (approx 130Hz) and F#3 (approx 185Hz)
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
     const gainNode = ctx.createGain();
+    const filter = ctx.createBiquadFilter();
 
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(40, ctx.currentTime + 0.5);
+    // Oscillator 1: Main body (Sawtooth for grit)
+    osc1.type = 'sawtooth';
+    osc1.frequency.setValueAtTime(130.81, now); 
+    osc1.frequency.exponentialRampToValueAtTime(40, now + duration); // Deep slide down
 
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+    // Oscillator 2: Dissonance
+    osc2.type = 'sawtooth';
+    osc2.frequency.setValueAtTime(185.00, now); 
+    osc2.frequency.exponentialRampToValueAtTime(55, now + duration); // Slide down parallel
 
-    osc.connect(gainNode);
+    // Lowpass filter to darken the sound over time
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(800, now); // Start somewhat bright
+    filter.frequency.exponentialRampToValueAtTime(50, now + duration); // Close down to silence
+
+    // Volume Envelope
+    gainNode.gain.setValueAtTime(0.4, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+    // Connections
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(ctx.destination);
 
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
+    // Start and Stop
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + duration);
+    osc2.stop(now + duration);
   }
 
   /**
