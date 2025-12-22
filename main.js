@@ -603,7 +603,6 @@ var SoundManager = class {
   }
   /**
    * Lazily initializes the AudioContext.
-   * Browsers require a user interaction before an AudioContext can run.
    */
   getContext() {
     if (!this.audioContext) {
@@ -653,45 +652,58 @@ var SoundManager = class {
     }
   }
   /**
-   * Generates a noise-like sound for dice rolling.
-   * Refined to be lighter and crisper (shaking/clicking).
+   * Generates a sound like a die rolling on a ceramic surface.
+   * Uses high-frequency bandpass noise with multiple impacts.
    */
   playRoll(ctx) {
-    const duration = 0.2;
-    const bufferSize = ctx.sampleRate * duration;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = "highpass";
-    filter.frequency.value = 3e3;
-    const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-    noise.connect(filter);
-    filter.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    noise.start();
+    const playClick = (timeOffset, volume) => {
+      const duration = 0.05;
+      const bufferSize = ctx.sampleRate * duration;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.frequency.value = 2500 + Math.random() * 500;
+      filter.Q.value = 5;
+      const gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(volume, ctx.currentTime + timeOffset);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + timeOffset + duration);
+      noise.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      noise.start(ctx.currentTime + timeOffset);
+    };
+    playClick(0, 0.5);
+    playClick(0.06, 0.4);
+    playClick(0.13, 0.2);
   }
   /**
-   * Generates a strong, low-frequency sound (square wave).
+   * Generates a heroic, brass-like sound (Sawtooth wave).
+   * Positive and strong feel.
    */
   playMighty(ctx) {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    osc.type = "square";
-    osc.frequency.setValueAtTime(110, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.3);
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-    osc.connect(gainNode);
+    const filter = ctx.createBiquadFilter();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(130.81, ctx.currentTime);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(200, ctx.currentTime);
+    filter.frequency.exponentialRampToValueAtTime(3e3, ctx.currentTime + 0.1);
+    filter.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + 0.6);
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.4, ctx.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+    osc.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.3);
+    osc.stop(ctx.currentTime + 0.6);
   }
   /**
    * Generates a quick, high-pitched sweep (sawtooth).
@@ -773,21 +785,25 @@ var SoundManager = class {
     osc.stop(ctx.currentTime + 0.5);
   }
   /**
-   * Generates a heavy, deep thud or descending tone.
-   * Refined to be more audible.
+   * Generates a positive, ascending sound indicating forward movement.
+   * Replaces the heavy thud with a pleasant "step forward" chime.
    */
   playDungeonProgress(ctx) {
-    const osc = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-    osc.type = "square";
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.5);
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-    osc.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
+    const now = ctx.currentTime;
+    const notes = [440, 554.37];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, now + i * 0.1);
+      gainNode.gain.setValueAtTime(0, now + i * 0.1);
+      gainNode.gain.linearRampToValueAtTime(0.2, now + i * 0.1 + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(1e-3, now + i * 0.1 + 0.4);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start(now + i * 0.1);
+      osc.stop(now + i * 0.1 + 0.4);
+    });
   }
   /**
    * Generates a short, high-pitched "ding" or ascending tone.
