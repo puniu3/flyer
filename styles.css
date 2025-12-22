@@ -171,7 +171,8 @@ button {
   background-color: var(--primary-color);
   color: var(--on-primary);
   border: none;
-  padding: 10px 20px;
+  padding: 10px 0;  /* 左右パディングを削除し、幅固定に合わせる */
+  width: 300px;     /* ★ デスクトップで幅を300pxに固定 */
   border-radius: 4px;
   font-size: 1rem;
   font-weight: 500;
@@ -182,9 +183,6 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-button:hover {
-  background-color: var(--primary-variant);
-}
 
 button:active {
   transform: scale(0.96);
@@ -314,10 +312,6 @@ button:disabled {
   -webkit-tap-highlight-color: transparent;
 }
 
-.category-item.selectable:hover {
-  background-color: rgba(98, 0, 238, 0.1);
-}
-
 .category-item.checked {
   background-color: rgba(3, 218, 198, 0.2);
   color: var(--secondary-variant);
@@ -397,11 +391,16 @@ button:disabled {
     font-size: 1.2rem;
   }
 
+  .controls {
+    width: 100%;       /* コンテナを画面幅いっぱいに広げる */
+    padding: 0 20px;   /* 画面端との余白 */
+  }
+
   .controls button {
-    padding: 8px 0; /* 横パディングを0にして幅固定を優先 */
-    font-size: 0.9rem;
-    width: 100%;
-    max-width: 300px;
+    width: 100%;       /* ボタンをコンテナ幅いっぱいに */
+    max-width: none;   /* 300px制限を解除 */
+    padding: 12px 0;   /* タップしやすい高さに増やす */
+    font-size: 1rem;
   }
 
   /* モバイルで説明文を非表示 */
