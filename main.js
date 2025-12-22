@@ -591,6 +591,10 @@ var Renderer = class {
   }
 };
 
+// src/playSound.ts
+function playSound(sound) {
+}
+
 // src/main.ts
 var root = document.getElementById("fd-stage");
 var state = init();
@@ -602,18 +606,19 @@ function handleInput(action) {
   renderer.update(view);
 }
 function onRoll() {
-  handleInput({
-    type: "roll_dice",
-    indexesToReroll: [0, 1, 2, 3, 4]
-  });
+  onReroll([0, 1, 2, 3, 4]);
 }
 function onReroll(indexesToReroll) {
+  playSound("roll");
   handleInput({
     type: "roll_dice",
     indexesToReroll
   });
 }
 function onUseSkill(skillId, targetDieIndex) {
+  if (skillId === "skill_str_mighty") playSound("mighty");
+  if (skillId === "skill_dex_acrobatics") playSound("acrobatics");
+  if (skillId === "skill_int_metamorph") playSound("metamorph");
   handleInput({
     type: "use_skill",
     skillId,
@@ -621,6 +626,9 @@ function onUseSkill(skillId, targetDieIndex) {
   });
 }
 function onSelectCategory(categoryId) {
+  if (categoryId === "dungeon_floor_5") playSound("win");
+  else if (categoryId.startsWith("dungeon_")) playSound("dungeon_progress");
+  else playSound("attribute_gain");
   handleInput({
     type: "select_category",
     categoryId
