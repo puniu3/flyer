@@ -762,26 +762,43 @@ var SoundManager = class {
     lfo.stop(ctx.currentTime + 0.6);
   }
   /**
-   * Generates a short victory jingle (major chord arpeggio).
+   * Generates a majestic fanfare for a major victory.
+   * Simulates a brass section with a triumphant melody and sustained chord.
+   * Sequence: Rapid ascending arpeggio -> Sustained Grand Chord.
    */
   playWin(ctx) {
     const now = ctx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.5];
-    const duration = 0.15;
-    notes.forEach((freq, index) => {
+    const playBrass = (freq, t, dur, vol) => {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
-      osc.type = "triangle";
+      const filter = ctx.createBiquadFilter();
+      osc.type = "sawtooth";
       osc.frequency.value = freq;
-      const startTime = now + index * 0.1;
-      gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
-      gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
-      osc.connect(gainNode);
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(500, t);
+      filter.frequency.linearRampToValueAtTime(3e3, t + 0.1);
+      filter.frequency.linearRampToValueAtTime(1500, t + dur);
+      gainNode.gain.setValueAtTime(0, t);
+      gainNode.gain.linearRampToValueAtTime(vol, t + 0.05);
+      gainNode.gain.linearRampToValueAtTime(vol * 0.8, t + 0.2);
+      gainNode.gain.setValueAtTime(vol * 0.8, t + dur - 0.5);
+      gainNode.gain.exponentialRampToValueAtTime(1e-3, t + dur);
+      osc.connect(filter);
+      filter.connect(gainNode);
       gainNode.connect(ctx.destination);
-      osc.start(startTime);
-      osc.stop(startTime + duration);
-    });
+      osc.start(t);
+      osc.stop(t + dur + 0.1);
+    };
+    playBrass(261.63, now + 0, 0.3, 0.2);
+    playBrass(329.63, now + 0.15, 0.3, 0.2);
+    playBrass(392, now + 0.3, 0.3, 0.2);
+    playBrass(392, now + 0.45, 0.2, 0.2);
+    const chordStart = now + 0.65;
+    const chordDuration = 3.5;
+    playBrass(523.25, chordStart, chordDuration, 0.25);
+    playBrass(659.25, chordStart, chordDuration, 0.15);
+    playBrass(392, chordStart, chordDuration, 0.15);
+    playBrass(130.81, chordStart, chordDuration, 0.3);
   }
   /**
    * Generates a dramatic "Game Over" sound.
