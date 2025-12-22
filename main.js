@@ -769,20 +769,36 @@ var SoundManager = class {
     });
   }
   /**
-   * Generates a "Game Over" style sound (descending slide).
+   * Generates a dramatic "Game Over" sound.
+   * Uses a dissonant tritone interval sliding down with a heavy low-pass filter
+   * to create a sense of doom and failure.
    */
   playLose(ctx) {
-    const osc = ctx.createOscillator();
+    const now = ctx.currentTime;
+    const duration = 2;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.linearRampToValueAtTime(40, ctx.currentTime + 0.5);
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
-    osc.connect(gainNode);
+    const filter = ctx.createBiquadFilter();
+    osc1.type = "sawtooth";
+    osc1.frequency.setValueAtTime(130.81, now);
+    osc1.frequency.exponentialRampToValueAtTime(40, now + duration);
+    osc2.type = "sawtooth";
+    osc2.frequency.setValueAtTime(185, now);
+    osc2.frequency.exponentialRampToValueAtTime(55, now + duration);
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(800, now);
+    filter.frequency.exponentialRampToValueAtTime(50, now + duration);
+    gainNode.gain.setValueAtTime(0.4, now);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+    osc1.connect(filter);
+    osc2.connect(filter);
+    filter.connect(gainNode);
     gainNode.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + duration);
+    osc2.stop(now + duration);
   }
   /**
    * Generates a positive, ascending sound indicating forward movement.
