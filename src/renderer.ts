@@ -134,28 +134,22 @@ export class Renderer {
     const rollsLeft = view.rolls.max - view.rolls.current;
 
     if (view.dice.length === 0) {
-      rollButton.textContent = 'Roll Dice';
+      rollButton.textContent = 'ROLL DICE';
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
     } else {
-        // Reroll Logic: Roll UNHELD dice
-        rollButton.textContent = 'Roll';
-
         if (!view.rolls.canRoll) {
-             rollButton.textContent = 'No Rolls Left';
+             rollButton.textContent = 'NO ROLLS LEFT';
              rollButton.disabled = true;
         } else {
+             // Reroll Logic: Roll UNHELD dice
+             rollButton.textContent = `ROLL (${rollsLeft}/${view.rolls.max})`;
              const unheldIndices = view.dice.map((_, i) => i).filter(i => !this.selectedDiceIndices.has(i));
              rollButton.onclick = () => this.onReroll(unheldIndices);
         }
     }
 
     controls.appendChild(rollButton);
-
-    const rollInfo = document.createElement('div');
-    rollInfo.className = 'roll-info';
-    rollInfo.textContent = `Rolls left: ${rollsLeft} / ${view.rolls.max}`;
-    controls.appendChild(rollInfo);
 
     // Instructions
     const instruction = document.createElement('div');
@@ -176,6 +170,7 @@ export class Renderer {
     controls.appendChild(instruction);
 
     diceSection.appendChild(controls);
+
     mainContainer.appendChild(diceSection);
 
     // Skills Section

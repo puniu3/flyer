@@ -349,3 +349,155 @@ button:disabled {
   font-style: italic;
   margin-top: var(--spacing-unit);
 }
+
+@media (max-width: 768px) {
+  #fd-stage {
+    padding: 10px;
+    gap: 15px;
+  }
+
+  header {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  header h1 {
+    font-size: 1.2rem;
+    text-align: left;
+  }
+
+  .game-status {
+    font-size: 1rem;
+    padding: 4px 8px;
+    margin-top: 0;
+  }
+
+  .dice-section {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--background-color);
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    margin: 0 -10px;
+    width: calc(100% + 20px);
+  }
+
+  .dice-container {
+    padding-top: 10px;
+    gap: 10px;
+    min-height: auto;
+  }
+
+  .die {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .controls button {
+    padding: 8px 0; /* 横パディングを0にして幅固定を優先 */
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  /* モバイルで説明文を非表示 */
+  .instructions {
+    display: none;
+  }
+
+  .skills-section {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: 10px;
+    margin: 0 -10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .skills-section::-webkit-scrollbar {
+    display: none;
+  }
+
+  .skill-card {
+    min-width: 160px;
+    width: 160px;
+    flex-shrink: 0;
+    padding: 10px;
+  }
+  
+  .skill-name {
+    font-size: 1rem;
+  }
+  
+  .skill-desc {
+    font-size: 0.8rem;
+  }
+
+  .categories-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .category-group {
+    padding: 10px;
+  }
+
+  .category-group h3 {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+  }
+
+  .category-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 6px;
+  }
+  
+  .category-item.checked {
+    padding: 2px 4px;
+    min-height: 24px;
+    background-color: transparent;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .category-item.checked .category-name {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .category-item.checked .category-status {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .category-item.selectable {
+    padding: 12px 10px;
+    background-color: rgba(98, 0, 238, 0.08);
+    border-radius: 6px;
+  }
+  
+  .category-item.selectable .category-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .category-item.selectable .category-status {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+}
