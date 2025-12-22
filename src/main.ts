@@ -27,10 +27,10 @@ function onReroll(indexesToReroll: number[]): void {
 }
 
 function onUseSkill(skillId: SkillId, targetDieIndex: number): void {
-  if(skillId === 'skill_str_mighty')      playSound('mighty');
-  if(skillId === 'skill_dex_acrobatics')  playSound('acrobatics');
-  if(skillId === 'skill_int_metamorph')   playSound('metamorph');
-  
+  if (skillId === 'skill_str_mighty') playSound('mighty');
+  if (skillId === 'skill_dex_acrobatics') playSound('acrobatics');
+  if (skillId === 'skill_int_metamorph') playSound('metamorph');
+
   handleInput({
     type: "use_skill",
     skillId,
@@ -39,15 +39,20 @@ function onUseSkill(skillId: SkillId, targetDieIndex: number): void {
 }
 
 function onSelectCategory(categoryId: CategoryId): void {
-  if(categoryId === 'dungeon_floor_5')        playSound('win');
-  else if(categoryId.startsWith('dungeon_'))  playSound('dungeon_progress');
-  else                                        playSound('attribute_gain');
-  
+  if (categoryId === 'dungeon_floor_5') playSound('win');
+  else if (categoryId.startsWith('dungeon_')) playSound('dungeon_progress');
+  else playSound('attribute_gain');
+
   handleInput({
     type: "select_category",
     categoryId
   });
 }
 
-function onGameOver(): void {playSound('lose');}
-function onHold(): void {playSound('hold');}
+function onGameOver(): void {
+  playSound('lose');
+}
+
+function onHold(): void {
+  playSound('hold');
+}

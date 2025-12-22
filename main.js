@@ -149,6 +149,15 @@ function getSkillGroup(skillId) {
   if (skillId.includes("int")) return "int";
   return "str";
 }
+function applySkillEffect(skillId, dieValue) {
+  if (skillId === "skill_str_mighty") {
+    return 6;
+  } else if (skillId === "skill_dex_acrobatics") {
+    return Math.max(1, dieValue - 1);
+  } else {
+    return 7 - dieValue;
+  }
+}
 function countCheckedByGroup(categories) {
   const counts = { dungeon: 0, str: 0, dex: 0, int: 0 };
   for (const id of ALL_CATEGORY_IDS) {
@@ -229,14 +238,7 @@ function canReachValidState(dice, availableSkills, categories) {
     remainingSkills.splice(i, 1);
     for (let dieIndex = 0; dieIndex < dice.length; dieIndex++) {
       const currentVal = dice[dieIndex];
-      let newVal = currentVal;
-      if (skillId === "skill_str_mighty") {
-        newVal = 6;
-      } else if (skillId === "skill_dex_acrobatics") {
-        newVal = Math.max(1, currentVal - 1);
-      } else if (skillId === "skill_int_metamorph") {
-        newVal = 7 - currentVal;
-      }
+      const newVal = applySkillEffect(skillId, currentVal);
       if (newVal === currentVal) continue;
       const nextDice = [...dice];
       nextDice[dieIndex] = newVal;
@@ -297,14 +299,7 @@ function handleUseSkill(state2, action) {
     return state2;
   }
   const currentVal = state2.dice[targetDieIndex];
-  let newVal;
-  if (skillId === "skill_str_mighty") {
-    newVal = 6;
-  } else if (skillId === "skill_dex_acrobatics") {
-    newVal = Math.max(1, currentVal - 1);
-  } else {
-    newVal = 7 - currentVal;
-  }
+  const newVal = applySkillEffect(skillId, currentVal);
   const newDice = [...state2.dice];
   newDice[targetDieIndex] = newVal;
   const nextState = {

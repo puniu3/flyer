@@ -207,6 +207,17 @@ function getSkillGroup(skillId: SkillId): CategoryGroup {
   return 'str';
 }
 
+function applySkillEffect(skillId: SkillId, dieValue: DieValue): DieValue {
+  if (skillId === 'skill_str_mighty') {
+    return 6;
+  } else if (skillId === 'skill_dex_acrobatics') {
+    return Math.max(1, dieValue - 1) as DieValue;
+  } else {
+    // skill_int_metamorph
+    return (7 - dieValue) as DieValue;
+  }
+}
+
 function countCheckedByGroup(categories: Record<CategoryId, boolean>): Record<CategoryGroup, number> {
   const counts: Record<CategoryGroup, number> = { dungeon: 0, str: 0, dex: 0, int: 0 };
   for (const id of ALL_CATEGORY_IDS) {
@@ -323,22 +334,13 @@ function canReachValidState(
     // Try applying this skill to every die (index 0 to 4)
     for (let dieIndex = 0; dieIndex < dice.length; dieIndex++) {
       const currentVal = dice[dieIndex];
-      let newVal: number = currentVal;
-
-      // Apply skill logic (duplicated from handleUseSkill for simulation)
-      if (skillId === 'skill_str_mighty') {
-        newVal = 6;
-      } else if (skillId === 'skill_dex_acrobatics') {
-        newVal = Math.max(1, currentVal - 1);
-      } else if (skillId === 'skill_int_metamorph') {
-        newVal = 7 - currentVal;
-      }
+      const newVal = applySkillEffect(skillId, currentVal);
 
       // Optimization: If the die value didn't change (e.g. Mighty on a 6), skip this branch
       if (newVal === currentVal) continue;
 
       const nextDice = [...dice];
-      nextDice[dieIndex] = newVal as DieValue;
+      nextDice[dieIndex] = newVal;
 
       // Recurse
       if (canReachValidState(nextDice, remainingSkills, categories)) {
@@ -421,15 +423,7 @@ function handleUseSkill(state: GameState, action: UseSkillAction): GameState {
   }
 
   const currentVal = state.dice[targetDieIndex];
-  let newVal: DieValue;
-
-  if (skillId === 'skill_str_mighty') {
-    newVal = 6;
-  } else if (skillId === 'skill_dex_acrobatics') {
-    newVal = Math.max(1, currentVal - 1) as DieValue;
-  } else {
-    newVal = (7 - currentVal) as DieValue;
-  }
+  const newVal = applySkillEffect(skillId, currentVal);
 
   const newDice = [...state.dice];
   newDice[targetDieIndex] = newVal;
