@@ -2,7 +2,7 @@ import { init, step, getView } from './rules';
 import { Renderer } from './renderer';
 import { GameState, PlayerAction, CategoryId, SkillId } from './types';
 
-const root = document.getElementById('fd-stage');
+const root = document.getElementById('fd-stage')!;
 let state: GameState = init();
 const renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory);
 renderer.update(getView(state));
