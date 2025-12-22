@@ -324,6 +324,8 @@ function step(state2, action) {
 // src/renderer.ts
 var Renderer = class {
   constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2) {
+    this.selectedDiceIndices = /* @__PURE__ */ new Set();
+    this.selectedSkillId = null;
     this.root = root2;
     this.onRoll = onRoll2;
     this.onReroll = onReroll2;
@@ -331,7 +333,180 @@ var Renderer = class {
     this.onSelectCategory = onSelectCategory2;
   }
   update(view) {
-    if (!this.root) return;
+    this.selectedDiceIndices.clear();
+    this.selectedSkillId = null;
+    this.render(view);
+  }
+  render(view) {
+    this.root.innerHTML = "";
+    const header = document.createElement("header");
+    header.innerHTML = `<h1>Flyer Dungeon</h1>`;
+    this.root.appendChild(header);
+    const statusDiv = document.createElement("div");
+    statusDiv.className = `game-status status-${view.gameStatus}`;
+    let statusText = "Playing";
+    if (view.gameStatus === "won") statusText = "You Won! \u{1F389}";
+    if (view.gameStatus === "lost") statusText = "Game Over \u{1F480}";
+    statusDiv.textContent = statusText;
+    this.root.appendChild(statusDiv);
+    const mainContainer = document.createElement("div");
+    mainContainer.style.display = "flex";
+    mainContainer.style.flexDirection = "column";
+    mainContainer.style.gap = "20px";
+    const diceSection = document.createElement("div");
+    diceSection.className = "dice-section";
+    const diceContainer = document.createElement("div");
+    diceContainer.className = "dice-container";
+    if (view.dice.length > 0) {
+      view.dice.forEach((value, index) => {
+        const die = document.createElement("div");
+        die.className = "die";
+        die.textContent = value.toString();
+        if (this.selectedDiceIndices.has(index)) {
+          die.classList.add("selected");
+        }
+        if (this.selectedSkillId) {
+          die.classList.add("target-mode");
+        }
+        die.onclick = () => this.handleDieClick(index, view);
+        diceContainer.appendChild(die);
+      });
+    } else {
+      const msg = document.createElement("div");
+      msg.textContent = "Roll the dice to start!";
+      diceContainer.appendChild(msg);
+    }
+    diceSection.appendChild(diceContainer);
+    const controls = document.createElement("div");
+    controls.className = "controls";
+    const rollButton = document.createElement("button");
+    const rollsLeft = view.rolls.max - view.rolls.current;
+    if (view.dice.length === 0) {
+      rollButton.textContent = "Roll Dice";
+      rollButton.disabled = !view.rolls.canRoll;
+      rollButton.onclick = () => this.onRoll();
+    } else {
+      if (this.selectedDiceIndices.size > 0) {
+        rollButton.textContent = `Reroll Selected (${this.selectedDiceIndices.size})`;
+        rollButton.onclick = () => this.onReroll(Array.from(this.selectedDiceIndices));
+      } else {
+        rollButton.textContent = "Select Dice to Reroll";
+        rollButton.disabled = true;
+      }
+      if (!view.rolls.canRoll) {
+        rollButton.textContent = "No Rolls Left";
+        rollButton.disabled = true;
+      }
+    }
+    controls.appendChild(rollButton);
+    const rollInfo = document.createElement("div");
+    rollInfo.className = "roll-info";
+    rollInfo.textContent = `Rolls left: ${rollsLeft} / ${view.rolls.max}`;
+    controls.appendChild(rollInfo);
+    const instruction = document.createElement("div");
+    instruction.className = "instructions";
+    if (this.selectedSkillId) {
+      instruction.textContent = `Select a die to apply ${view.skills[this.selectedSkillId].name}`;
+      instruction.style.color = "var(--secondary-variant)";
+      instruction.style.fontWeight = "bold";
+    } else if (view.gameStatus === "playing") {
+      if (view.dice.length === 0) {
+        instruction.textContent = "Start your turn by rolling the dice.";
+      } else if (view.rolls.canRoll) {
+        instruction.textContent = "Select dice to reroll or choose a category/skill.";
+      } else {
+        instruction.textContent = "Choose a category to score.";
+      }
+    }
+    controls.appendChild(instruction);
+    diceSection.appendChild(controls);
+    mainContainer.appendChild(diceSection);
+    const skillsSection = document.createElement("div");
+    skillsSection.className = "skills-section";
+    Object.values(view.skills).forEach((skill) => {
+      const card = document.createElement("div");
+      card.className = `skill-card group-${this.getSkillGroupClass(skill.id)} ${skill.status}`;
+      if (this.selectedSkillId === skill.id) {
+        card.classList.add("selected");
+      }
+      const name = document.createElement("div");
+      name.className = "skill-name";
+      name.textContent = skill.name;
+      const desc = document.createElement("div");
+      desc.className = "skill-desc";
+      desc.textContent = skill.effectDescription;
+      card.appendChild(name);
+      card.appendChild(desc);
+      if (skill.status === "available") {
+        card.onclick = () => this.handleSkillClick(skill.id, view);
+      }
+      skillsSection.appendChild(card);
+    });
+    mainContainer.appendChild(skillsSection);
+    const categoriesSection = document.createElement("div");
+    categoriesSection.className = "categories-container";
+    const groups = ["dungeon", "str", "dex", "int"];
+    groups.forEach((group) => {
+      const groupDiv = document.createElement("div");
+      groupDiv.className = "category-group";
+      const title = document.createElement("h3");
+      title.textContent = group === "dungeon" ? "Dungeon Floor" : `${group.toUpperCase()} Check`;
+      groupDiv.appendChild(title);
+      view.categories.filter((c) => c.group === group).forEach((cat) => {
+        const item = document.createElement("div");
+        item.className = "category-item";
+        if (cat.isChecked) item.classList.add("checked");
+        if (cat.isSelectable) {
+          item.classList.add("selectable");
+          item.onclick = () => this.onSelectCategory(cat.id);
+        }
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "category-name";
+        nameSpan.textContent = this.formatCategoryName(cat.id);
+        const statusSpan = document.createElement("span");
+        statusSpan.className = "category-status";
+        statusSpan.innerHTML = cat.isChecked ? "&#10003;" : cat.isSelectable ? "&#9675;" : "";
+        item.appendChild(nameSpan);
+        item.appendChild(statusSpan);
+        groupDiv.appendChild(item);
+      });
+      categoriesSection.appendChild(groupDiv);
+    });
+    mainContainer.appendChild(categoriesSection);
+    this.root.appendChild(mainContainer);
+  }
+  // Internal interaction handlers (re-render without full update to show selection state)
+  handleDieClick(index, view) {
+    if (view.gameStatus !== "playing") return;
+    if (this.selectedSkillId) {
+      this.onUseSkill(this.selectedSkillId, index);
+    } else {
+      if (this.selectedDiceIndices.has(index)) {
+        this.selectedDiceIndices.delete(index);
+      } else {
+        this.selectedDiceIndices.add(index);
+      }
+      this.render(view);
+    }
+  }
+  handleSkillClick(skillId, view) {
+    if (this.selectedSkillId === skillId) {
+      this.selectedSkillId = null;
+    } else {
+      this.selectedSkillId = skillId;
+      this.selectedDiceIndices.clear();
+    }
+    this.render(view);
+  }
+  // Helpers
+  getSkillGroupClass(id) {
+    if (id.includes("str")) return "str";
+    if (id.includes("dex")) return "dex";
+    if (id.includes("int")) return "int";
+    return "str";
+  }
+  formatCategoryName(id) {
+    return id.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()).replace("Str ", "").replace("Dex ", "").replace("Int ", "").replace("Dungeon Floor ", "Floor ");
   }
 };
 
