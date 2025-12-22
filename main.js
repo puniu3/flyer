@@ -361,6 +361,7 @@ function step(state2, action) {
 // src/renderer.ts
 var Renderer = class {
   constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2) {
+    // selectedDiceIndices now represents "Held" dice
     this.selectedDiceIndices = /* @__PURE__ */ new Set();
     this.selectedSkillId = null;
     this.root = root2;
@@ -379,13 +380,15 @@ var Renderer = class {
     const header = document.createElement("header");
     header.innerHTML = `<h1>Flyer Dungeon</h1>`;
     this.root.appendChild(header);
-    const statusDiv = document.createElement("div");
-    statusDiv.className = `game-status status-${view.gameStatus}`;
-    let statusText = "Playing";
-    if (view.gameStatus === "won") statusText = "You Won! \u{1F389}";
-    if (view.gameStatus === "lost") statusText = "Game Over \u{1F480}";
-    statusDiv.textContent = statusText;
-    this.root.appendChild(statusDiv);
+    if (view.gameStatus !== "playing") {
+      const statusDiv = document.createElement("div");
+      statusDiv.className = `game-status status-${view.gameStatus}`;
+      let statusText = "";
+      if (view.gameStatus === "won") statusText = "You Won! \u{1F389}";
+      if (view.gameStatus === "lost") statusText = "Game Over \u{1F480}";
+      statusDiv.textContent = statusText;
+      this.root.appendChild(statusDiv);
+    }
     const mainContainer = document.createElement("div");
     mainContainer.style.display = "flex";
     mainContainer.style.flexDirection = "column";
@@ -396,17 +399,24 @@ var Renderer = class {
     diceContainer.className = "dice-container";
     if (view.dice.length > 0) {
       view.dice.forEach((value, index) => {
+        const dieWrapper = document.createElement("div");
+        dieWrapper.className = "die-wrapper";
         const die = document.createElement("div");
         die.className = "die";
         die.textContent = value.toString();
         if (this.selectedDiceIndices.has(index)) {
           die.classList.add("selected");
+          const label = document.createElement("div");
+          label.className = "held-label";
+          label.textContent = "HELD";
+          die.appendChild(label);
         }
         if (this.selectedSkillId) {
           die.classList.add("target-mode");
         }
         die.onclick = () => this.handleDieClick(index, view);
-        diceContainer.appendChild(die);
+        dieWrapper.appendChild(die);
+        diceContainer.appendChild(dieWrapper);
       });
     } else {
       const msg = document.createElement("div");
@@ -423,16 +433,13 @@ var Renderer = class {
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
     } else {
-      if (this.selectedDiceIndices.size > 0) {
-        rollButton.textContent = `Reroll Selected (${this.selectedDiceIndices.size})`;
-        rollButton.onclick = () => this.onReroll(Array.from(this.selectedDiceIndices));
-      } else {
-        rollButton.textContent = "Select Dice to Reroll";
-        rollButton.disabled = true;
-      }
+      rollButton.textContent = "Roll";
       if (!view.rolls.canRoll) {
         rollButton.textContent = "No Rolls Left";
         rollButton.disabled = true;
+      } else {
+        const unheldIndices = view.dice.map((_, i) => i).filter((i) => !this.selectedDiceIndices.has(i));
+        rollButton.onclick = () => this.onReroll(unheldIndices);
       }
     }
     controls.appendChild(rollButton);
@@ -450,7 +457,7 @@ var Renderer = class {
       if (view.dice.length === 0) {
         instruction.textContent = "Start your turn by rolling the dice.";
       } else if (view.rolls.canRoll) {
-        instruction.textContent = "Select dice to reroll or choose a category/skill.";
+        instruction.textContent = "Click dice to Hold, then Roll again. Or choose a category/skill.";
       } else {
         instruction.textContent = "Choose a category to score.";
       }
@@ -460,6 +467,12 @@ var Renderer = class {
     mainContainer.appendChild(diceSection);
     const skillsSection = document.createElement("div");
     skillsSection.className = "skills-section";
+    const counts = { dungeon: 0, str: 0, dex: 0, int: 0 };
+    view.categories.forEach((c) => {
+      if (c.isChecked) {
+        counts[c.group]++;
+      }
+    });
     Object.values(view.skills).forEach((skill) => {
       const card = document.createElement("div");
       card.className = `skill-card group-${this.getSkillGroupClass(skill.id)} ${skill.status}`;
@@ -474,6 +487,16 @@ var Renderer = class {
       desc.textContent = skill.effectDescription;
       card.appendChild(name);
       card.appendChild(desc);
+      if (skill.status === "locked") {
+        const group = this.getSkillGroupClass(skill.id);
+        if (group !== "dungeon") {
+          const current = counts[group] || 0;
+          const progressDiv = document.createElement("div");
+          progressDiv.className = "skill-progress";
+          progressDiv.textContent = `Unlock: ${current}/3`;
+          card.appendChild(progressDiv);
+        }
+      }
       if (skill.status === "available") {
         card.onclick = () => this.handleSkillClick(skill.id, view);
       }
@@ -512,7 +535,7 @@ var Renderer = class {
     mainContainer.appendChild(categoriesSection);
     this.root.appendChild(mainContainer);
   }
-  // Internal interaction handlers (re-render without full update to show selection state)
+  // Internal interaction handlers
   handleDieClick(index, view) {
     if (view.gameStatus !== "playing") return;
     if (this.selectedSkillId) {
@@ -543,6 +566,14 @@ var Renderer = class {
     return "str";
   }
   formatCategoryName(id) {
+    const mapping = {
+      "dungeon_floor_1": "Floor 1 (Sum 20+)",
+      "dungeon_floor_2": "Floor 2 (Sum 24+)",
+      "dungeon_floor_3": "Floor 3 (Sum 26+)",
+      "dungeon_floor_4": "Floor 4 (Sum \u2264 9)",
+      "dungeon_floor_5": "Floor 5 (Yahtzee)"
+    };
+    if (mapping[id]) return mapping[id];
     return id.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()).replace("Str ", "").replace("Dex ", "").replace("Int ", "").replace("Dungeon Floor ", "Floor ");
   }
 };

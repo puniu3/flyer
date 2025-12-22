@@ -7,6 +7,7 @@ export class Renderer {
   private onUseSkill: (skillId: SkillId, targetDieIndex: number) => void;
   private onSelectCategory: (categoryId: CategoryId) => void;
 
+  // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
   private selectedSkillId: SkillId | null = null;
 
@@ -25,10 +26,7 @@ export class Renderer {
   }
 
   update(view: GameView): void {
-    // Reset selections on update (assuming a new state usually means we start fresh interaction-wise)
-    // However, if we just toggled a selection locally, we wouldn't call update.
-    // We only call update from main.ts when state changes.
-    // So yes, resetting here is correct.
+    // Reset selections on update
     this.selectedDiceIndices.clear();
     this.selectedSkillId = null;
 
@@ -43,16 +41,18 @@ export class Renderer {
     header.innerHTML = `<h1>Flyer Dungeon</h1>`;
     this.root.appendChild(header);
 
-    // Game Status
-    const statusDiv = document.createElement('div');
-    statusDiv.className = `game-status status-${view.gameStatus}`;
-    let statusText = 'Playing';
-    if (view.gameStatus === 'won') statusText = 'You Won! 🎉';
-    if (view.gameStatus === 'lost') statusText = 'Game Over 💀';
-    statusDiv.textContent = statusText;
-    this.root.appendChild(statusDiv);
+    // Game Status (Removed "Playing" status)
+    if (view.gameStatus !== 'playing') {
+        const statusDiv = document.createElement('div');
+        statusDiv.className = `game-status status-${view.gameStatus}`;
+        let statusText = '';
+        if (view.gameStatus === 'won') statusText = 'You Won! 🎉';
+        if (view.gameStatus === 'lost') statusText = 'Game Over 💀';
+        statusDiv.textContent = statusText;
+        this.root.appendChild(statusDiv);
+    }
 
-    // Main Game Area (only if playing or just finished)
+    // Main Game Area
     const mainContainer = document.createElement('div');
     mainContainer.style.display = 'flex';
     mainContainer.style.flexDirection = 'column';
@@ -68,20 +68,31 @@ export class Renderer {
 
     if (view.dice.length > 0) {
       view.dice.forEach((value, index) => {
+        const dieWrapper = document.createElement('div');
+        dieWrapper.className = 'die-wrapper';
+
         const die = document.createElement('div');
         die.className = 'die';
         die.textContent = value.toString();
 
         // Handle visual state
+        // If selected, it is HELD
         if (this.selectedDiceIndices.has(index)) {
           die.classList.add('selected');
+
+          const label = document.createElement('div');
+          label.className = 'held-label';
+          label.textContent = 'HELD';
+          die.appendChild(label);
         }
+
         if (this.selectedSkillId) {
           die.classList.add('target-mode');
         }
 
         die.onclick = () => this.handleDieClick(index, view);
-        diceContainer.appendChild(die);
+        dieWrapper.appendChild(die);
+        diceContainer.appendChild(dieWrapper);
       });
     } else {
       const msg = document.createElement('div');
@@ -102,25 +113,15 @@ export class Renderer {
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
     } else {
-        // If dice exist
-        if (this.selectedDiceIndices.size > 0) {
-            rollButton.textContent = `Reroll Selected (${this.selectedDiceIndices.size})`;
-            rollButton.onclick = () => this.onReroll(Array.from(this.selectedDiceIndices));
-        } else {
-            // Nothing selected
-             rollButton.textContent = 'Select Dice to Reroll';
-             // If we want to allow rerolling 0 dice (skip roll?), probably not useful but the rules don't strictly forbid passing empty list (which wastes a roll).
-             // But usually you must reroll at least one.
-             // Let's keep it clickable but maybe warn or just act as 'pass'?
-             // Actually, usually in these games if you don't select anything, you can't reroll.
-             // But let's check view.rolls.canRoll
-             rollButton.disabled = true;
-        }
+        // Reroll Logic: Roll UNHELD dice
+        rollButton.textContent = 'Roll';
 
-        // If we can't roll anymore
         if (!view.rolls.canRoll) {
              rollButton.textContent = 'No Rolls Left';
              rollButton.disabled = true;
+        } else {
+             const unheldIndices = view.dice.map((_, i) => i).filter(i => !this.selectedDiceIndices.has(i));
+             rollButton.onclick = () => this.onReroll(unheldIndices);
         }
     }
 
@@ -142,7 +143,7 @@ export class Renderer {
         if (view.dice.length === 0) {
              instruction.textContent = "Start your turn by rolling the dice.";
         } else if (view.rolls.canRoll) {
-             instruction.textContent = "Select dice to reroll or choose a category/skill.";
+             instruction.textContent = "Click dice to Hold, then Roll again. Or choose a category/skill.";
         } else {
              instruction.textContent = "Choose a category to score.";
         }
@@ -155,6 +156,14 @@ export class Renderer {
     // Skills Section
     const skillsSection = document.createElement('div');
     skillsSection.className = 'skills-section';
+
+    // Calculate group counts for unlock progress
+    const counts: Record<CategoryGroup, number> = { dungeon: 0, str: 0, dex: 0, int: 0 };
+    view.categories.forEach(c => {
+        if (c.isChecked) {
+            counts[c.group]++;
+        }
+    });
 
     Object.values(view.skills).forEach(skill => {
         const card = document.createElement('div');
@@ -173,6 +182,20 @@ export class Renderer {
 
         card.appendChild(name);
         card.appendChild(desc);
+
+        // Show progress if locked
+        if (skill.status === 'locked') {
+            const group = this.getSkillGroupClass(skill.id);
+            // Note: getSkillGroupClass returns 'str'/'dex'/'int' which matches CategoryGroup keys (except 'dungeon')
+            // Using type assertion or check
+            if (group !== 'dungeon') { // Should always be true for skills
+                const current = counts[group as CategoryGroup] || 0;
+                const progressDiv = document.createElement('div');
+                progressDiv.className = 'skill-progress';
+                progressDiv.textContent = `Unlock: ${current}/3`;
+                card.appendChild(progressDiv);
+            }
+        }
 
         if (skill.status === 'available') {
             card.onclick = () => this.handleSkillClick(skill.id, view);
@@ -225,7 +248,7 @@ export class Renderer {
     this.root.appendChild(mainContainer);
   }
 
-  // Internal interaction handlers (re-render without full update to show selection state)
+  // Internal interaction handlers
 
   private handleDieClick(index: number, view: GameView) {
       if (view.gameStatus !== 'playing') return;
@@ -233,15 +256,13 @@ export class Renderer {
       if (this.selectedSkillId) {
           // Confirm skill use
           this.onUseSkill(this.selectedSkillId, index);
-          // Selection will be cleared in next update
       } else {
-          // Toggle reroll selection
+          // Toggle HOLD selection
           if (this.selectedDiceIndices.has(index)) {
               this.selectedDiceIndices.delete(index);
           } else {
               this.selectedDiceIndices.add(index);
           }
-          // Re-render locally to show selection (this doesn't change game state)
           this.render(view);
       }
   }
@@ -252,7 +273,7 @@ export class Renderer {
           this.selectedSkillId = null;
       } else {
           this.selectedSkillId = skillId;
-          this.selectedDiceIndices.clear(); // Clear dice selection if switching to skill mode
+          this.selectedDiceIndices.clear(); // Clear held dice if switching to skill mode
       }
       this.render(view);
   }
@@ -267,7 +288,16 @@ export class Renderer {
   }
 
   private formatCategoryName(id: CategoryId): string {
-      // Basic formatting to make IDs readable
+      const mapping: Record<string, string> = {
+          'dungeon_floor_1': 'Floor 1 (Sum 20+)',
+          'dungeon_floor_2': 'Floor 2 (Sum 24+)',
+          'dungeon_floor_3': 'Floor 3 (Sum 26+)',
+          'dungeon_floor_4': 'Floor 4 (Sum ≤ 9)',
+          'dungeon_floor_5': 'Floor 5 (Yahtzee)',
+      };
+
+      if (mapping[id]) return mapping[id];
+
       return id
         .replace(/_/g, ' ')
         .replace(/\b\w/g, l => l.toUpperCase())
