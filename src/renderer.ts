@@ -56,6 +56,7 @@ export class Renderer {
     if (view.gameStatus !== 'playing') {
         const statusDiv = document.createElement('div');
         statusDiv.className = `game-status status-${view.gameStatus}`;
+        
         let statusText = '';
         if (view.gameStatus === 'won') statusText = 'You Won! 🎉';
         if (view.gameStatus === 'lost'){
@@ -64,6 +65,16 @@ export class Renderer {
         }
         statusDiv.textContent = statusText;
         this.root.appendChild(statusDiv);
+
+        statusDiv.animate([
+            { opacity: 0, transform: 'scale(0.5) translateY(-50px)' },
+            { opacity: 1, transform: 'scale(1.05) translateY(10px)', offset: 0.6 },
+            { opacity: 1, transform: 'scale(1) translateY(0)' }
+        ], {
+            duration: 600,
+            easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+            fill: 'forwards'
+        });
     }
 
     // Main Game Area
