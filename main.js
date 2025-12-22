@@ -360,7 +360,7 @@ function step(state2, action) {
 
 // src/renderer.ts
 var Renderer = class {
-  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2) {
+  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2) {
     // selectedDiceIndices now represents "Held" dice
     this.selectedDiceIndices = /* @__PURE__ */ new Set();
     this.selectedSkillId = null;
@@ -370,6 +370,7 @@ var Renderer = class {
     this.onReroll = onReroll2;
     this.onUseSkill = onUseSkill2;
     this.onSelectCategory = onSelectCategory2;
+    this.onGameOver = onGameOver2;
   }
   update(view) {
     if (view.dice.length === 0 || view.gameStatus !== "playing") {
@@ -388,7 +389,10 @@ var Renderer = class {
       statusDiv.className = `game-status status-${view.gameStatus}`;
       let statusText = "";
       if (view.gameStatus === "won") statusText = "You Won! \u{1F389}";
-      if (view.gameStatus === "lost") statusText = "Game Over \u{1F480}";
+      if (view.gameStatus === "lost") {
+        statusText = "Game Over \u{1F480}";
+        this.onGameOver();
+      }
       statusDiv.textContent = statusText;
       this.root.appendChild(statusDiv);
     }
@@ -634,6 +638,9 @@ var SoundManager = class {
         case "win":
           this.playWin(ctx);
           break;
+        case "lose":
+          this.playLose(ctx);
+          break;
         case "dungeon_progress":
           this.playDungeonProgress(ctx);
           break;
@@ -647,9 +654,10 @@ var SoundManager = class {
   }
   /**
    * Generates a noise-like sound for dice rolling.
+   * Refined to be lighter and crisper (shaking/clicking).
    */
   playRoll(ctx) {
-    const duration = 0.5;
+    const duration = 0.2;
     const bufferSize = ctx.sampleRate * duration;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -659,10 +667,10 @@ var SoundManager = class {
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
     const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 1e3;
+    filter.type = "highpass";
+    filter.frequency.value = 3e3;
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
     noise.connect(filter);
     filter.connect(gainNode);
@@ -749,20 +757,37 @@ var SoundManager = class {
     });
   }
   /**
+   * Generates a "Game Over" style sound (descending slide).
+   */
+  playLose(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, ctx.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  }
+  /**
    * Generates a heavy, deep thud or descending tone.
+   * Refined to be more audible.
    */
   playDungeonProgress(ctx) {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(80, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
-    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.type = "square";
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
     osc.start();
-    osc.stop(ctx.currentTime + 0.4);
+    osc.stop(ctx.currentTime + 0.5);
   }
   /**
    * Generates a short, high-pitched "ding" or ascending tone.
@@ -789,7 +814,7 @@ function playSound(sound) {
 // src/main.ts
 var root = document.getElementById("fd-stage");
 var state = init();
-var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory);
+var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver);
 renderer.update(getView(state));
 function handleInput(action) {
   state = step(state, action);
@@ -824,4 +849,7 @@ function onSelectCategory(categoryId) {
     type: "select_category",
     categoryId
   });
+}
+function onGameOver() {
+  playSound("lose");
 }
