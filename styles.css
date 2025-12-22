@@ -117,6 +117,11 @@ h1 {
   transition: all 0.2s;
   user-select: none;
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.die:active {
+  transform: scale(0.92);
 }
 
 .die.selected {
@@ -173,11 +178,16 @@ button {
   text-transform: uppercase;
   cursor: pointer;
   box-shadow: var(--shadow-1);
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:hover {
   background-color: var(--primary-variant);
+}
+
+button:active {
+  transform: scale(0.96);
 }
 
 button:disabled {
@@ -220,6 +230,11 @@ button:disabled {
   border-left: 5px solid #ccc;
   cursor: pointer;
   transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.skill-card:active {
+  transform: scale(0.98);
 }
 
 .skill-card.available {
@@ -296,6 +311,7 @@ button:disabled {
 .category-item.selectable {
   cursor: pointer;
   background-color: rgba(98, 0, 238, 0.05);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .category-item.selectable:hover {
@@ -306,6 +322,16 @@ button:disabled {
   background-color: rgba(3, 218, 198, 0.2);
   color: var(--secondary-variant);
   font-weight: bold;
+}
+
+.category-item.check-success {
+  animation: success-flash 1s ease-out;
+}
+
+@keyframes success-flash {
+  0% { background-color: var(--secondary-color); transform: scale(1.02); }
+  50% { background-color: rgba(3, 218, 198, 0.5); }
+  100% { background-color: rgba(3, 218, 198, 0.2); transform: scale(1); }
 }
 
 .category-name {

@@ -364,6 +364,7 @@ var Renderer = class {
     // selectedDiceIndices now represents "Held" dice
     this.selectedDiceIndices = /* @__PURE__ */ new Set();
     this.selectedSkillId = null;
+    this.recentlyCheckedCategories = /* @__PURE__ */ new Set();
     this.root = root2;
     this.onRoll = onRoll2;
     this.onReroll = onReroll2;
@@ -371,7 +372,9 @@ var Renderer = class {
     this.onSelectCategory = onSelectCategory2;
   }
   update(view) {
-    this.selectedDiceIndices.clear();
+    if (view.dice.length === 0 || view.gameStatus !== "playing") {
+      this.selectedDiceIndices.clear();
+    }
     this.selectedSkillId = null;
     this.render(view);
   }
@@ -515,7 +518,17 @@ var Renderer = class {
       view.categories.filter((c) => c.group === group).forEach((cat) => {
         const item = document.createElement("div");
         item.className = "category-item";
-        if (cat.isChecked) item.classList.add("checked");
+        if (cat.isChecked) {
+          item.classList.add("checked");
+          if (!this.recentlyCheckedCategories.has(cat.id)) {
+            item.classList.add("check-success");
+            this.recentlyCheckedCategories.add(cat.id);
+          }
+        } else {
+          if (this.recentlyCheckedCategories.has(cat.id)) {
+            this.recentlyCheckedCategories.delete(cat.id);
+          }
+        }
         if (cat.isSelectable) {
           item.classList.add("selectable");
           item.onclick = () => this.onSelectCategory(cat.id);

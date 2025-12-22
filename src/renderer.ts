@@ -10,6 +10,7 @@ export class Renderer {
   // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
   private selectedSkillId: SkillId | null = null;
+  private recentlyCheckedCategories: Set<CategoryId> = new Set();
 
   constructor(
     root: HTMLElement,
@@ -26,8 +27,12 @@ export class Renderer {
   }
 
   update(view: GameView): void {
-    // Reset selections on update
-    this.selectedDiceIndices.clear();
+    // Reset selections only if a new turn started (dice cleared) or game over
+    if (view.dice.length === 0 || view.gameStatus !== 'playing') {
+      this.selectedDiceIndices.clear();
+    }
+
+    // Always clear skill selection on update (since skills are instant or one-time use)
     this.selectedSkillId = null;
 
     this.render(view);
@@ -222,7 +227,20 @@ export class Renderer {
         view.categories.filter(c => c.group === group).forEach(cat => {
             const item = document.createElement('div');
             item.className = 'category-item';
-            if (cat.isChecked) item.classList.add('checked');
+            if (cat.isChecked) {
+                item.classList.add('checked');
+                // Check if this is a newly checked category
+                if (!this.recentlyCheckedCategories.has(cat.id)) {
+                    item.classList.add('check-success');
+                    this.recentlyCheckedCategories.add(cat.id);
+                }
+            } else {
+                 // Ensure if it's unchecked (new game), we remove it from history
+                 if (this.recentlyCheckedCategories.has(cat.id)) {
+                     this.recentlyCheckedCategories.delete(cat.id);
+                 }
+            }
+
             if (cat.isSelectable) {
                 item.classList.add('selectable');
                 item.onclick = () => this.onSelectCategory(cat.id);
