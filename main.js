@@ -355,7 +355,7 @@ function step(state2, action) {
 
 // src/renderer.ts
 var Renderer = class {
-  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2, onHold2) {
+  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2, onHold2, onRestart2) {
     // selectedDiceIndices now represents "Held" dice
     this.selectedDiceIndices = /* @__PURE__ */ new Set();
     this.selectedSkillId = null;
@@ -367,6 +367,7 @@ var Renderer = class {
     this.onSelectCategory = onSelectCategory2;
     this.onGameOver = onGameOver2;
     this.onHold = onHold2;
+    this.onRestart = onRestart2;
   }
   update(view) {
     if (view.dice.length === 0 || view.gameStatus !== "playing") {
@@ -440,7 +441,12 @@ var Renderer = class {
     controls.className = "controls";
     const rollButton = document.createElement("button");
     const rollsLeft = view.rolls.max - view.rolls.current;
-    if (view.dice.length === 0) {
+    if (view.gameStatus !== "playing") {
+      rollButton.textContent = "PLAY AGAIN \u21BA";
+      rollButton.classList.add("btn-restart");
+      rollButton.onclick = () => this.onRestart();
+      rollButton.disabled = false;
+    } else if (view.dice.length === 0) {
       rollButton.textContent = "ROLL DICE";
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
@@ -884,7 +890,7 @@ function playSound(sound) {
 // src/main.ts
 var root = document.getElementById("fd-stage");
 var state = init();
-var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver, onHold);
+var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver, onHold, onRestart);
 renderer.update(getView(state));
 function handleInput(action) {
   state = step(state, action);
@@ -925,4 +931,9 @@ function onGameOver() {
 }
 function onHold() {
   playSound("hold");
+}
+function onRestart() {
+  playSound("roll");
+  state = init();
+  renderer.update(getView(state));
 }

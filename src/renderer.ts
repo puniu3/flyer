@@ -8,6 +8,7 @@ export class Renderer {
   private onSelectCategory: (categoryId: CategoryId) => void;
   private onGameOver: () => void;
   private onHold: () => void;
+  private onRestart: () => void;
 
   // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
@@ -22,6 +23,7 @@ export class Renderer {
     onSelectCategory: (categoryId: CategoryId) => void,
     onGameOver: () => void,
     onHold: () => void,
+    onRestart: () => void,
   ) {
     this.root = root;
     this.onRoll = onRoll;
@@ -30,6 +32,7 @@ export class Renderer {
     this.onSelectCategory = onSelectCategory;
     this.onGameOver = onGameOver;
     this.onHold = onHold;
+    this.onRestart = onRestart;
   }
 
   update(view: GameView): void {
@@ -133,7 +136,12 @@ export class Renderer {
     const rollButton = document.createElement('button');
     const rollsLeft = view.rolls.max - view.rolls.current;
 
-    if (view.dice.length === 0) {
+    if (view.gameStatus !== 'playing') {
+      rollButton.textContent = 'PLAY AGAIN ↺';
+      rollButton.classList.add('btn-restart');
+      rollButton.onclick = () => this.onRestart();
+      rollButton.disabled = false;
+    } else if (view.dice.length === 0) {
       rollButton.textContent = 'ROLL DICE';
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();

@@ -525,3 +525,11 @@ button:disabled {
     flex-shrink: 0;
   }
 }
+.btn-restart {
+  background-color: var(--secondary-color);
+  color: var(--on-secondary);
+}
+
+.btn-restart:hover {
+  background-color: var(--secondary-variant);
+}
