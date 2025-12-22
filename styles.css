@@ -1,0 +1,291 @@
+:root {
+  --primary-color: #6200EE;
+  --primary-variant: #3700B3;
+  --secondary-color: #03DAC6;
+  --secondary-variant: #018786;
+  --background-color: #F5F5F5;
+  --surface-color: #FFFFFF;
+  --error-color: #B00020;
+  --on-primary: #FFFFFF;
+  --on-secondary: #000000;
+  --on-background: #000000;
+  --on-surface: #000000;
+  --on-error: #FFFFFF;
+
+  --spacing-unit: 8px;
+  --border-radius: 4px;
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  --shadow-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  color: var(--on-background);
+  line-height: 1.6;
+}
+
+#fd-stage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 3);
+}
+
+/* Header */
+header {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-1);
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+/* Game Status */
+.game-status {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+}
+
+.status-playing {
+  color: var(--primary-color);
+}
+
+.status-won {
+  background-color: var(--secondary-color);
+  color: var(--on-secondary);
+}
+
+.status-lost {
+  background-color: var(--error-color);
+  color: var(--on-error);
+}
+
+/* Dice Section */
+.dice-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.dice-container {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.die {
+  width: 60px;
+  height: 60px;
+  background-color: var(--surface-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.die.selected {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2);
+}
+
+.die.target-mode {
+  border-color: var(--secondary-color);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(3, 218, 198, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0); }
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-unit);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: var(--primary-variant);
+}
+
+button:disabled {
+  background-color: #BDBDBD;
+  color: #757575;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.roll-info {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Skills Section */
+.skills-section {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.skill-card {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 2);
+  width: 200px;
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-unit);
+  border-left: 5px solid #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skill-card.available {
+  cursor: pointer;
+}
+
+.skill-card.locked {
+  opacity: 0.6;
+  background-color: #eee;
+  cursor: default;
+}
+
+.skill-card.used {
+  opacity: 0.6;
+  background-color: #e0e0e0;
+  cursor: default;
+  text-decoration: line-through;
+}
+
+.skill-card.selected {
+  border: 2px solid var(--secondary-color);
+  transform: scale(1.05);
+}
+
+.skill-card.group-str { border-left-color: #F44336; }
+.skill-card.group-dex { border-left-color: #4CAF50; }
+.skill-card.group-int { border-left-color: #2196F3; }
+
+.skill-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.skill-desc {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Categories Section */
+.categories-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.category-group {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 2);
+  box-shadow: var(--shadow-1);
+}
+
+.category-group h3 {
+  margin-bottom: var(--spacing-unit);
+  border-bottom: 2px solid #eee;
+  padding-bottom: var(--spacing-unit);
+  text-transform: uppercase;
+  color: #666;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  margin-bottom: 4px;
+  cursor: default;
+  transition: background-color 0.2s;
+}
+
+.category-item.selectable {
+  cursor: pointer;
+  background-color: rgba(98, 0, 238, 0.05);
+}
+
+.category-item.selectable:hover {
+  background-color: rgba(98, 0, 238, 0.1);
+}
+
+.category-item.checked {
+  background-color: rgba(3, 218, 198, 0.2);
+  color: var(--secondary-variant);
+  font-weight: bold;
+}
+
+.category-name {
+  font-size: 0.9rem;
+}
+
+.category-status {
+  font-size: 1.2rem;
+}
+
+/* Instructions / Help */
+.instructions {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin-top: var(--spacing-unit);
+}
