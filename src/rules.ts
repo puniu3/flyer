@@ -286,10 +286,8 @@ export function getView(state: GameState): GameView {
 // Lose Condition Check (Pure Function)
 // ==========================================
 
-function hasValidMove(state: GameState): boolean {
-  const { categories, dice, skillsUsed } = state;
-
-  // 1. Check if any category is satisfied by the current dice
+// Helper: Check if the current dice configuration allows taking any valid category
+function canTakeAnyCategory(dice: DieValue[], categories: Record<CategoryId, boolean>): boolean {
   for (const id of ALL_CATEGORY_IDS) {
     if (categories[id]) continue;
 
@@ -300,29 +298,73 @@ function hasValidMove(state: GameState): boolean {
       return true;
     }
   }
+  return false;
+}
 
-  // 2. Check if there are any usable skills
-  // If the player has an unlocked skill that hasn't been used yet,
-  // it counts as a valid move because it might alter the dice to satisfy a category.
-  for (const skillId of ALL_SKILL_IDS) {
-    const isUsed = skillsUsed[skillId];
-    const isUnlocked = isSkillUnlocked(skillId, categories);
+// Helper: Recursively check if any sequence of remaining skills leads to a winning state
+function canReachValidState(
+  dice: DieValue[],
+  availableSkills: SkillId[],
+  categories: Record<CategoryId, boolean>
+): boolean {
+  // 1. Base Case: If current dice can take a category, we found a solution.
+  if (canTakeAnyCategory(dice, categories)) {
+    return true;
+  }
 
-    if (!isUsed && isUnlocked) {
-      return true;
+  // 2. Recursive Step: Try applying each available skill to each die
+  for (let i = 0; i < availableSkills.length; i++) {
+    const skillId = availableSkills[i];
+    
+    // Create a new list of available skills without the current one
+    const remainingSkills = [...availableSkills];
+    remainingSkills.splice(i, 1);
+
+    // Try applying this skill to every die (index 0 to 4)
+    for (let dieIndex = 0; dieIndex < dice.length; dieIndex++) {
+      const currentVal = dice[dieIndex];
+      let newVal: number = currentVal;
+
+      // Apply skill logic (duplicated from handleUseSkill for simulation)
+      if (skillId === 'skill_str_mighty') {
+        newVal = 6;
+      } else if (skillId === 'skill_dex_acrobatics') {
+        newVal = Math.max(1, currentVal - 1);
+      } else if (skillId === 'skill_int_metamorph') {
+        newVal = 7 - currentVal;
+      }
+
+      // Optimization: If the die value didn't change (e.g. Mighty on a 6), skip this branch
+      if (newVal === currentVal) continue;
+
+      const nextDice = [...dice];
+      nextDice[dieIndex] = newVal as DieValue;
+
+      // Recurse
+      if (canReachValidState(nextDice, remainingSkills, categories)) {
+        return true;
+      }
     }
   }
 
   return false;
 }
 
-function checkLoseCondition(state: GameState): GameState {
-  if (state.rollsUsed < MAX_ROLLS) return state;
-  if (hasValidMove(state)) return state;
+function hasValidMove(state: GameState): boolean {
+  const { categories, dice, skillsUsed } = state;
 
-  return { ...state, status: 'lost' };
+  // 1. Identify all skills that are unlocked and unused
+  const availableSkills: SkillId[] = [];
+  for (const skillId of ALL_SKILL_IDS) {
+    if (!skillsUsed[skillId] && isSkillUnlocked(skillId, categories)) {
+      availableSkills.push(skillId);
+    }
+  }
+
+  // 2. Start the recursive search
+  // It checks if current state is valid, OR if any combination of skills makes it valid.
+  return canReachValidState(dice, availableSkills, categories);
 }
-
 
 function checkLoseCondition(state: GameState): GameState {
   if (state.rollsUsed < MAX_ROLLS) return state;
