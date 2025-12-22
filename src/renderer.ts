@@ -21,7 +21,7 @@ export class Renderer {
     onUseSkill: (skillId: SkillId, targetDieIndex: number) => void,
     onSelectCategory: (categoryId: CategoryId) => void,
     onGameOver: () => void,
-    onHold: () => void;
+    onHold: () => void,
   ) {
     this.root = root;
     this.onRoll = onRoll;
