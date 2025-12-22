@@ -6,6 +6,7 @@ export class Renderer {
   private onReroll: (indexesToReroll: number[]) => void;
   private onUseSkill: (skillId: SkillId, targetDieIndex: number) => void;
   private onSelectCategory: (categoryId: CategoryId) => void;
+  private onGameOver: () => void;
 
   // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
