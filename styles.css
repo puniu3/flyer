@@ -91,6 +91,14 @@ h1 {
   gap: calc(var(--spacing-unit) * 2);
   flex-wrap: wrap;
   justify-content: center;
+  min-height: 80px; /* Fix CLS: Space for dice + wrapper padding/margin */
+}
+
+.die-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .die {
@@ -108,13 +116,31 @@ h1 {
   box-shadow: var(--shadow-1);
   transition: all 0.2s;
   user-select: none;
+  position: relative;
 }
 
 .die.selected {
-  background-color: var(--primary-color);
-  color: var(--on-primary);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-2);
+  background-color: #fff;
+  border-color: var(--secondary-variant);
+  border-width: 4px;
+  color: var(--on-surface);
+  box-shadow: 0 0 10px rgba(1, 135, 134, 0.5);
+  transform: none;
+}
+
+.held-label {
+    position: absolute;
+    bottom: -25px; /* Position below the die */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--secondary-variant);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
 }
 
 .die.target-mode {
@@ -164,6 +190,14 @@ button:disabled {
 .roll-info {
   font-size: 0.9rem;
   color: #666;
+}
+
+.skill-progress {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-top: auto; /* Push to bottom */
+    text-align: right;
 }
 
 /* Skills Section */
