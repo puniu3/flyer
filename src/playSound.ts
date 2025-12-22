@@ -9,7 +9,8 @@ export type SoundEffect =
   | 'win' 
   | 'lose'
   | 'dungeon_progress' 
-  | 'attribute_gain';
+  | 'attribute_gain'
+  | 'hold';
 
 /**
  * Manages the Web Audio API context and sound generation.
@@ -22,13 +23,16 @@ class SoundManager {
 
   /**
    * Lazily initializes the AudioContext.
+   * Browsers require a user interaction before an AudioContext can run.
    */
   private getContext(): AudioContext {
     if (!this.audioContext) {
+      // Create AudioContext only when needed
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       this.audioContext = new AudioContextClass();
     }
 
+    // Ensure context is running (it might be suspended by default)
     if (this.audioContext.state === 'suspended') {
       this.audioContext.resume();
     }
@@ -69,6 +73,9 @@ class SoundManager {
           break;
         case 'attribute_gain':
           this.playAttributeGain(ctx);
+          break;
+        case 'hold':
+          this.playHold(ctx);
           break;
       }
     } catch (e) {
@@ -131,7 +138,6 @@ class SoundManager {
     // Sawtooth creates a buzzy, brass-like timbre
     osc.type = 'sawtooth';
     // A perfect 5th power chord interval simulation (rapid arpeggio effect or just strong root)
-    // Here we use a stable strong note (C3 -> 130.81Hz or G2 -> 98Hz)
     osc.frequency.setValueAtTime(130.81, ctx.currentTime); 
     
     // Lowpass filter envelope to mimic "blowing" into a horn (Wah effect)
@@ -187,10 +193,10 @@ class SoundManager {
     // LFO for vibrato
     const lfo = ctx.createOscillator();
     lfo.type = 'sine';
-    lfo.frequency.value = 15;
+    lfo.frequency.value = 15; // 15Hz wobble
 
     const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 50;
+    lfoGain.gain.value = 50; // Depth of modulation
 
     lfo.connect(lfoGain);
     lfoGain.connect(osc.frequency);
@@ -214,7 +220,7 @@ class SoundManager {
    */
   private playWin(ctx: AudioContext): void {
     const now = ctx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C Major
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C Major: C4, E4, G4, C5
     const duration = 0.15;
 
     notes.forEach((freq, index) => {
@@ -288,7 +294,6 @@ class SoundManager {
 
   /**
    * Generates a positive, ascending sound indicating forward movement.
-   * Replaces the heavy thud with a pleasant "step forward" chime.
    */
   private playDungeonProgress(ctx: AudioContext): void {
     const now = ctx.currentTime;
@@ -335,6 +340,28 @@ class SoundManager {
 
     osc.start();
     osc.stop(ctx.currentTime + 0.2);
+  }
+
+  /**
+   * Generates a short, subtle blip for UI selection (holding/locking a die).
+   * Soft sine wave, high pitch, very short duration.
+   */
+  private playHold(ctx: AudioContext): void {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200, ctx.currentTime); // High pitch "blip"
+
+    // Very short, percussive envelope
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime); // Quiet volume
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
   }
 }
 

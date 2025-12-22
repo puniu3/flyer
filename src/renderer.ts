@@ -7,6 +7,7 @@ export class Renderer {
   private onUseSkill: (skillId: SkillId, targetDieIndex: number) => void;
   private onSelectCategory: (categoryId: CategoryId) => void;
   private onGameOver: () => void;
+  private onHold: () => void;
 
   // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
@@ -19,7 +20,8 @@ export class Renderer {
     onReroll: (indexesToReroll: number[]) => void,
     onUseSkill: (skillId: SkillId, targetDieIndex: number) => void,
     onSelectCategory: (categoryId: CategoryId) => void,
-    onGameOver: () => void
+    onGameOver: () => void,
+    onHold: () => void;
   ) {
     this.root = root;
     this.onRoll = onRoll;
@@ -27,6 +29,7 @@ export class Renderer {
     this.onUseSkill = onUseSkill;
     this.onSelectCategory = onSelectCategory;
     this.onGameOver = onGameOver;
+    this.onHold = onHold;
   }
 
   update(view: GameView): void {
@@ -287,6 +290,7 @@ export class Renderer {
           } else {
               this.selectedDiceIndices.add(index);
           }
+          this.onHold();
           this.render(view);
       }
   }
