@@ -216,32 +216,75 @@ class SoundManager {
   }
 
   /**
-   * Generates a short victory jingle (major chord arpeggio).
+   * Generates a majestic fanfare for a major victory.
+   * Simulates a brass section with a triumphant melody and sustained chord.
+   * Sequence: Rapid ascending arpeggio -> Sustained Grand Chord.
    */
   private playWin(ctx: AudioContext): void {
     const now = ctx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C Major: C4, E4, G4, C5
-    const duration = 0.15;
-
-    notes.forEach((freq, index) => {
+    
+    // Helper to play a brass-like note
+    // freq: frequency in Hz
+    // t: start time relative to 'now'
+    // dur: duration in seconds
+    // vol: volume level (0.0 - 1.0)
+    const playBrass = (freq: number, t: number, dur: number, vol: number) => {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
 
-      osc.type = 'triangle';
+      // Sawtooth wave approximates brass instruments
+      osc.type = 'sawtooth';
       osc.frequency.value = freq;
 
-      const startTime = now + index * 0.1;
+      // Lowpass filter envelope for "blaring" horn effect
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(500, t);
+      filter.frequency.linearRampToValueAtTime(3000, t + 0.1); // Open up bright
+      filter.frequency.linearRampToValueAtTime(1500, t + dur); // Settle down
 
-      gainNode.gain.setValueAtTime(0, startTime);
-      gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.05);
-      gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+      // ADSR Envelope (Attack, Decay, Sustain, Release)
+      gainNode.gain.setValueAtTime(0, t);
+      gainNode.gain.linearRampToValueAtTime(vol, t + 0.05);       // Attack
+      gainNode.gain.linearRampToValueAtTime(vol * 0.8, t + 0.2);  // Decay
+      gainNode.gain.setValueAtTime(vol * 0.8, t + dur - 0.5);     // Sustain
+      gainNode.gain.exponentialRampToValueAtTime(0.001, t + dur); // Release
 
-      osc.connect(gainNode);
+      osc.connect(filter);
+      filter.connect(gainNode);
       gainNode.connect(ctx.destination);
 
-      osc.start(startTime);
-      osc.stop(startTime + duration);
-    });
+      osc.start(t);
+      osc.stop(t + dur + 0.1);
+    };
+
+    // --- Fanfare Composition (C Major) ---
+    
+    // Part 1: The Build-up (Triplet / Arpeggio up)
+    // C4, E4, G4, C5 rapidly
+    playBrass(261.63, now + 0.00, 0.3, 0.2); // C4
+    playBrass(329.63, now + 0.15, 0.3, 0.2); // E4
+    playBrass(392.00, now + 0.30, 0.3, 0.2); // G4
+    
+    // Part 2: The Arrival (Brief pause or leading note)
+    playBrass(392.00, now + 0.45, 0.2, 0.2); // G4 (Short lead-in)
+
+    // Part 3: The Grand Finale (Long Chord)
+    // Plays C5 (Root), E5 (Major 3rd), and C3 (Bass) simultaneously
+    const chordStart = now + 0.65;
+    const chordDuration = 3.5;
+
+    // Main Melody High Note (C5) - slightly louder
+    playBrass(523.25, chordStart, chordDuration, 0.25); 
+    
+    // Harmony High (E5)
+    playBrass(659.25, chordStart, chordDuration, 0.15); 
+    
+    // Harmony Low (G4)
+    playBrass(392.00, chordStart, chordDuration, 0.15);
+
+    // Bass Foundation (C3) - Adds weight/epic feel
+    playBrass(130.81, chordStart, chordDuration, 0.3);
   }
 
   /**
