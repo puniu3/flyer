@@ -349,3 +349,135 @@ button:disabled {
   font-style: italic;
   margin-top: var(--spacing-unit);
 }
+
+/* =========================================
+   Mobile Responsive Adaptation
+   ========================================= */
+
+/* Tab Navigation (Hidden on Desktop) */
+.tab-nav {
+  display: none;
+  gap: var(--spacing-unit);
+  margin-bottom: var(--spacing-unit);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  background-color: #E0E0E0;
+  color: #333;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-btn.active {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow-1);
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 768px) {
+  #fd-stage {
+    padding: var(--spacing-unit);
+    /* Add extra padding at bottom for sticky footer */
+    padding-bottom: 160px;
+  }
+
+  /* 1. Category Section: Tab View */
+  .tab-nav {
+    display: flex;
+  }
+
+  .categories-container {
+    display: block; /* Override grid */
+  }
+
+  .category-group {
+    display: none; /* Hide all by default */
+  }
+
+  .category-group.active-group {
+    display: block; /* Show active only */
+    animation: fadeEffect 0.3s;
+  }
+
+  @keyframes fadeEffect {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  /* 2. Layout & Controls: Sticky Footer */
+  .controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--surface-color);
+    padding: var(--spacing-unit);
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+
+    /* Layout inside sticky footer */
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .controls button {
+    flex: 1 0 auto; /* Allow grow */
+    order: 2;
+    margin-left: var(--spacing-unit);
+    padding: 14px; /* Larger touch target */
+  }
+
+  .roll-info {
+    order: 1;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .instructions {
+      width: 100%;
+      order: 3;
+      font-size: 0.8rem;
+      margin-top: 8px;
+      text-align: center;
+      line-height: 1.2;
+  }
+
+  /* 3. Skill Cards: Horizontal Carousel */
+  .skills-section {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding-bottom: var(--spacing-unit);
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    margin-left: calc(var(--spacing-unit) * -1); /* Full bleed attempt? No, keep padding */
+    padding-left: 2px; /* Avoid cutoff */
+  }
+
+  .skill-card {
+    min-width: 220px;
+    flex-shrink: 0;
+  }
+
+  /* Dice adjustments */
+  .dice-container {
+      gap: var(--spacing-unit);
+  }
+
+  .die {
+      width: 50px;
+      height: 50px;
+      font-size: 1.3rem;
+  }
+}

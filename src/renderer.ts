@@ -14,6 +14,9 @@ export class Renderer {
   private selectedSkillId: SkillId | null = null;
   private recentlyCheckedCategories: Set<CategoryId> = new Set();
 
+  // New state for Mobile Tabs
+  private activeCategoryTab: CategoryGroup = 'dungeon';
+
   constructor(
     root: HTMLElement,
     onRoll: () => void,
@@ -230,15 +233,37 @@ export class Renderer {
     });
     mainContainer.appendChild(skillsSection);
 
+    // Tab Navigation for Categories
+    const tabNav = document.createElement('div');
+    tabNav.className = 'tab-nav';
+    const groups: CategoryGroup[] = ['dungeon', 'str', 'dex', 'int'];
+
+    groups.forEach(group => {
+        const btn = document.createElement('button');
+        btn.textContent = group === 'dungeon' ? 'DUNGEON' : group.toUpperCase();
+        btn.className = 'tab-btn';
+        btn.dataset.group = group;
+        if (group === this.activeCategoryTab) {
+            btn.classList.add('active');
+        }
+
+        btn.onclick = () => this.handleTabClick(group);
+        tabNav.appendChild(btn);
+    });
+    mainContainer.appendChild(tabNav);
+
     // Categories Section
     const categoriesSection = document.createElement('div');
     categoriesSection.className = 'categories-container';
 
-    const groups: CategoryGroup[] = ['dungeon', 'str', 'dex', 'int'];
-
     groups.forEach(group => {
         const groupDiv = document.createElement('div');
         groupDiv.className = 'category-group';
+        groupDiv.dataset.group = group; // Attribute for CSS/JS targeting
+
+        if (group === this.activeCategoryTab) {
+            groupDiv.classList.add('active-group');
+        }
 
         const title = document.createElement('h3');
         title.textContent = group === 'dungeon' ? 'Dungeon Floor' : `${group.toUpperCase()} Check`;
@@ -284,6 +309,30 @@ export class Renderer {
 
     mainContainer.appendChild(categoriesSection);
     this.root.appendChild(mainContainer);
+  }
+
+  private handleTabClick(group: CategoryGroup) {
+      this.activeCategoryTab = group;
+
+      // Update Tab Buttons State
+      const tabs = this.root.querySelectorAll('.tab-btn');
+      tabs.forEach(t => {
+          if ((t as HTMLElement).dataset.group === group) {
+              t.classList.add('active');
+          } else {
+              t.classList.remove('active');
+          }
+      });
+
+      // Update Groups Visibility
+      const groups = this.root.querySelectorAll('.category-group');
+      groups.forEach(g => {
+          if ((g as HTMLElement).dataset.group === group) {
+              g.classList.add('active-group');
+          } else {
+              g.classList.remove('active-group');
+          }
+      });
   }
 
   // Internal interaction handlers
