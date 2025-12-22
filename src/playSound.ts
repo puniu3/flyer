@@ -7,6 +7,7 @@ export type SoundEffect =
   | 'acrobatics' 
   | 'metamorph' 
   | 'win' 
+  | 'lose'
   | 'dungeon_progress' 
   | 'attribute_gain';
 
@@ -63,6 +64,9 @@ class SoundManager {
         case 'win':
           this.playWin(ctx);
           break;
+        case 'lose':
+          this.playLose(ctx);
+          break;
         case 'dungeon_progress':
           this.playDungeonProgress(ctx);
           break;
@@ -77,9 +81,10 @@ class SoundManager {
 
   /**
    * Generates a noise-like sound for dice rolling.
+   * Refined to be lighter and crisper (shaking/clicking).
    */
   private playRoll(ctx: AudioContext): void {
-    const duration = 0.5;
+    const duration = 0.2; // Short duration for a crisp sound
     const bufferSize = ctx.sampleRate * duration;
     const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
@@ -92,14 +97,14 @@ class SoundManager {
     const noise = ctx.createBufferSource();
     noise.buffer = buffer;
 
-    // Filter to make it less harsh (Lowpass)
+    // Filter to remove low rumble and keep high frequencies (Highpass)
     const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 1000;
+    filter.type = 'highpass';
+    filter.frequency.value = 3000; // High frequency for "click" or "shake"
 
     // Gain envelope for percussive effect
     const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
 
     noise.connect(filter);
@@ -217,24 +222,47 @@ class SoundManager {
   }
 
   /**
-   * Generates a heavy, deep thud or descending tone.
+   * Generates a "Game Over" style sound (descending slide).
    */
-  private playDungeonProgress(ctx: AudioContext): void {
+  private playLose(ctx: AudioContext): void {
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(80, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, ctx.currentTime + 0.5);
 
-    gainNode.gain.setValueAtTime(0.5, ctx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.5);
 
     osc.connect(gainNode);
     gainNode.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 0.4);
+    osc.stop(ctx.currentTime + 0.5);
+  }
+
+  /**
+   * Generates a heavy, deep thud or descending tone.
+   * Refined to be more audible.
+   */
+  private playDungeonProgress(ctx: AudioContext): void {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    // Use square wave for better audibility
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(150, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.5);
+
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
   }
 
   /**
