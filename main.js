@@ -360,7 +360,7 @@ function step(state2, action) {
 
 // src/renderer.ts
 var Renderer = class {
-  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2) {
+  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2, onHold2) {
     // selectedDiceIndices now represents "Held" dice
     this.selectedDiceIndices = /* @__PURE__ */ new Set();
     this.selectedSkillId = null;
@@ -371,6 +371,7 @@ var Renderer = class {
     this.onUseSkill = onUseSkill2;
     this.onSelectCategory = onSelectCategory2;
     this.onGameOver = onGameOver2;
+    this.onHold = onHold2;
   }
   update(view) {
     if (view.dice.length === 0 || view.gameStatus !== "playing") {
@@ -563,6 +564,7 @@ var Renderer = class {
       } else {
         this.selectedDiceIndices.add(index);
       }
+      this.onHold();
       this.render(view);
     }
   }
@@ -603,6 +605,7 @@ var SoundManager = class {
   }
   /**
    * Lazily initializes the AudioContext.
+   * Browsers require a user interaction before an AudioContext can run.
    */
   getContext() {
     if (!this.audioContext) {
@@ -645,6 +648,9 @@ var SoundManager = class {
           break;
         case "attribute_gain":
           this.playAttributeGain(ctx);
+          break;
+        case "hold":
+          this.playHold(ctx);
           break;
       }
     } catch (e) {
@@ -802,7 +808,6 @@ var SoundManager = class {
   }
   /**
    * Generates a positive, ascending sound indicating forward movement.
-   * Replaces the heavy thud with a pleasant "step forward" chime.
    */
   playDungeonProgress(ctx) {
     const now = ctx.currentTime;
@@ -837,6 +842,22 @@ var SoundManager = class {
     osc.start();
     osc.stop(ctx.currentTime + 0.2);
   }
+  /**
+   * Generates a short, subtle blip for UI selection (holding/locking a die).
+   * Soft sine wave, high pitch, very short duration.
+   */
+  playHold(ctx) {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1200, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(1e-3, ctx.currentTime + 0.05);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.05);
+  }
 };
 var soundManager = new SoundManager();
 function playSound(sound) {
@@ -846,7 +867,7 @@ function playSound(sound) {
 // src/main.ts
 var root = document.getElementById("fd-stage");
 var state = init();
-var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver);
+var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver, onHold);
 renderer.update(getView(state));
 function handleInput(action) {
   state = step(state, action);
@@ -884,4 +905,7 @@ function onSelectCategory(categoryId) {
 }
 function onGameOver() {
   playSound("lose");
+}
+function onHold() {
+  playSound("hold");
 }
