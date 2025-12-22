@@ -1,0 +1,212 @@
+game:
+  id: flyer_back_dungeon
+
+dice_rules:
+  dice_count: 5
+  dice_sides: 6
+
+flow:
+  turn_structure:
+    - id: roll_phase
+      rules:
+        max_rolls_per_turn: 3
+        reroll:
+          enabled: true
+          mode: selective_per_die
+    - id: skill_phase
+      rules:
+        max_uses_per_turn_per_skill: 1
+    - id: choose_category_phase
+      rules:
+        each_category_can_be_checked_only_once: true
+        must_check_exactly_one_satisfying_category: true
+
+win_lose_conditions:
+  win_condition:
+    requirement:
+      type: category_checked
+      id: dungeon_floor_5
+  lose_condition:
+    trigger:
+      type: no_valid_categories_remaining_this_turn
+
+categories:
+  nodes:
+    - id: dungeon_floor_1
+      group: dungeon
+      prerequisite: null
+      condition:
+        type: sum_of_dice
+        comparator: ">="
+        value: 20
+
+    - id: dungeon_floor_2
+      group: dungeon
+      prerequisite: dungeon_floor_1
+      condition:
+        type: sum_of_dice
+        comparator: ">="
+        value: 24
+
+    - id: dungeon_floor_3
+      group: dungeon
+      prerequisite: dungeon_floor_2
+      condition:
+        type: sum_of_dice
+        comparator: ">="
+        value: 26
+
+    - id: dungeon_floor_4
+      group: dungeon
+      prerequisite: dungeon_floor_3
+      condition:
+        type: sum_of_dice
+        comparator: "<="
+        value: 9
+
+    - id: dungeon_floor_5
+      group: dungeon
+      prerequisite: dungeon_floor_4
+      condition:
+        type: yahtzee
+
+    - id: str_three_of_a_kind_5
+      group: str
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 5
+
+    - id: str_three_of_a_kind_6
+      group: str
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 6
+
+    - id: str_full_house
+      group: str
+      prerequisite: null
+      condition:
+        type: full_house
+
+    - id: str_four_of_a_kind
+      group: str
+      prerequisite: null
+      condition:
+        type: four_of_a_kind
+
+    - id: dex_three_of_a_kind_1
+      group: dex
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 1
+
+    - id: dex_three_of_a_kind_2
+      group: dex
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 2
+
+    - id: dex_small_straight
+      group: dex
+      prerequisite: null
+      condition:
+        type: straight
+        length: 4
+
+    - id: dex_large_straight
+      group: dex
+      prerequisite: null
+      condition:
+        type: straight
+        length: 5
+
+    - id: int_three_of_a_kind_3
+      group: int
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 3
+
+    - id: int_three_of_a_kind_4
+      group: int
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 4
+
+    - id: int_one_pair
+      group: int
+      prerequisite: null
+      condition:
+        type: pair
+        pair_count: 1
+
+    - id: int_two_pair
+      group: int
+      prerequisite: null
+      condition:
+        type: pair
+        pair_count: 2
+        allow_four_of_a_kind_as_two_pair: true
+
+skills:
+  list:
+    - id: skill_str_mighty
+      effect:
+        type: modify_die
+        new_value: 6
+      unlock_condition:
+        type: categories_checked_in_group
+        group: str
+        required_count: 3
+
+    - id: skill_dex_acrobatics
+      effect:
+        type: modify_die
+        delta: -1
+        min_value: 1
+      unlock_condition:
+        type: categories_checked_in_group
+        group: dex
+        required_count: 3
+
+    - id: skill_int_metamorph
+      effect:
+        type: invert_die_face
+        mapping:
+          1: 6
+          2: 5
+          3: 4
+          4: 3
+          5: 2
+          6: 1
+      unlock_condition:
+        type: categories_checked_in_group
+        group: int
+        required_count: 3
+
+initial_state:
+  dungeon_floor_1: false
+  dungeon_floor_2: false
+  dungeon_floor_3: false
+  dungeon_floor_4: false
+  dungeon_floor_5: false
+
+  str_three_of_a_kind_5: false
+  str_three_of_a_kind_6: false
+  str_full_house: false
+  str_four_of_a_kind: false
+
+  dex_three_of_a_kind_1: false
+  dex_three_of_a_kind_2: false
+  dex_small_straight: false
+  dex_large_straight: false
+
+  int_three_of_a_kind_3: false
+  int_three_of_a_kind_4: false
+  int_one_pair: false
+  int_two_pair: false
