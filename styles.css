@@ -408,36 +408,61 @@ button:disabled {
     display: none;
   }
 
+  /* Skills Section: Vertical Stack (List View) */
   .skills-section {
+    flex-direction: column; /* 縦に積む */
     flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding-bottom: 10px;
-    margin: 0 -10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    overflow-x: visible;    /* 横スクロール無効 */
+    align-items: stretch;   /* 横幅いっぱいに広げる */
+    gap: 8px;
+    padding-bottom: 0;      /* 余計な余白削除 */
+    margin: 0;              /* マージンリセット */
   }
   
+  /* Reset scrollbar hiding since we don't scroll anymore */
   .skills-section::-webkit-scrollbar {
     display: none;
   }
 
   .skill-card {
-    min-width: 160px;
-    width: 160px;
-    flex-shrink: 0;
-    padding: 10px;
+    width: 100%;            /* 横幅いっぱい */
+    min-width: 0;
+    min-height: auto;       /* 高さを中身に合わせる */
+    flex-direction: row;    /* 中身を横並びに */
+    align-items: center;    /* 垂直中央揃え */
+    justify-content: space-between;
+    padding: 10px 12px;     /* スリムなパディング */
+    margin: 0;
+    text-align: left;
   }
   
   .skill-name {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    flex-shrink: 0;         /* 名前は縮めない */
+    margin-right: 10px;
   }
   
   .skill-desc {
     font-size: 0.8rem;
+    color: #666;
+    text-align: right;      /* 説明を右寄せ */
+    flex-grow: 1;           /* 残りのスペースを埋める */
+    line-height: 1.2;
+    
+    /* 1行に収まらない場合の処理（お好みで） */
+     white-space: nowrap; 
+     overflow: hidden; 
+     text-overflow: ellipsis; 
   }
+
+  /* ロック状態（Unlock: 0/3）の表示位置調整 */
+  .skill-progress {
+    margin-top: 0;          /* マージンリセット */
+    margin-left: 8px;       /* 左に少し隙間 */
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
 
   .categories-container {
     grid-template-columns: 1fr 1fr;
@@ -459,6 +484,7 @@ button:disabled {
     justify-content: space-between;
     gap: 8px;
     padding: 4px 6px;
+    text-wrap: balance;
   }
   
   .category-item.checked {
@@ -490,7 +516,6 @@ button:disabled {
     font-size: 0.9rem;
     font-weight: bold;
     line-height: 1.2;
-    text-wrap: balance;
   }
 
   .category-item.selectable .category-status {
