@@ -441,24 +441,20 @@ var Renderer = class {
     const rollButton = document.createElement("button");
     const rollsLeft = view.rolls.max - view.rolls.current;
     if (view.dice.length === 0) {
-      rollButton.textContent = "Roll Dice";
+      rollButton.textContent = "ROLL DICE";
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
     } else {
-      rollButton.textContent = "Roll";
       if (!view.rolls.canRoll) {
-        rollButton.textContent = "No Rolls Left";
+        rollButton.textContent = "NO ROLLS LEFT";
         rollButton.disabled = true;
       } else {
+        rollButton.textContent = `ROLL (${rollsLeft}/${view.rolls.max})`;
         const unheldIndices = view.dice.map((_, i) => i).filter((i) => !this.selectedDiceIndices.has(i));
         rollButton.onclick = () => this.onReroll(unheldIndices);
       }
     }
     controls.appendChild(rollButton);
-    const rollInfo = document.createElement("div");
-    rollInfo.className = "roll-info";
-    rollInfo.textContent = `Rolls left: ${rollsLeft} / ${view.rolls.max}`;
-    controls.appendChild(rollInfo);
     const instruction = document.createElement("div");
     instruction.className = "instructions";
     if (this.selectedSkillId) {
