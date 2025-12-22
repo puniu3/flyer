@@ -1,10 +1,8 @@
-import { step } from './step';
-import { getView } from './getView';
-import { GameState } from './types';
-import { Renderer } from './renderer'
+import { init, step, getView } from './rules';
+import { Renderer } from './renderer';
 
 const root = document.getElementById('fd-stage');
-let state = new GameState();
+let state = init();
 const renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory);
 renderer.update(getView(state));
 
