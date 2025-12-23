@@ -305,7 +305,87 @@ button:disabled {
   border-radius: var(--border-radius);
   margin-bottom: 4px;
   cursor: default;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Dungeon Floor Progression Styling */
+.category-group.dungeon-group .category-item {
+  position: relative;
+  padding-left: calc(var(--spacing-unit) * 3);
+  margin-left: calc(var(--spacing-unit) * 1.5);
+}
+
+/* Vertical progression line */
+.category-group.dungeon-group .category-item::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ddd;
+}
+
+/* First floor: line only goes down */
+.category-group.dungeon-group .category-item:first-of-type::before {
+  top: 50%;
+}
+
+/* Last floor: line only goes up */
+.category-group.dungeon-group .category-item:last-of-type::before {
+  bottom: 50%;
+}
+
+/* Floor node (circle on the line) */
+.category-group.dungeon-group .category-item::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ddd;
+  border: 2px solid #ccc;
+  z-index: 1;
+}
+
+/* Completed floor: highlight line and node */
+.category-group.dungeon-group .category-item.checked::before {
+  background-color: var(--secondary-color);
+}
+
+.category-group.dungeon-group .category-item.checked::after {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-variant);
+}
+
+/* Locked floor (not yet reachable): subtle dimming */
+.category-group.dungeon-group .category-item.floor-locked {
+  opacity: 0.5;
+}
+
+.category-group.dungeon-group .category-item.floor-locked::after {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+/* Next available floor: pulsing node */
+.category-group.dungeon-group .category-item.floor-next::after {
+  background-color: var(--primary-color);
+  border-color: var(--primary-variant);
+  animation: floor-pulse 2s infinite;
+}
+
+@keyframes floor-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(98, 0, 238, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(98, 0, 238, 0); }
+}
+
+/* Connect completed floors with highlighted line */
+.category-group.dungeon-group .category-item.checked + .category-item::before {
+  background: linear-gradient(to bottom, var(--secondary-color) 0%, #ddd 100%);
 }
 
 .category-item.selectable {
@@ -541,6 +621,22 @@ button:disabled {
     line-height: 1;
     flex-shrink: 0;
     margin-top: 2px; /* Align with the first line of text */
+  }
+
+  /* Dungeon progression on mobile - compact version */
+  .category-group.dungeon-group .category-item {
+    padding-left: calc(var(--spacing-unit) * 2.5);
+    margin-left: calc(var(--spacing-unit) * 1);
+  }
+
+  .category-group.dungeon-group .category-item::before {
+    left: 6px;
+  }
+
+  .category-group.dungeon-group .category-item::after {
+    left: 2px;
+    width: 8px;
+    height: 8px;
   }
 }
 

@@ -604,10 +604,15 @@ var Renderer = class {
     groups.forEach((group) => {
       const groupDiv = document.createElement("div");
       groupDiv.className = "category-group";
+      if (group === "dungeon") {
+        groupDiv.classList.add("dungeon-group");
+      }
       const title = document.createElement("h3");
       title.textContent = this.t(group === "dungeon" ? "header_dungeon" : `header_${group}`);
       groupDiv.appendChild(title);
-      view.categories.filter((c) => c.group === group).forEach((cat) => {
+      const dungeonCategories = group === "dungeon" ? view.categories.filter((c) => c.group === "dungeon") : [];
+      const nextFloorIndex = dungeonCategories.findIndex((c) => !c.isChecked);
+      view.categories.filter((c) => c.group === group).forEach((cat, index) => {
         const item = document.createElement("div");
         item.className = "category-item";
         if (cat.isChecked) {
@@ -619,6 +624,13 @@ var Renderer = class {
         } else {
           if (this.recentlyCheckedCategories.has(cat.id)) {
             this.recentlyCheckedCategories.delete(cat.id);
+          }
+        }
+        if (group === "dungeon" && !cat.isChecked) {
+          if (index === nextFloorIndex) {
+            item.classList.add("floor-next");
+          } else if (index > nextFloorIndex) {
+            item.classList.add("floor-locked");
           }
         }
         if (cat.isSelectable) {

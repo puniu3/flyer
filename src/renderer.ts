@@ -263,11 +263,22 @@ export class Renderer {
         const groupDiv = document.createElement('div');
         groupDiv.className = 'category-group';
 
+        // Add special class for dungeon group to enable progression styling
+        if (group === 'dungeon') {
+            groupDiv.classList.add('dungeon-group');
+        }
+
         const title = document.createElement('h3');
         title.textContent = this.t(group === 'dungeon' ? 'header_dungeon' : `header_${group}`);
         groupDiv.appendChild(title);
 
-        view.categories.filter(c => c.group === group).forEach(cat => {
+        // For dungeon group, determine which floor is "next" (first unchecked)
+        const dungeonCategories = group === 'dungeon'
+            ? view.categories.filter(c => c.group === 'dungeon')
+            : [];
+        const nextFloorIndex = dungeonCategories.findIndex(c => !c.isChecked);
+
+        view.categories.filter(c => c.group === group).forEach((cat, index) => {
             const item = document.createElement('div');
             item.className = 'category-item';
             if (cat.isChecked) {
@@ -282,6 +293,17 @@ export class Renderer {
                  if (this.recentlyCheckedCategories.has(cat.id)) {
                      this.recentlyCheckedCategories.delete(cat.id);
                  }
+            }
+
+            // Dungeon floor progression indicators
+            if (group === 'dungeon' && !cat.isChecked) {
+                if (index === nextFloorIndex) {
+                    // This is the next floor to tackle
+                    item.classList.add('floor-next');
+                } else if (index > nextFloorIndex) {
+                    // This floor is still locked (behind previous floors)
+                    item.classList.add('floor-locked');
+                }
             }
 
             if (cat.isSelectable) {
