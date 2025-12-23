@@ -548,7 +548,19 @@ var Renderer = class {
         }
         const nameSpan = document.createElement("span");
         nameSpan.className = "category-name";
-        nameSpan.textContent = this.formatCategoryName(cat.id);
+        const rawName = this.formatCategoryName(cat.id);
+        const match = rawName.match(/^(.+?)(\s*[(\uff08].+[)\uff09])$/);
+        if (match) {
+          const mainSpan = document.createElement("span");
+          mainSpan.textContent = match[1];
+          const subSpan = document.createElement("span");
+          subSpan.className = "category-note";
+          subSpan.textContent = match[2].trim();
+          nameSpan.appendChild(mainSpan);
+          nameSpan.appendChild(subSpan);
+        } else {
+          nameSpan.textContent = rawName;
+        }
         const statusSpan = document.createElement("span");
         statusSpan.className = "category-status";
         statusSpan.innerHTML = cat.isChecked ? "&#10003;" : cat.isSelectable ? "&#9675;" : "";
@@ -976,7 +988,7 @@ var ja = {
 };
 var dictionaries = { en, ja };
 function createTranslator(locale2) {
-  const lang = locale2.startsWith("ja") ? "ja" : "ja";
+  const lang = locale2.startsWith("ja") ? "ja" : "en";
   const dict = dictionaries[lang];
   return (key, params) => {
     let text = dict[key] || key;
