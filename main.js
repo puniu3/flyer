@@ -976,7 +976,7 @@ var ja = {
 };
 var dictionaries = { en, ja };
 function createTranslator(locale2) {
-  const lang = locale2.startsWith("ja") ? "ja" : "en";
+  const lang = locale2.startsWith("ja") ? "ja" : "ja";
   const dict = dictionaries[lang];
   return (key, params) => {
     let text = dict[key] || key;
