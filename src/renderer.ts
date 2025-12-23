@@ -276,7 +276,24 @@ export class Renderer {
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'category-name';
-            nameSpan.textContent = this.formatCategoryName(cat.id);
+            
+            const rawName = this.formatCategoryName(cat.id);
+            // Split name and condition (e.g. "Floor 1 (Sum 20+)")
+            const match = rawName.match(/^(.+?)(\s*[(\uff08].+[)\uff09])$/);
+
+            if (match) {
+                const mainSpan = document.createElement('span');
+                mainSpan.textContent = match[1];
+                
+                const subSpan = document.createElement('span');
+                subSpan.className = 'category-note';
+                subSpan.textContent = match[2].trim();
+
+                nameSpan.appendChild(mainSpan);
+                nameSpan.appendChild(subSpan);
+            } else {
+                nameSpan.textContent = rawName;
+            }
 
             const statusSpan = document.createElement('span');
             statusSpan.className = 'category-status';
