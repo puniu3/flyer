@@ -111,8 +111,7 @@ function isCategorySatisfied(id, dice) {
     case "str_full_house": {
       const has3 = countsValues.includes(3);
       const has2 = countsValues.includes(2);
-      const has5 = countsValues.includes(5);
-      return has3 && has2 || has5;
+      return has3 && has2;
     }
     case "str_four_of_a_kind":
       return countsValues.some((c) => c >= 4);
@@ -132,8 +131,7 @@ function isCategorySatisfied(id, dice) {
       return countsValues.some((c) => c >= 2);
     case "int_two_pair": {
       const pairsCount = countsValues.filter((c) => c >= 2).length;
-      const fourOfAKind = countsValues.some((c) => c >= 4);
-      return pairsCount >= 2 || fourOfAKind;
+      return pairsCount >= 2;
     }
     case "int_three_of_a_kind_3":
       return counts[3] >= 3;
