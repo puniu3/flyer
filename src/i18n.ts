@@ -62,17 +62,6 @@ const en: Record<string, string> = {
     'guide_write_1': 'Check one category that matches your dice.',
     'guide_write_2': 'If nothing matches → Game Over!',
     'guide_write_3': 'Check Floor 5 → You Win!',
-    'guide_hands_title': 'Hand Reference',
-    'guide_hand_three': 'Three of a Kind',
-    'guide_hand_three_desc': '3 dice with the same value (e.g., 5-5-5-1-2)',
-    'guide_hand_full': 'Full House',
-    'guide_hand_full_desc': '3 of a kind + 2 of a kind (e.g., 3-3-3-2-2)',
-    'guide_hand_straight': 'Straight',
-    'guide_hand_straight_desc': '5 consecutive numbers (1-2-3-4-5 or 2-3-4-5-6)',
-    'guide_hand_four': 'Four of a Kind',
-    'guide_hand_four_desc': '4 dice with the same value',
-    'guide_hand_five': 'Five of a Kind',
-    'guide_hand_five_desc': 'All 5 dice show the same value',
 };
 
 const ja: Record<string, string> = {
@@ -137,17 +126,6 @@ const ja: Record<string, string> = {
     'guide_write_1': '条件を満たすマスを1つチェック。',
     'guide_write_2': 'どこも埋められない ⇒ 即ゲームオーバー！',
     'guide_write_3': 'B5Fをチェック ⇒ ゲームクリア！',
-    'guide_hands_title': '役のメモ',
-    'guide_hand_three': 'スリーカード',
-    'guide_hand_three_desc': '同じ目3つ (例: 5,5,5,1,2)',
-    'guide_hand_full': 'フルハウス',
-    'guide_hand_full_desc': '3つ揃い+2つ揃い',
-    'guide_hand_straight': 'ストレート',
-    'guide_hand_straight_desc': '数字が5つ続く (例: 1,2,3,4,5)',
-    'guide_hand_four': 'フォーカード',
-    'guide_hand_four_desc': '同じ目4つ',
-    'guide_hand_five': 'ファイブカード',
-    'guide_hand_five_desc': '同じ目5つ (全部同じ)',
 };
 
 const dictionaries: Record<string, Record<string, string>> = { en, ja };

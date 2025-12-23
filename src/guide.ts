@@ -81,22 +81,6 @@ export class GuideModal {
               <li>${t('guide_write_3')}</li>
             </ul>
           </section>
-
-          <section class="guide-section guide-hands">
-            <h3>${t('guide_hands_title')}</h3>
-            <dl>
-              <dt>${t('guide_hand_three')}</dt>
-              <dd>${t('guide_hand_three_desc')}</dd>
-              <dt>${t('guide_hand_full')}</dt>
-              <dd>${t('guide_hand_full_desc')}</dd>
-              <dt>${t('guide_hand_straight')}</dt>
-              <dd>${t('guide_hand_straight_desc')}</dd>
-              <dt>${t('guide_hand_four')}</dt>
-              <dd>${t('guide_hand_four_desc')}</dd>
-              <dt>${t('guide_hand_five')}</dt>
-              <dd>${t('guide_hand_five_desc')}</dd>
-            </dl>
-          </section>
         </div>
       </div>
     `;
