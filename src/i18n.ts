@@ -45,7 +45,7 @@ const en: Record<string, string> = {
     'skill_desc_skill_str_mighty': 'Set a die to 6',
     'skill_name_skill_dex_acrobatics': 'Acrobatics',
     'skill_desc_skill_dex_acrobatics': 'Reduce die value by 1 (min 1)',
-    'skill_name_skill_int_metamorph': 'Metamorph',
+    'skill_name_skill_int_metamorph': 'Polymorph',
     'skill_desc_skill_int_metamorph': 'Flip a die (1<->6, 2<->5, 3<->4)',
 
     // Guide Modal

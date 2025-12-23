@@ -216,10 +216,27 @@ initial_state:
 
 
 # ==========================================
-# LOCALIZATION SEMANTICS
+# LOCALIZATION SEMANTICS (SOURCE OF TRUTH)
 # ==========================================
 l10n_semantics:
+  # Game Atmosphere & Worldview
+  global_tone:
+    concept: "Scribble RPG on a Flyer"
+    description: "A digital adaptation of a solo game played on the blank back side of a promotional flyer (A4 paper). The visuals and text should feel like a 'hand-drawn doodle' or 'indie project', not a polished AAA corporate product."
+    target_audience: "Casual gamers, TRPG fans."
+    style_guide: "Casual, Direct, Handmade feel."
+
   nodes:
+    game_title:
+      id: "game_title"
+      context: "Title"
+      note: "Ideally means 'Dungeon drawn on the back of a flyer'. If the target language has a natural phrase for 'Back of the paper/flyer' (like JA 'Ura'), use it. If not, 'Flyer Dungeon' is acceptable."
+
+    guide_credit:
+      id: "guide_credit"
+      context: "Signature"
+      note: "A casual signature scribbled in the corner. Use 'Made by' or 'Dev' instead of formal titles like 'Executive Producer'."
+
     dungeon_floor_generic:
       match_pattern: "dungeon_floor_*"
       context: "Underground Depth / Basement"
@@ -242,6 +259,6 @@ l10n_semantics:
       associated_nuance: "Low Sum / Avoidance"
 
     skill_int_metamorph:
-      context: "Shapeshifting Magic"
-      flavor: "Transforming into a Dragon (for combat) or a Bat (for evasion)."
-      associated_nuance: "Versatility"
+      context: "Polymorph Magic"
+      flavor: "Using magic to transform the object (Die). Specifically, flipping it to its opposite face."
+      note: "Should imply 'Magic transformation' (Polymorph), not 'Biological evolution' (Metamorphosis)."
