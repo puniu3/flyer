@@ -390,7 +390,72 @@ const de: Record<string, string> = {
     'guide_credit': '←Dev',
 };
 
-const dictionaries: Record<string, Record<string, string>> = { en, ja, zh, 'zh-TW': zhTW, ko, de };
+const fr: Record<string, string> = {
+    // UI
+    'game_title': 'Flyer Dungeon',
+    'status_won': 'Gagné ! 🎉',
+    'status_lost': 'Game Over 💀',
+    'msg_start': 'Lancez les dés pour commencer !',
+    'label_held': 'GARDÉ',
+    'btn_play_again': 'REJOUER ↺',
+    'btn_roll_initial': 'LANCER',
+    'btn_no_rolls': 'PLUS DE LANCERS',
+    'btn_roll': 'RELANCER ({current}/{max})',
+    'instr_apply_skill': 'Sélectionnez un dé pour {skillName}',
+    'instr_start_turn': 'Lancez les dés pour commencer le tour.',
+    'instr_mid_turn': 'Gardez des dés et relancez. Ou choisissez une catégorie/compétence.',
+    'instr_choose_category': 'Choisissez une catégorie.',
+    'label_unlock_progress': 'Débloqué : {current}/3',
+    'header_dungeon': 'Donjon',
+    'header_str': 'FOR',
+    'header_dex': 'DEX',
+    'header_int': 'INT',
+
+    // Categories
+    'cat_dungeon_floor_1': 'Niveau 1 (Somme 20+)',
+    'cat_dungeon_floor_2': 'Niveau 2 (Somme 24+)',
+    'cat_dungeon_floor_3': 'Niveau 3 (Somme 26+)',
+    'cat_dungeon_floor_4': 'Niveau 4 (Somme ≤ 9)',
+    'cat_dungeon_floor_5': 'Niveau 5 (Yams)',
+    'cat_str_full_house': 'Full',
+    'cat_str_four_of_a_kind': 'Carré',
+    'cat_str_three_of_a_kind_5': 'Brelan de 5',
+    'cat_str_three_of_a_kind_6': 'Brelan de 6',
+    'cat_dex_free': 'Libre',
+    'cat_dex_straight': 'Suite',
+    'cat_dex_three_of_a_kind_1': 'Brelan de 1',
+    'cat_dex_three_of_a_kind_2': 'Brelan de 2',
+    'cat_int_one_pair': 'Une Paire',
+    'cat_int_two_pair': 'Deux Paires',
+    'cat_int_three_of_a_kind_3': 'Brelan de 3',
+    'cat_int_three_of_a_kind_4': 'Brelan de 4',
+
+    // Skills
+    'skill_name_skill_str_mighty': 'Puissance',
+    'skill_desc_skill_str_mighty': 'Mettre un dé sur 6',
+    'skill_name_skill_dex_acrobatics': 'Acrobatie',
+    'skill_desc_skill_dex_acrobatics': 'Réduire un dé de 1 (min 1)',
+    'skill_name_skill_int_metamorph': 'Polymorphie',
+    'skill_desc_skill_int_metamorph': 'Inverser un dé (1<->6...)',
+
+    // Guide Modal
+    'guide_btn': '?',
+    'guide_title': 'Règles',
+    'guide_roll_title': 'LANCER',
+    'guide_roll_1': 'Lancez 5 dés.',
+    'guide_roll_2': 'Gardez les dés voulus, relancez le reste.',
+    'guide_roll_3': 'Max 3 lancers au total.',
+    'guide_skill_title': 'COMPÉTENCES',
+    'guide_skill_1': 'Validez 3 catégories d\'une stat pour débloquer.',
+    'guide_skill_2': '1 utilisation par compétence par tour.',
+    'guide_write_title': 'CHOISIR',
+    'guide_write_1': 'Cochez une case valide.',
+    'guide_write_2': 'Rien à cocher ? → Perdu !',
+    'guide_write_3': 'Niveau 5 coché ? → Gagné !',
+    'guide_credit': '←Dev',
+};
+
+const dictionaries: Record<string, Record<string, string>> = { en, ja, zh, 'zh-TW': zhTW, ko, de, fr };
 
 export function createTranslator(locale: string): Translator {
     let lang = 'en';
@@ -407,6 +472,8 @@ export function createTranslator(locale: string): Translator {
         lang = 'ko';
     } else if (locale.startsWith('de')) {
         lang = 'de';
+    } else if (locale.startsWith('fr')) {
+        lang = 'fr';
     }
     
     // Fallback to English if exact key is missing in target language
