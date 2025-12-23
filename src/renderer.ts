@@ -1,5 +1,6 @@
 import { GameView, CategoryId, SkillId, DieValue, CategoryGroup, SkillStatus } from './types';
 import { Translator } from './i18n';
+import { GuideModal } from './guide';
 
 export class Renderer {
   private root: HTMLElement;
@@ -11,6 +12,7 @@ export class Renderer {
   private onHold: () => void;
   private onRestart: () => void;
   private t: Translator;
+  private guideModal: GuideModal;
 
   // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
@@ -37,6 +39,7 @@ export class Renderer {
     this.onHold = onHold;
     this.onRestart = onRestart;
     this.t = t;
+    this.guideModal = new GuideModal();
   }
 
   update(view: GameView): void {
@@ -57,6 +60,13 @@ export class Renderer {
     // Header
     const header = document.createElement('header');
     header.innerHTML = `<h1>${this.t('game_title')}</h1>`;
+
+    const helpBtn = document.createElement('button');
+    helpBtn.className = 'help-btn';
+    helpBtn.textContent = '?';
+    helpBtn.onclick = () => this.guideModal.show();
+    header.appendChild(helpBtn);
+
     this.root.appendChild(header);
 
     // Game Status (Removed "Playing" status)
