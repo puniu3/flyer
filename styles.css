@@ -715,6 +715,13 @@ dialog.guide-modal::backdrop {
   line-height: 1.4;
 }
 
+.guide-credit {
+  text-align: right;
+  padding: 12px 20px;
+  font-size: 0.85rem;
+  color: #999;
+}
+
 /* Mobile adjustments for modal */
 @media (max-width: 768px) {
   dialog.guide-modal {
@@ -750,5 +757,10 @@ dialog.guide-modal::backdrop {
 
   .guide-hands dd {
     font-size: 0.85rem;
+  }
+
+  .guide-credit {
+    padding: 10px 16px;
+    font-size: 0.8rem;
   }
 }

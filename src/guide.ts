@@ -82,6 +82,7 @@ export class GuideModal {
             </ul>
           </section>
         </div>
+        <footer class="guide-credit">( ・3・)${t('guide_credit')}</footer>
       </div>
     `;
   }
