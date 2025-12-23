@@ -1,5 +1,6 @@
 import { GameView, CategoryId, SkillId, DieValue, CategoryGroup, SkillStatus } from './types';
 import { Translator } from './i18n';
+import { GuideModal } from './guide';
 
 export class Renderer {
   private root: HTMLElement;
@@ -16,6 +17,7 @@ export class Renderer {
   private selectedDiceIndices: Set<number> = new Set();
   private selectedSkillId: SkillId | null = null;
   private recentlyCheckedCategories: Set<CategoryId> = new Set();
+  private guideModal: GuideModal;
 
   constructor(
     root: HTMLElement,
@@ -37,6 +39,10 @@ export class Renderer {
     this.onHold = onHold;
     this.onRestart = onRestart;
     this.t = t;
+
+    // Create guide modal and append to document.body (outside game root)
+    this.guideModal = new GuideModal(t);
+    document.body.appendChild(this.guideModal.element);
   }
 
   update(view: GameView): void {
@@ -57,6 +63,15 @@ export class Renderer {
     // Header
     const header = document.createElement('header');
     header.innerHTML = `<h1>${this.t('game_title')}</h1>`;
+
+    // Help button
+    const helpBtn = document.createElement('button');
+    helpBtn.className = 'guide-btn';
+    helpBtn.textContent = this.t('guide_btn');
+    helpBtn.setAttribute('aria-label', this.t('guide_title'));
+    helpBtn.onclick = () => this.guideModal.open();
+    header.appendChild(helpBtn);
+
     this.root.appendChild(header);
 
     // Game Status (Removed "Playing" status)
