@@ -1053,6 +1053,7 @@ var en = {
   "skill_name_skill_dex_acrobatics": "Acrobatics",
   "skill_desc_skill_dex_acrobatics": "Reduce die value by 1 (min 1)",
   "skill_name_skill_int_metamorph": "Polymorph",
+  // Changed from Metamorph
   "skill_desc_skill_int_metamorph": "Flip a die (1<->6, 2<->5, 3<->4)",
   // Guide Modal
   "guide_btn": "?",
@@ -1068,7 +1069,8 @@ var en = {
   "guide_write_1": "Check one category that matches your dice.",
   "guide_write_2": "If nothing matches → Game Over!",
   "guide_write_3": "Check Floor 5 → You Win!",
-  "guide_credit": "←Creator"
+  "guide_credit": "←Dev"
+  // Changed from Creator (more casual)
 };
 var ja = {
   // UI
@@ -1312,7 +1314,8 @@ var ko = {
   "guide_write_1": "조건을 만족하는 칸을 하나 선택해 체크하세요.",
   "guide_write_2": "체크할 곳이 없다면 ⇒ 게임 오버!",
   "guide_write_3": "지하 5층을 체크하면 ⇒ 게임 클리어!",
-  "guide_credit": "←제작자"
+  "guide_credit": "←만든 사람"
+  // Changed from 제작자 (Producer) to be more casual
 };
 var dictionaries = { en, ja, zh, "zh-TW": zhTW, ko };
 function createTranslator(locale2) {
