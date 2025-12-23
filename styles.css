@@ -322,6 +322,12 @@ button:disabled {
   animation: success-flash 1s ease-out;
 }
 
+.category-note {
+  margin-left: 0.5em;
+  font-size: 0.9em;
+  color: #555;
+}
+
 @keyframes success-flash {
   0% { background-color: var(--secondary-color); transform: scale(1.02); }
   50% { background-color: rgba(3, 218, 198, 0.5); }
