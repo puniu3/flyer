@@ -1403,7 +1403,7 @@ var fr = {
   "cat_dungeon_floor_3": "Niveau 3 (Somme 26+)",
   "cat_dungeon_floor_4": "Niveau 4 (Somme ≤ 9)",
   "cat_dungeon_floor_5": "Niveau 5 (Yams)",
-  "cat_str_full_house": "Full",
+  "cat_str_full_house": "Full House",
   "cat_str_four_of_a_kind": "Carré",
   "cat_str_three_of_a_kind_5": "Brelan de 5",
   "cat_str_three_of_a_kind_6": "Brelan de 6",
