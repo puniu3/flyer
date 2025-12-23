@@ -260,7 +260,72 @@ const zhTW: Record<string, string> = {
     'guide_credit': '←作者',
 };
 
-const dictionaries: Record<string, Record<string, string>> = { en, ja, zh, 'zh-TW': zhTW };
+const ko: Record<string, string> = {
+    // UI
+    'game_title': '전단지 뒷면 던전',
+    'status_won': '승리! 🎉',
+    'status_lost': '게임 오버 💀',
+    'msg_start': '주사위를 굴려 시작하세요!',
+    'label_held': '킵',
+    'btn_play_again': '다시 하기 ↺',
+    'btn_roll_initial': '주사위 굴리기',
+    'btn_no_rolls': '기회 없음',
+    'btn_roll': '다시 굴리기 ({current}/{max})',
+    'instr_apply_skill': '{skillName} 스킬을 사용할 주사위를 선택하세요',
+    'instr_start_turn': '주사위를 굴려 턴 시작',
+    'instr_mid_turn': '주사위를 킵하고 굴리거나, 족보/스킬을 선택하세요',
+    'instr_choose_category': '족보를 선택하세요',
+    'label_unlock_progress': '해금: {current}/3',
+    'header_dungeon': '던전',
+    'header_str': 'STR',
+    'header_dex': 'DEX',
+    'header_int': 'INT',
+
+    // Categories
+    'cat_dungeon_floor_1': '지하 1층 (합계 20 이상)',
+    'cat_dungeon_floor_2': '지하 2층 (합계 24 이상)',
+    'cat_dungeon_floor_3': '지하 3층 (합계 26 이상)',
+    'cat_dungeon_floor_4': '지하 4층 (합계 9 이하)',
+    'cat_dungeon_floor_5': '지하 5층 (파이브 카드)',
+    'cat_str_full_house': '풀하우스',
+    'cat_str_four_of_a_kind': '포 카드',
+    'cat_str_three_of_a_kind_5': '5의 쓰리 카드',
+    'cat_str_three_of_a_kind_6': '6의 쓰리 카드',
+    'cat_dex_free': '프리',
+    'cat_dex_straight': '스트레이트',
+    'cat_dex_three_of_a_kind_1': '1의 쓰리 카드',
+    'cat_dex_three_of_a_kind_2': '2의 쓰리 카드',
+    'cat_int_one_pair': '원 페어',
+    'cat_int_two_pair': '투 페어',
+    'cat_int_three_of_a_kind_3': '3의 쓰리 카드',
+    'cat_int_three_of_a_kind_4': '4의 쓰리 카드',
+
+    // Skills
+    'skill_name_skill_str_mighty': '괴력',
+    'skill_desc_skill_str_mighty': '주사위 1개를 6으로 설정',
+    'skill_name_skill_dex_acrobatics': '곡예',
+    'skill_desc_skill_dex_acrobatics': '주사위 눈 1 감소 (최소 1)',
+    'skill_name_skill_int_metamorph': '변신',
+    'skill_desc_skill_int_metamorph': '주사위 뒤집기 (1↔6...)',
+
+    // Guide Modal
+    'guide_btn': '?',
+    'guide_title': '게임 방법',
+    'guide_roll_title': '굴리기',
+    'guide_roll_1': '주사위 5개를 굴립니다.',
+    'guide_roll_2': '원하는 주사위는 킵(Hold)하고 나머지를 다시 굴립니다.',
+    'guide_roll_3': '한 턴에 총 3번까지 굴릴 수 있습니다.',
+    'guide_skill_title': '스킬 사용',
+    'guide_skill_1': '각 능력치에서 3개를 달성(✔)하면 스킬이 해금됩니다.',
+    'guide_skill_2': '각 스킬은 턴마다 1번씩 사용할 수 있습니다.',
+    'guide_write_title': '기록하기',
+    'guide_write_1': '조건을 만족하는 칸을 하나 선택해 체크하세요.',
+    'guide_write_2': '체크할 곳이 없다면 ⇒ 게임 오버!',
+    'guide_write_3': '지하 5층을 체크하면 ⇒ 게임 클리어!',
+    'guide_credit': '←제작자',
+};
+
+const dictionaries: Record<string, Record<string, string>> = { en, ja, zh, 'zh-TW': zhTW, ko };
 
 export function createTranslator(locale: string): Translator {
     let lang = 'en';
@@ -273,6 +338,8 @@ export function createTranslator(locale: string): Translator {
     } else if (locale.startsWith('zh')) {
         // Fallback for other zh variants (e.g. zh-CN)
         lang = 'zh';
+    } else if (locale.startsWith('ko')) {
+        lang = 'ko';
     }
     
     // Fallback to English if exact key is missing in target language
