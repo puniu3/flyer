@@ -106,7 +106,7 @@ const ja: Record<string, string> = {
     'cat_int_three_of_a_kind_4': '4のスリーカード',
 
     // Skills
-    'skill_name_skill_str_mighty': '剛力',
+    'skill_name_skill_str_mighty': '剛腕',
     'skill_desc_skill_str_mighty': 'ダイス1つを6にする',
     'skill_name_skill_dex_acrobatics': '軽業',
     'skill_desc_skill_dex_acrobatics': 'ダイスの値を1減らす(最小1)',
@@ -116,17 +116,17 @@ const ja: Record<string, string> = {
     // Guide Modal
     'guide_btn': '?',
     'guide_title': '遊び方',
-    'guide_roll_title': '振る (ROLL)',
-    'guide_roll_1': 'ダイスを5個振る。',
-    'guide_roll_2': '合計3投までOK（2回振り直し）。',
-    'guide_roll_3': '好きな目だけ残して振れるよ。',
-    'guide_skill_title': '使う (SKILL)',
-    'guide_skill_1': '習得済み(✔×3)のスキルを使用可。',
-    'guide_skill_2': '各スキル、1ターンに各1回使用OK。',
-    'guide_write_title': '書く (WRITE)',
-    'guide_write_1': '条件を満たすマスを1つチェック。',
+    'guide_roll_title': '振る',
+    'guide_roll_1': 'ダイスを5個振る',
+    'guide_roll_2': '好きな目だけ残して振り直し',
+    'guide_roll_3': '合計3投まで',
+    'guide_skill_title': 'スキルを使う',
+    'guide_skill_1': '習得済み(✔×3)のスキルを使用可',
+    'guide_skill_2': '各スキル、1ターンに各1回使用OK',
+    'guide_write_title': '埋める',
+    'guide_write_1': '条件を満たすマスを1つチェック',
     'guide_write_2': 'どこも埋められない ⇒ 即ゲームオーバー！',
-    'guide_write_3': 'B5Fをチェック ⇒ ゲームクリア！',
+    'guide_write_3': '第5階層をチェック ⇒ ゲームクリア！',
     'guide_credit': '←作った人',
 };
 
