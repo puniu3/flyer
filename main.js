@@ -608,7 +608,33 @@ var Renderer = class {
         groupDiv.classList.add("dungeon-group");
       }
       const title = document.createElement("h3");
-      title.textContent = this.t(group === "dungeon" ? "header_dungeon" : `header_${group}`);
+      const titleText = this.t(group === "dungeon" ? "header_dungeon" : `header_${group}`);
+      if (group !== "dungeon") {
+        const groupCount = counts[group];
+        const isUnlocked = groupCount >= 3;
+        groupDiv.classList.add(`group-${group}`);
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = titleText;
+        title.appendChild(titleSpan);
+        const progressIndicator = document.createElement("span");
+        progressIndicator.className = "skill-unlock-indicator";
+        if (isUnlocked) {
+          progressIndicator.classList.add("unlocked");
+        } else if (groupCount === 2) {
+          progressIndicator.classList.add("approaching");
+        }
+        for (let i = 0; i < 3; i++) {
+          const dot = document.createElement("span");
+          dot.className = "unlock-dot";
+          if (i < groupCount) {
+            dot.classList.add("filled");
+          }
+          progressIndicator.appendChild(dot);
+        }
+        title.appendChild(progressIndicator);
+      } else {
+        title.textContent = titleText;
+      }
       groupDiv.appendChild(title);
       const dungeonCategories = group === "dungeon" ? view.categories.filter((c) => c.group === "dungeon") : [];
       const nextFloorIndex = dungeonCategories.findIndex((c) => !c.isChecked);

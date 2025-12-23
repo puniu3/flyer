@@ -269,7 +269,45 @@ export class Renderer {
         }
 
         const title = document.createElement('h3');
-        title.textContent = this.t(group === 'dungeon' ? 'header_dungeon' : `header_${group}`);
+        const titleText = this.t(group === 'dungeon' ? 'header_dungeon' : `header_${group}`);
+
+        // For STR/DEX/INT groups, add skill unlock progress indicator
+        if (group !== 'dungeon') {
+            const groupCount = counts[group];
+            const isUnlocked = groupCount >= 3;
+
+            // Add group class for styling
+            groupDiv.classList.add(`group-${group}`);
+
+            // Create title with progress indicator
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = titleText;
+            title.appendChild(titleSpan);
+
+            // Add progress indicator (subtle dots showing X/3)
+            const progressIndicator = document.createElement('span');
+            progressIndicator.className = 'skill-unlock-indicator';
+            if (isUnlocked) {
+                progressIndicator.classList.add('unlocked');
+            } else if (groupCount === 2) {
+                progressIndicator.classList.add('approaching');
+            }
+
+            // Create 3 dots to show progress
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('span');
+                dot.className = 'unlock-dot';
+                if (i < groupCount) {
+                    dot.classList.add('filled');
+                }
+                progressIndicator.appendChild(dot);
+            }
+
+            title.appendChild(progressIndicator);
+        } else {
+            title.textContent = titleText;
+        }
+
         groupDiv.appendChild(title);
 
         // For dungeon group, determine which floor is "next" (first unchecked)

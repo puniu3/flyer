@@ -295,6 +295,89 @@ button:disabled {
   color: #666;
   font-size: 0.9rem;
   letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Skill Unlock Progress Indicator - subtle dots showing progress toward skill unlock */
+.skill-unlock-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+.unlock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ddd;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+/* Filled dots based on group color */
+.category-group.group-str .unlock-dot.filled {
+  background-color: #F44336;
+  border-color: #D32F2F;
+}
+
+.category-group.group-dex .unlock-dot.filled {
+  background-color: #4CAF50;
+  border-color: #388E3C;
+}
+
+.category-group.group-int .unlock-dot.filled {
+  background-color: #2196F3;
+  border-color: #1976D2;
+}
+
+/* Approaching state (2/3) - subtle pulse on the last unfilled dot */
+.skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  animation: approach-pulse 2s infinite;
+}
+
+@keyframes approach-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Color the approaching pulse based on group */
+.category-group.group-str .skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  border-color: #F44336;
+}
+
+.category-group.group-dex .skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  border-color: #4CAF50;
+}
+
+.category-group.group-int .skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  border-color: #2196F3;
+}
+
+/* Unlocked state - all dots filled with subtle glow */
+.skill-unlock-indicator.unlocked {
+  position: relative;
+}
+
+.category-group.group-str .skill-unlock-indicator.unlocked .unlock-dot {
+  box-shadow: 0 0 4px rgba(244, 67, 54, 0.5);
+}
+
+.category-group.group-dex .skill-unlock-indicator.unlocked .unlock-dot {
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+}
+
+.category-group.group-int .skill-unlock-indicator.unlocked .unlock-dot {
+  box-shadow: 0 0 4px rgba(33, 150, 243, 0.5);
 }
 
 .category-item {
@@ -558,6 +641,17 @@ button:disabled {
   .category-group h3 {
     font-size: 0.8rem;
     margin-bottom: 5px;
+  }
+
+  /* Smaller dots on mobile */
+  .unlock-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .skill-unlock-indicator {
+    gap: 3px;
+    padding-left: 6px;
   }
 
   .category-item {
