@@ -79,8 +79,6 @@ export class GuideModal {
               <li>${t('guide_write_1')}</li>
               <li>${t('guide_write_2')}</li>
               <li>${t('guide_write_3')}</li>
-              <li>${t('guide_write_4')}</li>
-              <li>${t('guide_write_5')}</li>
             </ul>
           </section>
         </div>
