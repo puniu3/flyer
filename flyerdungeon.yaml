@@ -68,7 +68,20 @@ categories:
       group: dungeon
       prerequisite: dungeon_floor_4
       condition:
-        type: yahtzee
+        type: five_of_a_kind
+
+    - id: str_full_house
+      group: str
+      prerequisite: null
+      condition:
+        type: full_house
+        allow_five_of_a_kind_as_full_house: true
+
+    - id: str_four_of_a_kind
+      group: str
+      prerequisite: null
+      condition:
+        type: four_of_a_kind
 
     - id: str_three_of_a_kind_5
       group: str
@@ -84,17 +97,20 @@ categories:
         type: three_of_a_kind
         face_value: 6
 
-    - id: str_full_house
-      group: str
+    - id: dex_free
+      group: dex
       prerequisite: null
       condition:
-        type: full_house
+        type: sum_of_dice
+        comparator: ">="
+        value: 0
 
-    - id: str_four_of_a_kind
-      group: str
+    - id: dex_straight
+      group: dex
       prerequisite: null
       condition:
-        type: four_of_a_kind
+        type: straight
+        length: 5
 
     - id: dex_three_of_a_kind_1
       group: dex
@@ -110,34 +126,6 @@ categories:
         type: three_of_a_kind
         face_value: 2
 
-    - id: dex_small_straight
-      group: dex
-      prerequisite: null
-      condition:
-        type: straight
-        length: 4
-
-    - id: dex_large_straight
-      group: dex
-      prerequisite: null
-      condition:
-        type: straight
-        length: 5
-
-    - id: int_three_of_a_kind_3
-      group: int
-      prerequisite: null
-      condition:
-        type: three_of_a_kind
-        face_value: 3
-
-    - id: int_three_of_a_kind_4
-      group: int
-      prerequisite: null
-      condition:
-        type: three_of_a_kind
-        face_value: 4
-
     - id: int_one_pair
       group: int
       prerequisite: null
@@ -152,6 +140,20 @@ categories:
         type: pair
         pair_count: 2
         allow_four_of_a_kind_as_two_pair: true
+
+    - id: int_three_of_a_kind_3
+      group: int
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 3
+
+    - id: int_three_of_a_kind_4
+      group: int
+      prerequisite: null
+      condition:
+        type: three_of_a_kind
+        face_value: 4
 
 skills:
   list:
@@ -196,17 +198,17 @@ initial_state:
   dungeon_floor_4: false
   dungeon_floor_5: false
 
-  str_three_of_a_kind_5: false
-  str_three_of_a_kind_6: false
   str_full_house: false
   str_four_of_a_kind: false
+  str_three_of_a_kind_5: false
+  str_three_of_a_kind_6: false
 
+  dex_free: false
+  dex_straight: false
   dex_three_of_a_kind_1: false
   dex_three_of_a_kind_2: false
-  dex_small_straight: false
-  dex_large_straight: false
 
-  int_three_of_a_kind_3: false
-  int_three_of_a_kind_4: false
   int_one_pair: false
   int_two_pair: false
+  int_three_of_a_kind_3: false
+  int_three_of_a_kind_4: false

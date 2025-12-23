@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" name="viewport" content="width=210mm">
+<title>チラシの裏ダンジョン</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --border-color: #000;
+        --bg-color: #fff;
+    }
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    body {
+        font-family: 'Yomogi', cursive, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+        color: #000;
+        width: 210mm;
+        height: 296mm; /* A4 height approx */
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+    .sheet {
+        width: 100%;
+        height: 100%;
+        padding: 10mm 15mm;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 共通スタイル */
+    h1, h2, h3, p, ul { margin: 0; padding: 0; }
+    ul { list-style: none; }
+    .box { border: 2px solid #000; padding: 5px; }
+    .flex { display: flex; justify-content: space-between; }
+    .center { text-align: center; }
+    .bold { font-weight: bold; }
+    
+    /* --- 上半分：ルールセクション --- */
+    .top-section {
+        flex: 0 0 45%;
+        border-bottom: 2px dashed #000; /* キリトリ線 */
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .header h1 {
+        font-size: 32pt;
+        border-bottom: 4px double #000;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+    .flavor {
+        font-size: 11pt;
+        margin-bottom: 15px;
+        font-style: italic;
+    }
+    .rules-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        font-size: 11pt;
+    }
+    .rule-box h2 {
+        background: #000;
+        color: #fff;
+        padding: 2px 8px;
+        font-size: 14pt;
+        display: inline-block;
+        margin-bottom: 5px;
+        border-radius: 3px;
+    }
+    .rule-box li { margin-bottom: 4px; padding-left: 1em; text-indent: -1em;}
+    .rule-box li::before { content: "・"; }
+    
+    .yaku-list {
+        margin-top: 10px;
+        border: 1px solid #000;
+        padding: 8px;
+        font-size: 10pt;
+    }
+
+    /* --- 下半分：プレイシート --- */
+    .bottom-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .play-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 2px solid #000;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+    }
+    
+    /* 3カラム（Stats） */
+    .stats-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .col-header {
+        font-size: 16pt;
+        text-align: center;
+        border-bottom: 2px solid #000;
+        margin-bottom: 5px;
+        padding-bottom: 2px;
+    }
+    .check-row {
+        font-size: 12pt;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+    }
+    .cb {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #000;
+        display: inline-block;
+        margin-right: 6px;
+        background: #fff;
+    }
+
+    /* スキルボックス */
+    .skill-box {
+        margin-top: 10px;
+        border: 3px solid #000;
+        padding: 5px;
+        text-align: center;
+        position: relative;
+    }
+    .skill-arrow {
+        position: absolute;
+        top: -18px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10pt;
+        background: #fff;
+        padding: 0 4px;
+    }
+    .skill-name { font-weight: bold; font-size: 13pt; text-decoration: underline; }
+    .skill-desc { font-size: 10pt; line-height: 1.1; margin-top: 2px;}
+
+    /* ダンジョンエリア */
+    .dungeon-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+        border: 2px solid #000;
+        padding: 10px;
+        position: relative;
+    }
+    .dungeon-title {
+        position: absolute;
+        top: -12px;
+        left: 20px;
+        background: #fff;
+        padding: 0 10px;
+        font-size: 14pt;
+        font-weight: bold;
+    }
+    .floor-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        font-size: 14pt;
+        border-bottom: 1px dotted #ccc;
+        padding: 2px 0;
+    }
+    .floor-row:last-child { border-bottom: none; }
+    .floor-id { width: 60px; font-weight: bold; }
+    .floor-cond { flex: 1; text-align: center; }
+    .floor-cb { width: 24px; height: 24px; border: 3px solid #000; margin-right: 10px;}
+    
+    .trap-floor {
+        color: #000;
+        font-weight: bold;
+        background: repeating-linear-gradient(45deg, #eee, #eee 10px, #fff 10px, #fff 20px);
+    }
+    .boss-floor {
+        font-size: 16pt;
+        border-top: 4px double #000;
+        padding-top: 10px;
+    }
+
+    /* フッター */
+    .footer-credit {
+        margin-top: auto;
+        text-align: right;
+        font-size: 10pt;
+        color: #555;
+    }
+
+    /* 印刷時の設定 */
+    @media print {
+        body { -webkit-print-color-adjust: exact; }
+    }
+</style>
+</head>
+<body>
+
+<div class="sheet">
+    <div class="top-section">
+        <div class="header">
+            <h1>チラシの裏ダンジョン</h1>
+            <div class="flavor">
+                冒険者求ム！…というチラシの裏に描かれた、サイコロ5個の即死迷宮。<br>
+                運とスキルで最下層(B5F)を目指せ。
+            </div>
+        </div>
+        <div class="rules-grid">
+            <div class="left-col">
+                <div class="rule-box">
+                    <h2>1. 振る (ROLL)</h2>
+                    <ul>
+                        <li>ダイスを5個振る。</li>
+                        <li><span class="bold">合計3投</span>までOK (2回振り直し)。</li>
+                        <li>※好きな目だけ残して振れるよ。</li>
+                    </ul>
+                </div>
+                <div class="rule-box" style="margin-top:10px;">
+                    <h2>2. 使う (SKILL)</h2>
+                    <ul>
+                        <li>習得済み(✔️×3)のスキルを使用可。</li>
+                        <li>各スキル <span class="bold">1ターンに各1回</span> 使用OK。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="right-col">
+                <div class="rule-box">
+                    <h2>3. 書く (WRITE)</h2>
+                    <ul>
+                        <li>条件を満たすマスを<span class="bold">1つ</span>チェック。</li>
+                        <li>どこも埋められない ⇒ <span class="bold">即ゲームオーバー！</span></li>
+                        <li>B5Fをチェック ⇒ <span class="bold">ゲームクリア！</span></li>
+                    </ul>
+                </div>
+                <div class="yaku-list">
+                    <span class="bold">[役のメモ]</span><br>
+                    ●3カード: 同じ目3つ (例: 5,5,5,1,2)<br>
+                    ●フルハウス: 3つ揃い+2つ揃い<br>
+                    ●ストレート: 数字が続く (小=4つ/大=5つ)<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-section">
+        <div class="play-header">
+            <span style="font-size:18pt; font-weight:bold;">PLAYER: ________________</span>
+        </div>
+
+        <div class="stats-container">
+            <div>
+                <div class="col-header">⚔️ STR (筋力)</div>
+                <div class="check-row"><div class="cb"></div> 5の3カード</div>
+                <div class="check-row"><div class="cb"></div> 6の3カード</div>
+                <div class="check-row"><div class="cb"></div> フルハウス</div>
+                <div class="check-row"><div class="cb"></div> 4カード</div>
+                
+                <div class="skill-box">
+                    <div class="skill-arrow">▼3つで解禁▼</div>
+                    <div class="skill-name">SKILL: 剛腕</div>
+                    <div class="skill-desc">出目1つを<br>「6」にする</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="col-header">👟 DEX (敏捷)</div>
+                <div class="check-row"><div class="cb"></div> 1の3カード</div>
+                <div class="check-row"><div class="cb"></div> 2の3カード</div>
+                <div class="check-row"><div class="cb"></div> 小ストレート</div>
+                <div class="check-row"><div class="cb"></div> 大ストレート</div>
+                
+                <div class="skill-box">
+                    <div class="skill-arrow">▼3つで解禁▼</div>
+                    <div class="skill-name">SKILL: 軽業</div>
+                    <div class="skill-desc">出目1つを<br>-1 する (最小1)</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="col-header">📖 INT (知力)</div>
+                <div class="check-row"><div class="cb"></div> 3の3カード</div>
+                <div class="check-row"><div class="cb"></div> 4の3カード</div>
+                <div class="check-row"><div class="cb"></div> 1ペア</div>
+                <div class="check-row"><div class="cb"></div> 2ペア</div>
+                
+                <div class="skill-box">
+                    <div class="skill-arrow">▼3つで解禁▼</div>
+                    <div class="skill-name">SKILL: 変身</div>
+                    <div class="skill-desc">出目1つを<br>裏返す (1⇔6...)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dungeon-container">
+            <div class="dungeon-title">DUNGEON MAP</div>
+            
+            <div class="floor-row">
+                <div class="cb floor-cb"></div>
+                <div class="floor-id">B1F</div>
+                <div class="floor-cond">出目合計 <span class="bold">20 以上</span></div>
+            </div>
+            <div class="floor-row">
+                <div class="cb floor-cb"></div>
+                <div class="floor-id">B2F</div>
+                <div class="floor-cond">出目合計 <span class="bold">24 以上</span></div>
+            </div>
+            <div class="floor-row">
+                <div class="cb floor-cb"></div>
+                <div class="floor-id">B3F</div>
+                <div class="floor-cond">出目合計 <span class="bold">26 以上</span></div>
+            </div>
+            <div class="floor-row trap-floor">
+                <div class="cb floor-cb"></div>
+                <div class="floor-id">B4F</div>
+                <div class="floor-cond">⚠️ 出目合計 <span class="bold">9 以下</span> ⚠️</div>
+            </div>
+            <div class="floor-row boss-floor">
+                <div class="cb floor-cb" style="border:4px double #000;"></div>
+                <div class="floor-id">B5F</div>
+                <div class="floor-cond">👑 <span class="bold">5カード</span></div>
+            </div>
+        </div>
+
+        <div class="footer-credit">
+            ( ・3・)←作った人
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -125,6 +125,7 @@ function isCategorySatisfied(id, dice) {
     case "dex_three_of_a_kind_2":
       return counts[2] >= 3;
     case "dex_small_straight":
+      return true;
       return getMaxStraightLength(dice) >= 4;
     case "dex_large_straight":
       return getMaxStraightLength(dice) >= 5;
@@ -911,9 +912,9 @@ var en = {
   "instr_choose_category": "Choose a category to score.",
   "label_unlock_progress": "Unlock: {current}/3",
   "header_dungeon": "Dungeon Floor",
-  "header_str": "STR Check",
-  "header_dex": "DEX Check",
-  "header_int": "INT Check",
+  "header_str": "STR",
+  "header_dex": "DEX",
+  "header_int": "INT",
   // Categories
   "cat_dungeon_floor_1": "Floor 1 (Sum 20+)",
   "cat_dungeon_floor_2": "Floor 2 (Sum 24+)",
@@ -926,11 +927,11 @@ var en = {
   "cat_str_four_of_a_kind": "Four of a Kind",
   "cat_dex_three_of_a_kind_1": "Three of a Kind (1s)",
   "cat_dex_three_of_a_kind_2": "Three of a Kind (2s)",
-  "cat_dex_small_straight": "Small Straight",
-  "cat_dex_large_straight": "Large Straight",
+  "cat_dex_small_straight": "Free",
+  "cat_dex_large_straight": "Straight",
   "cat_int_three_of_a_kind_3": "Three of a Kind (3s)",
   "cat_int_three_of_a_kind_4": "Three of a Kind (4s)",
-  "cat_int_one_pair": "One Pair",
+  "cat_int_one_pair": "Pair",
   "cat_int_two_pair": "Two Pair",
   // Skills
   "skill_name_skill_str_mighty": "Mighty",
