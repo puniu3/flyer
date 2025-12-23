@@ -60,8 +60,10 @@ const en: Record<string, string> = {
     'guide_skill_2': 'Each skill can be used once per turn.',
     'guide_write_title': 'SELECT',
     'guide_write_1': 'Check one category that matches your dice.',
-    'guide_write_2': 'If nothing matches → Game Over!',
-    'guide_write_3': 'Check Floor 5 → You Win!',
+    'guide_write_2': 'Clear dungeon floors in order (B1F → B5F).',
+    'guide_write_3': 'STR/DEX/INT can be checked in any order.',
+    'guide_write_4': 'If nothing matches → Game Over!',
+    'guide_write_5': 'Check Floor 5 → You Win!',
     'guide_credit': '←Creator',
 };
 
@@ -125,8 +127,10 @@ const ja: Record<string, string> = {
     'guide_skill_2': '各スキル、1ターンに各1回使用OK',
     'guide_write_title': '埋める',
     'guide_write_1': '条件を満たすマスを1つチェック',
-    'guide_write_2': 'どこも埋められない ⇒ 即ゲームオーバー！',
-    'guide_write_3': '第5階層をチェック ⇒ ゲームクリア！',
+    'guide_write_2': 'ダンジョンはB1F→B5Fの順に攻略',
+    'guide_write_3': 'STR/DEX/INTは順不同でOK',
+    'guide_write_4': 'どこも埋められない ⇒ 即ゲームオーバー！',
+    'guide_write_5': '第5階層をチェック ⇒ ゲームクリア！',
     'guide_credit': '←作った人',
 };
 
