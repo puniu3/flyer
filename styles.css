@@ -550,3 +550,212 @@ button:disabled {
 .btn-restart:hover {
   background-color: var(--secondary-variant);
 }
+
+/* ========================================
+   Guide Modal - CRITICAL: Overrides for CSS Reset
+   ======================================== */
+
+/* Help button in header */
+.guide-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--on-primary);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+.guide-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.guide-btn:active {
+  transform: scale(0.95);
+}
+
+/*
+ * CRITICAL FIX: Dialog centering and sizing
+ * The global reset (* { margin: 0 }) breaks native <dialog> centering.
+ * We must explicitly set margin: auto and inset: 0 to restore it.
+ * Height must be explicit (not auto) to prevent collapse on mobile/iPad.
+ */
+dialog.guide-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto; /* CRITICAL: Overrides * { margin: 0 } for proper centering */
+  width: 90vw;
+  max-width: 500px;
+  height: 80vh; /* CRITICAL: Prevents height collapse on mobile/iPad */
+  max-height: 80vh;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--surface-color);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+dialog.guide-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Content wrapper - fills the dialog and enables scrolling */
+.guide-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Modal header */
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  flex-shrink: 0;
+}
+
+.guide-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.guide-close-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--on-primary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.guide-close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Modal body - scrollable content area */
+.guide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Section styling */
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section:last-child {
+  margin-bottom: 0;
+}
+
+.guide-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.guide-section ul {
+  margin: 0;
+  padding: 0 0 0 1.2em;
+  list-style: disc;
+}
+
+.guide-section li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--on-surface);
+}
+
+/* Hand reference section */
+.guide-hands dl {
+  margin: 0;
+  padding: 0;
+}
+
+.guide-hands dt {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--on-surface);
+  margin-top: 10px;
+}
+
+.guide-hands dt:first-child {
+  margin-top: 0;
+}
+
+.guide-hands dd {
+  margin: 4px 0 0 0;
+  padding-left: 1em;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Mobile adjustments for modal */
+@media (max-width: 768px) {
+  dialog.guide-modal {
+    width: 95vw;
+    height: 85vh;
+    max-height: 85vh;
+    border-radius: 8px;
+  }
+
+  .guide-header {
+    padding: 12px 16px;
+  }
+
+  .guide-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .guide-body {
+    padding: 16px;
+  }
+
+  .guide-section h3 {
+    font-size: 0.95rem;
+  }
+
+  .guide-section li {
+    font-size: 0.9rem;
+  }
+
+  .guide-hands dt {
+    font-size: 0.9rem;
+  }
+
+  .guide-hands dd {
+    font-size: 0.85rem;
+  }
+}

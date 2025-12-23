@@ -353,6 +353,92 @@ function step(state2, action) {
   }
 }
 
+// src/guide.ts
+var GuideModal = class {
+  constructor(t2) {
+    this.t = t2;
+    this.dialog = document.createElement("dialog");
+    this.dialog.className = "guide-modal";
+    this.dialog.innerHTML = this.buildContent();
+    this.dialog.addEventListener("click", (e) => {
+      const rect = this.dialog.getBoundingClientRect();
+      const isInDialog = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (e.target === this.dialog) {
+        this.close();
+      }
+    });
+    this.dialog.addEventListener("click", (e) => {
+      const target = e.target;
+      if (target.classList.contains("guide-close-btn")) {
+        this.close();
+      }
+    });
+  }
+  get element() {
+    return this.dialog;
+  }
+  open() {
+    this.dialog.showModal();
+  }
+  close() {
+    this.dialog.close();
+  }
+  buildContent() {
+    const t2 = this.t;
+    return `
+      <div class="guide-content">
+        <header class="guide-header">
+          <h2>${t2("guide_title")}</h2>
+          <button class="guide-close-btn" aria-label="Close">&times;</button>
+        </header>
+        <div class="guide-body">
+          <section class="guide-section">
+            <h3>1. ${t2("guide_roll_title")}</h3>
+            <ul>
+              <li>${t2("guide_roll_1")}</li>
+              <li>${t2("guide_roll_2")}</li>
+              <li>${t2("guide_roll_3")}</li>
+            </ul>
+          </section>
+
+          <section class="guide-section">
+            <h3>2. ${t2("guide_skill_title")}</h3>
+            <ul>
+              <li>${t2("guide_skill_1")}</li>
+              <li>${t2("guide_skill_2")}</li>
+            </ul>
+          </section>
+
+          <section class="guide-section">
+            <h3>3. ${t2("guide_write_title")}</h3>
+            <ul>
+              <li>${t2("guide_write_1")}</li>
+              <li>${t2("guide_write_2")}</li>
+              <li>${t2("guide_write_3")}</li>
+            </ul>
+          </section>
+
+          <section class="guide-section guide-hands">
+            <h3>${t2("guide_hands_title")}</h3>
+            <dl>
+              <dt>${t2("guide_hand_three")}</dt>
+              <dd>${t2("guide_hand_three_desc")}</dd>
+              <dt>${t2("guide_hand_full")}</dt>
+              <dd>${t2("guide_hand_full_desc")}</dd>
+              <dt>${t2("guide_hand_straight")}</dt>
+              <dd>${t2("guide_hand_straight_desc")}</dd>
+              <dt>${t2("guide_hand_four")}</dt>
+              <dd>${t2("guide_hand_four_desc")}</dd>
+              <dt>${t2("guide_hand_five")}</dt>
+              <dd>${t2("guide_hand_five_desc")}</dd>
+            </dl>
+          </section>
+        </div>
+      </div>
+    `;
+  }
+};
+
 // src/renderer.ts
 var Renderer = class {
   constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2, onHold2, onRestart2, t2) {
@@ -369,6 +455,8 @@ var Renderer = class {
     this.onHold = onHold2;
     this.onRestart = onRestart2;
     this.t = t2;
+    this.guideModal = new GuideModal(t2);
+    document.body.appendChild(this.guideModal.element);
   }
   update(view) {
     if (view.dice.length === 0 || view.gameStatus !== "playing") {
@@ -381,6 +469,12 @@ var Renderer = class {
     this.root.innerHTML = "";
     const header = document.createElement("header");
     header.innerHTML = `<h1>${this.t("game_title")}</h1>`;
+    const helpBtn = document.createElement("button");
+    helpBtn.className = "guide-btn";
+    helpBtn.textContent = this.t("guide_btn");
+    helpBtn.setAttribute("aria-label", this.t("guide_title"));
+    helpBtn.onclick = () => this.guideModal.open();
+    header.appendChild(helpBtn);
     this.root.appendChild(header);
     if (view.gameStatus !== "playing") {
       const statusDiv = document.createElement("div");
@@ -938,7 +1032,32 @@ var en = {
   "skill_name_skill_dex_acrobatics": "Acrobatics",
   "skill_desc_skill_dex_acrobatics": "Reduce die value by 1 (min 1)",
   "skill_name_skill_int_metamorph": "Metamorph",
-  "skill_desc_skill_int_metamorph": "Flip a die (1<->6, 2<->5, 3<->4)"
+  "skill_desc_skill_int_metamorph": "Flip a die (1<->6, 2<->5, 3<->4)",
+  // Guide Modal
+  "guide_btn": "?",
+  "guide_title": "How to Play",
+  "guide_roll_title": "ROLL",
+  "guide_roll_1": "Roll 5 dice.",
+  "guide_roll_2": "You can roll up to 3 times total (2 re-rolls).",
+  "guide_roll_3": "Hold dice you want to keep, then roll again.",
+  "guide_skill_title": "USE SKILL",
+  "guide_skill_1": "Unlock skills by checking 3 categories in a stat.",
+  "guide_skill_2": "Each skill can be used once per turn.",
+  "guide_write_title": "SELECT",
+  "guide_write_1": "Check one category that matches your dice.",
+  "guide_write_2": "If nothing matches → Game Over!",
+  "guide_write_3": "Check Floor 5 → You Win!",
+  "guide_hands_title": "Hand Reference",
+  "guide_hand_three": "Three of a Kind",
+  "guide_hand_three_desc": "3 dice with the same value (e.g., 5-5-5-1-2)",
+  "guide_hand_full": "Full House",
+  "guide_hand_full_desc": "3 of a kind + 2 of a kind (e.g., 3-3-3-2-2)",
+  "guide_hand_straight": "Straight",
+  "guide_hand_straight_desc": "5 consecutive numbers (1-2-3-4-5 or 2-3-4-5-6)",
+  "guide_hand_four": "Four of a Kind",
+  "guide_hand_four_desc": "4 dice with the same value",
+  "guide_hand_five": "Five of a Kind",
+  "guide_hand_five_desc": "All 5 dice show the same value"
 };
 var ja = {
   // UI
@@ -984,7 +1103,32 @@ var ja = {
   "skill_name_skill_dex_acrobatics": "軽業",
   "skill_desc_skill_dex_acrobatics": "ダイスの値を1減らす(最小1)",
   "skill_name_skill_int_metamorph": "変身",
-  "skill_desc_skill_int_metamorph": "ダイスの裏表を反転(1<->6...)"
+  "skill_desc_skill_int_metamorph": "ダイスの裏表を反転(1<->6...)",
+  // Guide Modal
+  "guide_btn": "?",
+  "guide_title": "遊び方",
+  "guide_roll_title": "振る (ROLL)",
+  "guide_roll_1": "ダイスを5個振る。",
+  "guide_roll_2": "合計3投までOK（2回振り直し）。",
+  "guide_roll_3": "好きな目だけ残して振れるよ。",
+  "guide_skill_title": "使う (SKILL)",
+  "guide_skill_1": "習得済み(✔×3)のスキルを使用可。",
+  "guide_skill_2": "各スキル、1ターンに各1回使用OK。",
+  "guide_write_title": "書く (WRITE)",
+  "guide_write_1": "条件を満たすマスを1つチェック。",
+  "guide_write_2": "どこも埋められない ⇒ 即ゲームオーバー！",
+  "guide_write_3": "B5Fをチェック ⇒ ゲームクリア！",
+  "guide_hands_title": "役のメモ",
+  "guide_hand_three": "スリーカード",
+  "guide_hand_three_desc": "同じ目3つ (例: 5,5,5,1,2)",
+  "guide_hand_full": "フルハウス",
+  "guide_hand_full_desc": "3つ揃い+2つ揃い",
+  "guide_hand_straight": "ストレート",
+  "guide_hand_straight_desc": "数字が5つ続く (例: 1,2,3,4,5)",
+  "guide_hand_four": "フォーカード",
+  "guide_hand_four_desc": "同じ目4つ",
+  "guide_hand_five": "ファイブカード",
+  "guide_hand_five_desc": "同じ目5つ (全部同じ)"
 };
 var dictionaries = { en, ja };
 function createTranslator(locale2) {
