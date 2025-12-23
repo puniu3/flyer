@@ -1,4 +1,5 @@
 import { GameView, CategoryId, SkillId, DieValue, CategoryGroup, SkillStatus } from './types';
+import { Translator } from './i18n';
 
 export class Renderer {
   private root: HTMLElement;
@@ -9,6 +10,7 @@ export class Renderer {
   private onGameOver: () => void;
   private onHold: () => void;
   private onRestart: () => void;
+  private t: Translator;
 
   // selectedDiceIndices now represents "Held" dice
   private selectedDiceIndices: Set<number> = new Set();
@@ -24,6 +26,7 @@ export class Renderer {
     onGameOver: () => void,
     onHold: () => void,
     onRestart: () => void,
+    t: Translator
   ) {
     this.root = root;
     this.onRoll = onRoll;
@@ -33,6 +36,7 @@ export class Renderer {
     this.onGameOver = onGameOver;
     this.onHold = onHold;
     this.onRestart = onRestart;
+    this.t = t;
   }
 
   update(view: GameView): void {
@@ -52,7 +56,7 @@ export class Renderer {
 
     // Header
     const header = document.createElement('header');
-    header.innerHTML = `<h1>Flyer Dungeon</h1>`;
+    header.innerHTML = `<h1>${this.t('game_title')}</h1>`;
     this.root.appendChild(header);
 
     // Game Status (Removed "Playing" status)
@@ -61,9 +65,9 @@ export class Renderer {
         statusDiv.className = `game-status status-${view.gameStatus}`;
         
         let statusText = '';
-        if (view.gameStatus === 'won') statusText = 'You Won! 🎉';
+        if (view.gameStatus === 'won') statusText = this.t('status_won');
         if (view.gameStatus === 'lost'){
-          statusText = 'Game Over 💀';
+          statusText = this.t('status_lost');
           this.onGameOver();
         }
         statusDiv.textContent = statusText;
@@ -110,7 +114,7 @@ export class Renderer {
 
           const label = document.createElement('div');
           label.className = 'held-label';
-          label.textContent = 'HELD';
+          label.textContent = this.t('label_held');
           die.appendChild(label);
         }
 
@@ -124,7 +128,7 @@ export class Renderer {
       });
     } else {
       const msg = document.createElement('div');
-      msg.textContent = "Roll the dice to start!";
+      msg.textContent = this.t('msg_start');
       diceContainer.appendChild(msg);
     }
     diceSection.appendChild(diceContainer);
@@ -137,21 +141,21 @@ export class Renderer {
     const rollsLeft = view.rolls.max - view.rolls.current;
 
     if (view.gameStatus !== 'playing') {
-      rollButton.textContent = 'PLAY AGAIN ↺';
+      rollButton.textContent = this.t('btn_play_again');
       rollButton.classList.add('btn-restart');
       rollButton.onclick = () => this.onRestart();
       rollButton.disabled = false;
     } else if (view.dice.length === 0) {
-      rollButton.textContent = 'ROLL DICE';
+      rollButton.textContent = this.t('btn_roll_initial');
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
     } else {
         if (!view.rolls.canRoll) {
-             rollButton.textContent = 'NO ROLLS LEFT';
+             rollButton.textContent = this.t('btn_no_rolls');
              rollButton.disabled = true;
         } else {
              // Reroll Logic: Roll UNHELD dice
-             rollButton.textContent = `ROLL (${rollsLeft}/${view.rolls.max})`;
+             rollButton.textContent = this.t('btn_roll', { current: rollsLeft, max: view.rolls.max });
              const unheldIndices = view.dice.map((_, i) => i).filter(i => !this.selectedDiceIndices.has(i));
              rollButton.onclick = () => this.onReroll(unheldIndices);
         }
@@ -163,16 +167,17 @@ export class Renderer {
     const instruction = document.createElement('div');
     instruction.className = 'instructions';
     if (this.selectedSkillId) {
-        instruction.textContent = `Select a die to apply ${view.skills[this.selectedSkillId].name}`;
+        const skillName = this.t(`skill_name_${this.selectedSkillId}`);
+        instruction.textContent = this.t('instr_apply_skill', { skillName });
         instruction.style.color = 'var(--secondary-variant)';
         instruction.style.fontWeight = 'bold';
     } else if (view.gameStatus === 'playing') {
         if (view.dice.length === 0) {
-             instruction.textContent = "Start your turn by rolling the dice.";
+             instruction.textContent = this.t('instr_start_turn');
         } else if (view.rolls.canRoll) {
-             instruction.textContent = "Click dice to Hold, then Roll again. Or choose a category/skill.";
+             instruction.textContent = this.t('instr_mid_turn');
         } else {
-             instruction.textContent = "Choose a category to score.";
+             instruction.textContent = this.t('instr_choose_category');
         }
     }
     controls.appendChild(instruction);
@@ -202,11 +207,11 @@ export class Renderer {
 
         const name = document.createElement('div');
         name.className = 'skill-name';
-        name.textContent = skill.name;
+        name.textContent = this.t(`skill_name_${skill.id}`);
 
         const desc = document.createElement('div');
         desc.className = 'skill-desc';
-        desc.textContent = skill.effectDescription;
+        desc.textContent = this.t(`skill_desc_${skill.id}`);
 
         card.appendChild(name);
         card.appendChild(desc);
@@ -220,7 +225,7 @@ export class Renderer {
                 const current = counts[group as CategoryGroup] || 0;
                 const progressDiv = document.createElement('div');
                 progressDiv.className = 'skill-progress';
-                progressDiv.textContent = `Unlock: ${current}/3`;
+                progressDiv.textContent = this.t('label_unlock_progress', { current });
                 card.appendChild(progressDiv);
             }
         }
@@ -244,7 +249,7 @@ export class Renderer {
         groupDiv.className = 'category-group';
 
         const title = document.createElement('h3');
-        title.textContent = group === 'dungeon' ? 'Dungeon Floor' : `${group.toUpperCase()} Check`;
+        title.textContent = this.t(group === 'dungeon' ? 'header_dungeon' : `header_${group}`);
         groupDiv.appendChild(title);
 
         view.categories.filter(c => c.group === group).forEach(cat => {
@@ -330,22 +335,6 @@ export class Renderer {
   }
 
   private formatCategoryName(id: CategoryId): string {
-      const mapping: Record<string, string> = {
-          'dungeon_floor_1': 'Floor 1 (Sum 20+)',
-          'dungeon_floor_2': 'Floor 2 (Sum 24+)',
-          'dungeon_floor_3': 'Floor 3 (Sum 26+)',
-          'dungeon_floor_4': 'Floor 4 (Sum ≤ 9)',
-          'dungeon_floor_5': 'Floor 5 (Yahtzee)',
-      };
-
-      if (mapping[id]) return mapping[id];
-
-      return id
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, l => l.toUpperCase())
-        .replace('Str ', '')
-        .replace('Dex ', '')
-        .replace('Int ', '')
-        .replace('Dungeon Floor ', 'Floor ');
+      return this.t(`cat_${id}`);
   }
 }

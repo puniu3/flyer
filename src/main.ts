@@ -2,10 +2,26 @@ import { init, step, getView } from './rules';
 import { Renderer } from './renderer';
 import { GameState, PlayerAction, CategoryId, SkillId } from './types';
 import { playSound } from './playSound';
+import { createTranslator } from './i18n';
 
 const root = document.getElementById('fd-stage')!;
 let state: GameState = init();
-const renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver, onHold, onRestart);
+
+// Initialize i18n
+const locale = navigator.language;
+const t = createTranslator(locale);
+
+const renderer = new Renderer(
+  root,
+  onRoll,
+  onReroll,
+  onUseSkill,
+  onSelectCategory,
+  onGameOver,
+  onHold,
+  onRestart,
+  t // Inject translator
+);
 renderer.update(getView(state));
 
 function handleInput(action: PlayerAction): void {
