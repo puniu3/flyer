@@ -583,7 +583,7 @@ button:disabled {
  * CRITICAL FIX: Dialog centering and sizing
  * The global reset (* { margin: 0 }) breaks native <dialog> centering.
  * We must explicitly set margin: auto and inset: 0 to restore it.
- * Height must be explicit (not auto) to prevent collapse on mobile/iPad.
+ * Use fit-content for height to adapt to content, with max-height as limit.
  */
 dialog.guide-modal {
   position: fixed;
@@ -591,7 +591,7 @@ dialog.guide-modal {
   margin: auto; /* CRITICAL: Overrides * { margin: 0 } for proper centering */
   width: 90vw;
   max-width: 500px;
-  height: 80vh; /* CRITICAL: Prevents height collapse on mobile/iPad */
+  height: fit-content; /* 中身に合わせて縮小 */
   max-height: 80vh;
   padding: 0;
   border: none;
@@ -719,7 +719,7 @@ dialog.guide-modal::backdrop {
 @media (max-width: 768px) {
   dialog.guide-modal {
     width: 95vw;
-    height: 85vh;
+    height: fit-content;
     max-height: 85vh;
     border-radius: 8px;
   }
