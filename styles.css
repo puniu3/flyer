@@ -42,12 +42,14 @@ body {
 
 /* Header */
 header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: var(--primary-color);
   color: var(--on-primary);
   padding: calc(var(--spacing-unit) * 2);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-1);
-  text-align: center;
 }
 
 h1 {
@@ -547,9 +549,6 @@ button:disabled {
   color: var(--on-secondary);
 }
 
-.btn-restart:hover {
-  background-color: var(--secondary-variant);
-}
 
 /* ========================================
    Guide Modal - CRITICAL: Overrides for CSS Reset
@@ -575,9 +574,6 @@ button:disabled {
   flex-shrink: 0;
 }
 
-.guide-btn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
 
 .guide-btn:active {
   transform: scale(0.95);
@@ -654,9 +650,6 @@ dialog.guide-modal::backdrop {
   transition: background-color 0.2s;
 }
 
-.guide-close-btn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
 
 /* Modal body - scrollable content area */
 .guide-body {
