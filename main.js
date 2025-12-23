@@ -1315,9 +1315,69 @@ var ko = {
   "guide_write_2": "체크할 곳이 없다면 ⇒ 게임 오버!",
   "guide_write_3": "지하 5층을 체크하면 ⇒ 게임 클리어!",
   "guide_credit": "←만든 사람"
-  // Changed from 제작자 (Producer) to be more casual
 };
-var dictionaries = { en, ja, zh, "zh-TW": zhTW, ko };
+var de = {
+  // UI
+  "game_title": "Flyer Dungeon",
+  "status_won": "Gewonnen! 🎉",
+  "status_lost": "Game Over 💀",
+  "msg_start": "Würfle zum Starten!",
+  "label_held": "HALTEN",
+  "btn_play_again": "NOCHMAL ↺",
+  "btn_roll_initial": "WÜRFELN",
+  "btn_no_rolls": "KEINE WÜRFE",
+  "btn_roll": "WÜRFELN ({current}/{max})",
+  "instr_apply_skill": "Wähle einen Würfel für {skillName}",
+  "instr_start_turn": "Würfle, um den Zug zu starten.",
+  "instr_mid_turn": "Würfel halten und neu werfen. Oder Kategorie/Skill wählen.",
+  "instr_choose_category": "Wähle eine Kategorie.",
+  "label_unlock_progress": "Freischalten: {current}/3",
+  "header_dungeon": "Dungeon-Ebene",
+  "header_str": "STR",
+  "header_dex": "DEX",
+  "header_int": "INT",
+  // Categories
+  "cat_dungeon_floor_1": "Ebene 1 (Summe 20+)",
+  "cat_dungeon_floor_2": "Ebene 2 (Summe 24+)",
+  "cat_dungeon_floor_3": "Ebene 3 (Summe 26+)",
+  "cat_dungeon_floor_4": "Ebene 4 (Summe ≤ 9)",
+  "cat_dungeon_floor_5": "Ebene 5 (Fünferpasch)",
+  "cat_str_full_house": "Full House",
+  "cat_str_four_of_a_kind": "Viererpasch",
+  "cat_str_three_of_a_kind_5": "Dreierpasch (5er)",
+  "cat_str_three_of_a_kind_6": "Dreierpasch (6er)",
+  "cat_dex_free": "Freie Wahl",
+  "cat_dex_straight": "Straße",
+  "cat_dex_three_of_a_kind_1": "Dreierpasch (1er)",
+  "cat_dex_three_of_a_kind_2": "Dreierpasch (2er)",
+  "cat_int_one_pair": "Ein Paar",
+  "cat_int_two_pair": "Zwei Paare",
+  "cat_int_three_of_a_kind_3": "Dreierpasch (3er)",
+  "cat_int_three_of_a_kind_4": "Dreierpasch (4er)",
+  // Skills
+  "skill_name_skill_str_mighty": "Kraft",
+  "skill_desc_skill_str_mighty": "Einen Würfel auf 6 setzen",
+  "skill_name_skill_dex_acrobatics": "Akrobatik",
+  "skill_desc_skill_dex_acrobatics": "Würfelwert um 1 verringern (min 1)",
+  "skill_name_skill_int_metamorph": "Verwandlung",
+  "skill_desc_skill_int_metamorph": "Würfel umdrehen (1<->6, 2<->5...)",
+  // Guide Modal
+  "guide_btn": "?",
+  "guide_title": "Spielregeln",
+  "guide_roll_title": "WÜRFELN",
+  "guide_roll_1": "Wirf 5 Würfel.",
+  "guide_roll_2": "Halte gewünschte Würfel und wirf den Rest neu.",
+  "guide_roll_3": "Maximal 3 Würfe pro Zug.",
+  "guide_skill_title": "SKILLS",
+  "guide_skill_1": "Erfülle 3 Kategorien in einem Attribut, um Skills freizuschalten.",
+  "guide_skill_2": "Jeder Skill kann einmal pro Zug genutzt werden.",
+  "guide_write_title": "WÄHLEN",
+  "guide_write_1": "Wähle ein Feld, das die Bedingung erfüllt.",
+  "guide_write_2": "Kein passendes Feld? → Game Over!",
+  "guide_write_3": "Ebene 5 erreicht? → Gewonnen!",
+  "guide_credit": "←Dev"
+};
+var dictionaries = { en, ja, zh, "zh-TW": zhTW, ko, de };
 function createTranslator(locale2) {
   let lang = "en";
   if (locale2 === "zh-TW" || locale2 === "zh-Hant" || locale2.startsWith("zh-TW")) {
@@ -1328,6 +1388,8 @@ function createTranslator(locale2) {
     lang = "zh";
   } else if (locale2.startsWith("ko")) {
     lang = "ko";
+  } else if (locale2.startsWith("de")) {
+    lang = "de";
   }
   const dict = dictionaries[lang] || dictionaries["en"];
   return (key, params) => {
