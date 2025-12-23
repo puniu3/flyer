@@ -1,8 +1,10 @@
 import { GameView, CategoryId, SkillId, DieValue, CategoryGroup, SkillStatus } from './types';
 import { Translator } from './i18n';
+import { GuideModal } from './guide';
 
 export class Renderer {
   private root: HTMLElement;
+  private guideModal: GuideModal;
   private onRoll: () => void;
   private onReroll: (indexesToReroll: number[]) => void;
   private onUseSkill: (skillId: SkillId, targetDieIndex: number) => void;
@@ -37,6 +39,7 @@ export class Renderer {
     this.onHold = onHold;
     this.onRestart = onRestart;
     this.t = t;
+    this.guideModal = new GuideModal();
   }
 
   update(view: GameView): void {
@@ -56,7 +59,35 @@ export class Renderer {
 
     // Header
     const header = document.createElement('header');
-    header.innerHTML = `<h1>${this.t('game_title')}</h1>`;
+
+    const topRow = document.createElement('div');
+    topRow.style.display = 'flex';
+    topRow.style.justifyContent = 'space-between';
+    topRow.style.alignItems = 'center';
+
+    const title = document.createElement('h1');
+    title.textContent = this.t('game_title');
+
+    const helpBtn = document.createElement('button');
+    helpBtn.textContent = '?';
+    helpBtn.setAttribute('aria-label', 'How to Play');
+    helpBtn.style.width = '32px';
+    helpBtn.style.height = '32px';
+    helpBtn.style.borderRadius = '50%';
+    helpBtn.style.padding = '0';
+    helpBtn.style.minWidth = 'auto';
+    helpBtn.style.marginLeft = '10px';
+    // Override button generic styles
+    helpBtn.style.display = 'flex';
+    helpBtn.style.justifyContent = 'center';
+    helpBtn.style.alignItems = 'center';
+
+    helpBtn.onclick = () => this.guideModal.open();
+
+    topRow.appendChild(title);
+    topRow.appendChild(helpBtn);
+    header.appendChild(topRow);
+
     this.root.appendChild(header);
 
     // Game Status (Removed "Playing" status)
