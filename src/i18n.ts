@@ -151,7 +151,7 @@ const zh: Record<string, string> = {
     'header_dex': 'DEX',
     'header_int': 'INT',
 
-    // Categories (dungeon floors = underground depth per l10n_semantics)
+    // Categories
     'cat_dungeon_floor_1': '地下1层 (总点数20以上)',
     'cat_dungeon_floor_2': '地下2层 (总点数24以上)',
     'cat_dungeon_floor_3': '地下3层 (总点数26以上)',
@@ -170,7 +170,7 @@ const zh: Record<string, string> = {
     'cat_int_three_of_a_kind_3': '3的三条',
     'cat_int_three_of_a_kind_4': '4的三条',
 
-    // Skills (per l10n_semantics flavor)
+    // Skills
     'skill_name_skill_str_mighty': '蛮力',
     'skill_desc_skill_str_mighty': '将一颗骰子设为6',
     'skill_name_skill_dex_acrobatics': '轻功',
@@ -195,19 +195,91 @@ const zh: Record<string, string> = {
     'guide_credit': '←作者',
 };
 
-const dictionaries: Record<string, Record<string, string>> = { en, ja, zh };
+const zhTW: Record<string, string> = {
+    // UI
+    'game_title': '傳單背面地下城',
+    'status_won': '勝利！ 🎉',
+    'status_lost': '遊戲結束 💀',
+    'msg_start': '擲骰子開始！',
+    'label_held': '保留',
+    'btn_play_again': '再玩一次 ↺',
+    'btn_roll_initial': '擲骰子',
+    'btn_no_rolls': '無剩餘次數',
+    'btn_roll': '重擲 ({current}/{max})',
+    'instr_apply_skill': '選擇要對其使用 {skillName} 的骰子',
+    'instr_start_turn': '擲骰子開始回合',
+    'instr_mid_turn': '選擇骰子重擲，或選擇組合/技能',
+    'instr_choose_category': '請選擇一個組合',
+    'label_unlock_progress': '解鎖: {current}/3',
+    'header_dungeon': '地下城',
+    'header_str': 'STR',
+    'header_dex': 'DEX',
+    'header_int': 'INT',
+
+    // Categories
+    'cat_dungeon_floor_1': '地下 1 層 (總點數 20 以上)',
+    'cat_dungeon_floor_2': '地下 2 層 (總點數 24 以上)',
+    'cat_dungeon_floor_3': '地下 3 層 (總點數 26 以上)',
+    'cat_dungeon_floor_4': '地下 4 層 (總點數 9 以下)',
+    'cat_dungeon_floor_5': '地下 5 層 (五條)',
+    'cat_str_full_house': '葫蘆',
+    'cat_str_four_of_a_kind': '四條',
+    'cat_str_three_of_a_kind_5': '5 的三條',
+    'cat_str_three_of_a_kind_6': '6 的三條',
+    'cat_dex_free': '自由',
+    'cat_dex_straight': '順子',
+    'cat_dex_three_of_a_kind_1': '1 的三條',
+    'cat_dex_three_of_a_kind_2': '2 的三條',
+    'cat_int_one_pair': '一對',
+    'cat_int_two_pair': '兩對',
+    'cat_int_three_of_a_kind_3': '3 的三條',
+    'cat_int_three_of_a_kind_4': '4 的三條',
+
+    // Skills
+    'skill_name_skill_str_mighty': '蠻力',
+    'skill_desc_skill_str_mighty': '將一顆骰子設為 6',
+    'skill_name_skill_dex_acrobatics': '輕功',
+    'skill_desc_skill_dex_acrobatics': '骰子點數減 1 (最小 1)',
+    'skill_name_skill_int_metamorph': '變形',
+    'skill_desc_skill_int_metamorph': '翻轉骰子 (1<->6, 2<->5, 3<->4)',
+
+    // Guide Modal
+    'guide_btn': '?',
+    'guide_title': '遊戲規則',
+    'guide_roll_title': '擲骰',
+    'guide_roll_1': '擲 5 顆骰子',
+    'guide_roll_2': '保留想要的骰子，重擲其餘的',
+    'guide_roll_3': '最多擲 3 次',
+    'guide_skill_title': '使用技能',
+    'guide_skill_1': '達成 3 個 ✔ 後解鎖對應技能',
+    'guide_skill_2': '每個技能每回合可使用 1 次',
+    'guide_write_title': '選擇',
+    'guide_write_1': '勾選一個滿足條件的格子',
+    'guide_write_2': '無法勾選任何格子 ⇒ 遊戲結束！',
+    'guide_write_3': '勾選地下 5 層 ⇒ 通關！',
+    'guide_credit': '←作者',
+};
+
+const dictionaries: Record<string, Record<string, string>> = { en, ja, zh, 'zh-TW': zhTW };
 
 export function createTranslator(locale: string): Translator {
     let lang = 'en';
-    if (locale.startsWith('ja')) {
+
+    // Check specific variants first
+    if (locale === 'zh-TW' || locale === 'zh-Hant' || locale.startsWith('zh-TW')) {
+        lang = 'zh-TW';
+    } else if (locale.startsWith('ja')) {
         lang = 'ja';
     } else if (locale.startsWith('zh')) {
+        // Fallback for other zh variants (e.g. zh-CN)
         lang = 'zh';
     }
-    const dict = dictionaries[lang];
+    
+    // Fallback to English if exact key is missing in target language
+    const dict = dictionaries[lang] || dictionaries['en'];
 
     return (key: string, params?: Record<string, string | number>) => {
-        let text = dict[key] || key;
+        let text = dict[key] || en[key] || key;
         if (params) {
             for (const [k, v] of Object.entries(params)) {
                 text = text.replace(`{${k}}`, String(v));
