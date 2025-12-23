@@ -1,7 +1,7 @@
 {
   "name": "flyer",
   "version": "1.0.0",
-  "description": "Yhatzee-like rogue",
+  "description": "Dice rogue",
   "scripts": {
     "type-check": "tsc --noEmit",
     "build": "esbuild src/main.ts --bundle --format=esm --target=esnext --outdir=. --charset=utf8"
