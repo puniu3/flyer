@@ -1131,9 +1131,75 @@ var ja = {
   "guide_write_3": "第5階層をチェック ⇒ ゲームクリア！",
   "guide_credit": "←作った人"
 };
-var dictionaries = { en, ja };
+var zh = {
+  // UI
+  "game_title": "传单背面地下城",
+  "status_won": "胜利！ 🎉",
+  "status_lost": "游戏结束 💀",
+  "msg_start": "掷骰子开始！",
+  "label_held": "保留",
+  "btn_play_again": "再玩一次 ↺",
+  "btn_roll_initial": "掷骰子",
+  "btn_no_rolls": "无剩余次数",
+  "btn_roll": "重掷 ({current}/{max})",
+  "instr_apply_skill": "选择要对其使用{skillName}的骰子",
+  "instr_start_turn": "掷骰子开始回合",
+  "instr_mid_turn": "选择骰子重掷，或选择役/技能",
+  "instr_choose_category": "请选择一个役",
+  "label_unlock_progress": "解锁: {current}/3",
+  "header_dungeon": "地下城",
+  "header_str": "STR",
+  "header_dex": "DEX",
+  "header_int": "INT",
+  // Categories (dungeon floors = underground depth per l10n_semantics)
+  "cat_dungeon_floor_1": "地下1层 (合计20以上)",
+  "cat_dungeon_floor_2": "地下2层 (合计24以上)",
+  "cat_dungeon_floor_3": "地下3层 (合计26以上)",
+  "cat_dungeon_floor_4": "地下4层 (合计9以下)",
+  "cat_dungeon_floor_5": "地下5层 (五条)",
+  "cat_str_full_house": "葫芦",
+  "cat_str_four_of_a_kind": "四条",
+  "cat_str_three_of_a_kind_5": "5的三条",
+  "cat_str_three_of_a_kind_6": "6的三条",
+  "cat_dex_free": "自由",
+  "cat_dex_straight": "顺子",
+  "cat_dex_three_of_a_kind_1": "1的三条",
+  "cat_dex_three_of_a_kind_2": "2的三条",
+  "cat_int_one_pair": "一对",
+  "cat_int_two_pair": "两对",
+  "cat_int_three_of_a_kind_3": "3的三条",
+  "cat_int_three_of_a_kind_4": "4的三条",
+  // Skills (per l10n_semantics flavor)
+  "skill_name_skill_str_mighty": "蛮力",
+  "skill_desc_skill_str_mighty": "将一颗骰子设为6",
+  "skill_name_skill_dex_acrobatics": "轻功",
+  "skill_desc_skill_dex_acrobatics": "骰子点数减1（最小1）",
+  "skill_name_skill_int_metamorph": "变形",
+  "skill_desc_skill_int_metamorph": "翻转骰子（1<->6, 2<->5, 3<->4）",
+  // Guide Modal
+  "guide_btn": "?",
+  "guide_title": "游戏规则",
+  "guide_roll_title": "掷骰",
+  "guide_roll_1": "掷5颗骰子",
+  "guide_roll_2": "保留想要的骰子并重掷",
+  "guide_roll_3": "最多掷3次",
+  "guide_skill_title": "使用技能",
+  "guide_skill_1": "达成3个✔后解锁对应技能",
+  "guide_skill_2": "每技能每回合可使用1次",
+  "guide_write_title": "选择",
+  "guide_write_1": "勾选一个满足条件的格子",
+  "guide_write_2": "无法勾选任何格子 ⇒ 游戏结束！",
+  "guide_write_3": "勾选地下5层 ⇒ 通关！",
+  "guide_credit": "←作者"
+};
+var dictionaries = { en, ja, zh };
 function createTranslator(locale2) {
-  const lang = locale2.startsWith("ja") ? "ja" : "en";
+  let lang = "en";
+  if (locale2.startsWith("ja")) {
+    lang = "ja";
+  } else if (locale2.startsWith("zh")) {
+    lang = "zh";
+  }
   const dict = dictionaries[lang];
   return (key, params) => {
     let text = dict[key] || key;
