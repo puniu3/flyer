@@ -355,7 +355,7 @@ function step(state2, action) {
 
 // src/renderer.ts
 var Renderer = class {
-  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2, onHold2, onRestart2) {
+  constructor(root2, onRoll2, onReroll2, onUseSkill2, onSelectCategory2, onGameOver2, onHold2, onRestart2, t2) {
     // selectedDiceIndices now represents "Held" dice
     this.selectedDiceIndices = /* @__PURE__ */ new Set();
     this.selectedSkillId = null;
@@ -368,6 +368,7 @@ var Renderer = class {
     this.onGameOver = onGameOver2;
     this.onHold = onHold2;
     this.onRestart = onRestart2;
+    this.t = t2;
   }
   update(view) {
     if (view.dice.length === 0 || view.gameStatus !== "playing") {
@@ -379,15 +380,15 @@ var Renderer = class {
   render(view) {
     this.root.innerHTML = "";
     const header = document.createElement("header");
-    header.innerHTML = `<h1>Flyer Dungeon</h1>`;
+    header.innerHTML = `<h1>${this.t("game_title")}</h1>`;
     this.root.appendChild(header);
     if (view.gameStatus !== "playing") {
       const statusDiv = document.createElement("div");
       statusDiv.className = `game-status status-${view.gameStatus}`;
       let statusText = "";
-      if (view.gameStatus === "won") statusText = "You Won! \u{1F389}";
+      if (view.gameStatus === "won") statusText = this.t("status_won");
       if (view.gameStatus === "lost") {
-        statusText = "Game Over \u{1F480}";
+        statusText = this.t("status_lost");
         this.onGameOver();
       }
       statusDiv.textContent = statusText;
@@ -421,7 +422,7 @@ var Renderer = class {
           die.classList.add("selected");
           const label = document.createElement("div");
           label.className = "held-label";
-          label.textContent = "HELD";
+          label.textContent = this.t("label_held");
           die.appendChild(label);
         }
         if (this.selectedSkillId) {
@@ -433,7 +434,7 @@ var Renderer = class {
       });
     } else {
       const msg = document.createElement("div");
-      msg.textContent = "Roll the dice to start!";
+      msg.textContent = this.t("msg_start");
       diceContainer.appendChild(msg);
     }
     diceSection.appendChild(diceContainer);
@@ -442,20 +443,20 @@ var Renderer = class {
     const rollButton = document.createElement("button");
     const rollsLeft = view.rolls.max - view.rolls.current;
     if (view.gameStatus !== "playing") {
-      rollButton.textContent = "PLAY AGAIN \u21BA";
+      rollButton.textContent = this.t("btn_play_again");
       rollButton.classList.add("btn-restart");
       rollButton.onclick = () => this.onRestart();
       rollButton.disabled = false;
     } else if (view.dice.length === 0) {
-      rollButton.textContent = "ROLL DICE";
+      rollButton.textContent = this.t("btn_roll_initial");
       rollButton.disabled = !view.rolls.canRoll;
       rollButton.onclick = () => this.onRoll();
     } else {
       if (!view.rolls.canRoll) {
-        rollButton.textContent = "NO ROLLS LEFT";
+        rollButton.textContent = this.t("btn_no_rolls");
         rollButton.disabled = true;
       } else {
-        rollButton.textContent = `ROLL (${rollsLeft}/${view.rolls.max})`;
+        rollButton.textContent = this.t("btn_roll", { current: rollsLeft, max: view.rolls.max });
         const unheldIndices = view.dice.map((_, i) => i).filter((i) => !this.selectedDiceIndices.has(i));
         rollButton.onclick = () => this.onReroll(unheldIndices);
       }
@@ -464,16 +465,17 @@ var Renderer = class {
     const instruction = document.createElement("div");
     instruction.className = "instructions";
     if (this.selectedSkillId) {
-      instruction.textContent = `Select a die to apply ${view.skills[this.selectedSkillId].name}`;
+      const skillName = this.t(`skill_name_${this.selectedSkillId}`);
+      instruction.textContent = this.t("instr_apply_skill", { skillName });
       instruction.style.color = "var(--secondary-variant)";
       instruction.style.fontWeight = "bold";
     } else if (view.gameStatus === "playing") {
       if (view.dice.length === 0) {
-        instruction.textContent = "Start your turn by rolling the dice.";
+        instruction.textContent = this.t("instr_start_turn");
       } else if (view.rolls.canRoll) {
-        instruction.textContent = "Click dice to Hold, then Roll again. Or choose a category/skill.";
+        instruction.textContent = this.t("instr_mid_turn");
       } else {
-        instruction.textContent = "Choose a category to score.";
+        instruction.textContent = this.t("instr_choose_category");
       }
     }
     controls.appendChild(instruction);
@@ -495,10 +497,10 @@ var Renderer = class {
       }
       const name = document.createElement("div");
       name.className = "skill-name";
-      name.textContent = skill.name;
+      name.textContent = this.t(`skill_name_${skill.id}`);
       const desc = document.createElement("div");
       desc.className = "skill-desc";
-      desc.textContent = skill.effectDescription;
+      desc.textContent = this.t(`skill_desc_${skill.id}`);
       card.appendChild(name);
       card.appendChild(desc);
       if (skill.status === "locked") {
@@ -507,7 +509,7 @@ var Renderer = class {
           const current = counts[group] || 0;
           const progressDiv = document.createElement("div");
           progressDiv.className = "skill-progress";
-          progressDiv.textContent = `Unlock: ${current}/3`;
+          progressDiv.textContent = this.t("label_unlock_progress", { current });
           card.appendChild(progressDiv);
         }
       }
@@ -524,7 +526,7 @@ var Renderer = class {
       const groupDiv = document.createElement("div");
       groupDiv.className = "category-group";
       const title = document.createElement("h3");
-      title.textContent = group === "dungeon" ? "Dungeon Floor" : `${group.toUpperCase()} Check`;
+      title.textContent = this.t(group === "dungeon" ? "header_dungeon" : `header_${group}`);
       groupDiv.appendChild(title);
       view.categories.filter((c) => c.group === group).forEach((cat) => {
         const item = document.createElement("div");
@@ -591,15 +593,7 @@ var Renderer = class {
     return "str";
   }
   formatCategoryName(id) {
-    const mapping = {
-      "dungeon_floor_1": "Floor 1 (Sum 20+)",
-      "dungeon_floor_2": "Floor 2 (Sum 24+)",
-      "dungeon_floor_3": "Floor 3 (Sum 26+)",
-      "dungeon_floor_4": "Floor 4 (Sum \u2264 9)",
-      "dungeon_floor_5": "Floor 5 (Yahtzee)"
-    };
-    if (mapping[id]) return mapping[id];
-    return id.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()).replace("Str ", "").replace("Dex ", "").replace("Int ", "").replace("Dungeon Floor ", "Floor ");
+    return this.t(`cat_${id}`);
   }
 };
 
@@ -765,26 +759,26 @@ var SoundManager = class {
    */
   playWin(ctx) {
     const now = ctx.currentTime;
-    const playBrass = (freq, t, dur, vol) => {
+    const playBrass = (freq, t2, dur, vol) => {
       const osc = ctx.createOscillator();
       const gainNode = ctx.createGain();
       const filter = ctx.createBiquadFilter();
       osc.type = "sawtooth";
       osc.frequency.value = freq;
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(500, t);
-      filter.frequency.linearRampToValueAtTime(3e3, t + 0.1);
-      filter.frequency.linearRampToValueAtTime(1500, t + dur);
-      gainNode.gain.setValueAtTime(0, t);
-      gainNode.gain.linearRampToValueAtTime(vol, t + 0.05);
-      gainNode.gain.linearRampToValueAtTime(vol * 0.8, t + 0.2);
-      gainNode.gain.setValueAtTime(vol * 0.8, t + dur - 0.5);
-      gainNode.gain.exponentialRampToValueAtTime(1e-3, t + dur);
+      filter.frequency.setValueAtTime(500, t2);
+      filter.frequency.linearRampToValueAtTime(3e3, t2 + 0.1);
+      filter.frequency.linearRampToValueAtTime(1500, t2 + dur);
+      gainNode.gain.setValueAtTime(0, t2);
+      gainNode.gain.linearRampToValueAtTime(vol, t2 + 0.05);
+      gainNode.gain.linearRampToValueAtTime(vol * 0.8, t2 + 0.2);
+      gainNode.gain.setValueAtTime(vol * 0.8, t2 + dur - 0.5);
+      gainNode.gain.exponentialRampToValueAtTime(1e-3, t2 + dur);
       osc.connect(filter);
       filter.connect(gainNode);
       gainNode.connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + dur + 0.1);
+      osc.start(t2);
+      osc.stop(t2 + dur + 0.1);
     };
     playBrass(261.63, now + 0, 0.3, 0.2);
     playBrass(329.63, now + 0.15, 0.3, 0.2);
@@ -887,10 +881,131 @@ function playSound(sound) {
   soundManager.play(sound);
 }
 
+// src/i18n.ts
+var en = {
+  // UI
+  "game_title": "Flyer Dungeon",
+  "status_won": "You Won! \u{1F389}",
+  "status_lost": "Game Over \u{1F480}",
+  "msg_start": "Roll the dice to start!",
+  "label_held": "HELD",
+  "btn_play_again": "PLAY AGAIN \u21BA",
+  "btn_roll_initial": "ROLL DICE",
+  "btn_no_rolls": "NO ROLLS LEFT",
+  "btn_roll": "ROLL ({current}/{max})",
+  "instr_apply_skill": "Select a die to apply {skillName}",
+  "instr_start_turn": "Start your turn by rolling the dice.",
+  "instr_mid_turn": "Click dice to Hold, then Roll again. Or choose a category/skill.",
+  "instr_choose_category": "Choose a category to score.",
+  "label_unlock_progress": "Unlock: {current}/3",
+  "header_dungeon": "Dungeon Floor",
+  "header_str": "STR Check",
+  "header_dex": "DEX Check",
+  "header_int": "INT Check",
+  // Categories
+  "cat_dungeon_floor_1": "Floor 1 (Sum 20+)",
+  "cat_dungeon_floor_2": "Floor 2 (Sum 24+)",
+  "cat_dungeon_floor_3": "Floor 3 (Sum 26+)",
+  "cat_dungeon_floor_4": "Floor 4 (Sum \u2264 9)",
+  "cat_dungeon_floor_5": "Floor 5 (Yahtzee)",
+  "cat_str_three_of_a_kind_5": "Three of a Kind (5s)",
+  "cat_str_three_of_a_kind_6": "Three of a Kind (6s)",
+  "cat_str_full_house": "Full House",
+  "cat_str_four_of_a_kind": "Four of a Kind",
+  "cat_dex_three_of_a_kind_1": "Three of a Kind (1s)",
+  "cat_dex_three_of_a_kind_2": "Three of a Kind (2s)",
+  "cat_dex_small_straight": "Small Straight",
+  "cat_dex_large_straight": "Large Straight",
+  "cat_int_three_of_a_kind_3": "Three of a Kind (3s)",
+  "cat_int_three_of_a_kind_4": "Three of a Kind (4s)",
+  "cat_int_one_pair": "One Pair",
+  "cat_int_two_pair": "Two Pair",
+  // Skills
+  "skill_name_skill_str_mighty": "Mighty",
+  "skill_desc_skill_str_mighty": "Set a die to 6",
+  "skill_name_skill_dex_acrobatics": "Acrobatics",
+  "skill_desc_skill_dex_acrobatics": "Reduce die value by 1 (min 1)",
+  "skill_name_skill_int_metamorph": "Metamorph",
+  "skill_desc_skill_int_metamorph": "Flip a die (1<->6, 2<->5, 3<->4)"
+};
+var ja = {
+  // UI
+  "game_title": "\u30D5\u30E9\u30A4\u30E4\u30FC\u30C0\u30F3\u30B8\u30E7\u30F3",
+  "status_won": "\u52DD\u5229\uFF01 \u{1F389}",
+  "status_lost": "\u30B2\u30FC\u30E0\u30AA\u30FC\u30D0\u30FC \u{1F480}",
+  "msg_start": "\u30B5\u30A4\u30B3\u30ED\u3092\u632F\u3063\u3066\u30B9\u30BF\u30FC\u30C8\uFF01",
+  "label_held": "\u30DB\u30FC\u30EB\u30C9",
+  "btn_play_again": "\u3082\u3046\u4E00\u5EA6\u904A\u3076 \u21BA",
+  "btn_roll_initial": "\u30B5\u30A4\u30B3\u30ED\u3092\u632F\u308B",
+  "btn_no_rolls": "\u6B8B\u308A\u56DE\u6570\u306A\u3057",
+  "btn_roll": "\u632F\u308B ({current}/{max})",
+  "instr_apply_skill": "{skillName}\u3092\u9069\u7528\u3059\u308B\u30B5\u30A4\u30B3\u30ED\u3092\u9078\u629E",
+  "instr_start_turn": "\u30B5\u30A4\u30B3\u30ED\u3092\u632F\u3063\u3066\u30BF\u30FC\u30F3\u3092\u958B\u59CB\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+  "instr_mid_turn": "\u30B5\u30A4\u30B3\u30ED\u3092\u30DB\u30FC\u30EB\u30C9\u3057\u3066\u632F\u308A\u76F4\u3059\u304B\u3001\u5F79\u30FB\u30B9\u30AD\u30EB\u3092\u9078\u3093\u3067\u304F\u3060\u3055\u3044\u3002",
+  "instr_choose_category": "\u5F79\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044\u3002",
+  "label_unlock_progress": "\u89E3\u653E: {current}/3",
+  "header_dungeon": "\u30C0\u30F3\u30B8\u30E7\u30F3\u30D5\u30ED\u30A2",
+  "header_str": "STR \u30C1\u30A7\u30C3\u30AF",
+  "header_dex": "DEX \u30C1\u30A7\u30C3\u30AF",
+  "header_int": "INT \u30C1\u30A7\u30C3\u30AF",
+  // Categories
+  "cat_dungeon_floor_1": "\u5730\u4E0B1\u968E (\u5408\u8A0820\u4EE5\u4E0A)",
+  "cat_dungeon_floor_2": "\u5730\u4E0B2\u968E (\u5408\u8A0824\u4EE5\u4E0A)",
+  "cat_dungeon_floor_3": "\u5730\u4E0B3\u968E (\u5408\u8A0826\u4EE5\u4E0A)",
+  "cat_dungeon_floor_4": "\u5730\u4E0B4\u968E (\u5408\u8A089\u4EE5\u4E0B)",
+  "cat_dungeon_floor_5": "\u5730\u4E0B5\u968E (\u30E4\u30C3\u30C4\u30A3\u30FC)",
+  "cat_str_three_of_a_kind_5": "\u30B9\u30EA\u30FC\u30AB\u30FC\u30C9 (5)",
+  "cat_str_three_of_a_kind_6": "\u30B9\u30EA\u30FC\u30AB\u30FC\u30C9 (6)",
+  "cat_str_full_house": "\u30D5\u30EB\u30CF\u30A6\u30B9",
+  "cat_str_four_of_a_kind": "\u30D5\u30A9\u30FC\u30AB\u30FC\u30C9",
+  "cat_dex_three_of_a_kind_1": "\u30B9\u30EA\u30FC\u30AB\u30FC\u30C9 (1)",
+  "cat_dex_three_of_a_kind_2": "\u30B9\u30EA\u30FC\u30AB\u30FC\u30C9 (2)",
+  "cat_dex_small_straight": "\u30B9\u30E2\u30FC\u30EB\u30B9\u30C8\u30EC\u30FC\u30C8",
+  "cat_dex_large_straight": "\u30E9\u30FC\u30B8\u30B9\u30C8\u30EC\u30FC\u30C8",
+  "cat_int_three_of_a_kind_3": "\u30B9\u30EA\u30FC\u30AB\u30FC\u30C9 (3)",
+  "cat_int_three_of_a_kind_4": "\u30B9\u30EA\u30FC\u30AB\u30FC\u30C9 (4)",
+  "cat_int_one_pair": "\u30EF\u30F3\u30DA\u30A2",
+  "cat_int_two_pair": "\u30C4\u30FC\u30DA\u30A2",
+  // Skills
+  "skill_name_skill_str_mighty": "\u525B\u529B",
+  "skill_desc_skill_str_mighty": "\u30B5\u30A4\u30B3\u30ED1\u3064\u30926\u306B\u3059\u308B",
+  "skill_name_skill_dex_acrobatics": "\u8EFD\u696D",
+  "skill_desc_skill_dex_acrobatics": "\u30B5\u30A4\u30B3\u30ED\u306E\u5024\u30921\u6E1B\u3089\u3059(\u6700\u5C0F1)",
+  "skill_name_skill_int_metamorph": "\u5909\u8EAB",
+  "skill_desc_skill_int_metamorph": "\u30B5\u30A4\u30B3\u30ED\u306E\u88CF\u8868\u3092\u53CD\u8EE2(1\u21946...)"
+};
+var dictionaries = { en, ja };
+function createTranslator(locale2) {
+  const lang = locale2.startsWith("ja") ? "ja" : "en";
+  const dict = dictionaries[lang];
+  return (key, params) => {
+    let text = dict[key] || key;
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        text = text.replace(`{${k}}`, String(v));
+      }
+    }
+    return text;
+  };
+}
+
 // src/main.ts
 var root = document.getElementById("fd-stage");
 var state = init();
-var renderer = new Renderer(root, onRoll, onReroll, onUseSkill, onSelectCategory, onGameOver, onHold, onRestart);
+var locale = navigator.language;
+var t = createTranslator(locale);
+var renderer = new Renderer(
+  root,
+  onRoll,
+  onReroll,
+  onUseSkill,
+  onSelectCategory,
+  onGameOver,
+  onHold,
+  onRestart,
+  t
+  // Inject translator
+);
 renderer.update(getView(state));
 function handleInput(action) {
   state = step(state, action);
