@@ -8,18 +8,18 @@ export type CategoryId =
   | 'dungeon_floor_3'
   | 'dungeon_floor_4'
   | 'dungeon_floor_5'
-  | 'str_three_of_a_kind_5'
-  | 'str_three_of_a_kind_6'
   | 'str_full_house'
   | 'str_four_of_a_kind'
+  | 'str_three_of_a_kind_5'
+  | 'str_three_of_a_kind_6'
+  | 'dex_free'
+  | 'dex_straight'
   | 'dex_three_of_a_kind_1'
   | 'dex_three_of_a_kind_2'
-  | 'dex_small_straight'
-  | 'dex_large_straight'
-  | 'int_three_of_a_kind_3'
-  | 'int_three_of_a_kind_4'
   | 'int_one_pair'
-  | 'int_two_pair';
+  | 'int_two_pair'
+  | 'int_three_of_a_kind_3'
+  | 'int_three_of_a_kind_4';
 
 export type SkillId =
   | 'skill_str_mighty'

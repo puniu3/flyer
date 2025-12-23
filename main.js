@@ -7,18 +7,18 @@ var ALL_CATEGORY_IDS = [
   "dungeon_floor_3",
   "dungeon_floor_4",
   "dungeon_floor_5",
-  "str_three_of_a_kind_5",
-  "str_three_of_a_kind_6",
   "str_full_house",
   "str_four_of_a_kind",
+  "str_three_of_a_kind_5",
+  "str_three_of_a_kind_6",
+  "dex_free",
+  "dex_straight",
   "dex_three_of_a_kind_1",
   "dex_three_of_a_kind_2",
-  "dex_small_straight",
-  "dex_large_straight",
-  "int_three_of_a_kind_3",
-  "int_three_of_a_kind_4",
   "int_one_pair",
-  "int_two_pair"
+  "int_two_pair",
+  "int_three_of_a_kind_3",
+  "int_three_of_a_kind_4"
 ];
 var ALL_SKILL_IDS = [
   "skill_str_mighty",
@@ -108,10 +108,6 @@ function isCategorySatisfied(id, dice) {
       return sum <= 9;
     case "dungeon_floor_5":
       return countsValues.includes(5);
-    case "str_three_of_a_kind_5":
-      return counts[5] >= 3;
-    case "str_three_of_a_kind_6":
-      return counts[6] >= 3;
     case "str_full_house": {
       const has3 = countsValues.includes(3);
       const has2 = countsValues.includes(2);
@@ -120,19 +116,18 @@ function isCategorySatisfied(id, dice) {
     }
     case "str_four_of_a_kind":
       return countsValues.some((c) => c >= 4);
+    case "str_three_of_a_kind_5":
+      return counts[5] >= 3;
+    case "str_three_of_a_kind_6":
+      return counts[6] >= 3;
+    case "dex_free":
+      return sum >= 0;
+    case "dex_straight":
+      return getMaxStraightLength(dice) >= 5;
     case "dex_three_of_a_kind_1":
       return counts[1] >= 3;
     case "dex_three_of_a_kind_2":
       return counts[2] >= 3;
-    case "dex_small_straight":
-      return true;
-      return getMaxStraightLength(dice) >= 4;
-    case "dex_large_straight":
-      return getMaxStraightLength(dice) >= 5;
-    case "int_three_of_a_kind_3":
-      return counts[3] >= 3;
-    case "int_three_of_a_kind_4":
-      return counts[4] >= 3;
     case "int_one_pair":
       return countsValues.some((c) => c >= 2);
     case "int_two_pair": {
@@ -140,6 +135,10 @@ function isCategorySatisfied(id, dice) {
       const fourOfAKind = countsValues.some((c) => c >= 4);
       return pairsCount >= 2 || fourOfAKind;
     }
+    case "int_three_of_a_kind_3":
+      return counts[3] >= 3;
+    case "int_three_of_a_kind_4":
+      return counts[4] >= 3;
     default:
       return false;
   }
@@ -912,27 +911,27 @@ var en = {
   "instr_choose_category": "Choose a category to score.",
   "label_unlock_progress": "Unlock: {current}/3",
   "header_dungeon": "Dungeon Floor",
-  "header_str": "STR",
-  "header_dex": "DEX",
-  "header_int": "INT",
+  "header_str": "STR Check",
+  "header_dex": "DEX Check",
+  "header_int": "INT Check",
   // Categories
   "cat_dungeon_floor_1": "Floor 1 (Sum 20+)",
   "cat_dungeon_floor_2": "Floor 2 (Sum 24+)",
   "cat_dungeon_floor_3": "Floor 3 (Sum 26+)",
   "cat_dungeon_floor_4": "Floor 4 (Sum ≤ 9)",
   "cat_dungeon_floor_5": "Floor 5 (Five of a Kind)",
-  "cat_str_three_of_a_kind_5": "Three of a Kind (5s)",
-  "cat_str_three_of_a_kind_6": "Three of a Kind (6s)",
   "cat_str_full_house": "Full House",
   "cat_str_four_of_a_kind": "Four of a Kind",
+  "cat_str_three_of_a_kind_5": "Three of a Kind (5s)",
+  "cat_str_three_of_a_kind_6": "Three of a Kind (6s)",
+  "cat_dex_free": "Free",
+  "cat_dex_straight": "Straight",
   "cat_dex_three_of_a_kind_1": "Three of a Kind (1s)",
   "cat_dex_three_of_a_kind_2": "Three of a Kind (2s)",
-  "cat_dex_small_straight": "Free",
-  "cat_dex_large_straight": "Straight",
+  "cat_int_one_pair": "One Pair",
+  "cat_int_two_pair": "Two Pair",
   "cat_int_three_of_a_kind_3": "Three of a Kind (3s)",
   "cat_int_three_of_a_kind_4": "Three of a Kind (4s)",
-  "cat_int_one_pair": "Pair",
-  "cat_int_two_pair": "Two Pair",
   // Skills
   "skill_name_skill_str_mighty": "Mighty",
   "skill_desc_skill_str_mighty": "Set a die to 6",
@@ -967,18 +966,18 @@ var ja = {
   "cat_dungeon_floor_3": "第3階層 (合計26以上)",
   "cat_dungeon_floor_4": "第4階層 (合計9以下)",
   "cat_dungeon_floor_5": "第5階層 (ファイブカード)",
-  "cat_str_three_of_a_kind_5": "5のスリーカード",
-  "cat_str_three_of_a_kind_6": "6のスリーカード",
   "cat_str_full_house": "フルハウス",
   "cat_str_four_of_a_kind": "フォーカード",
+  "cat_str_three_of_a_kind_5": "5のスリーカード",
+  "cat_str_three_of_a_kind_6": "6のスリーカード",
+  "cat_dex_free": "フリー",
+  "cat_dex_straight": "ストレート",
   "cat_dex_three_of_a_kind_1": "1のスリーカード",
   "cat_dex_three_of_a_kind_2": "2のスリーカード",
-  "cat_dex_small_straight": "小ストレート",
-  "cat_dex_large_straight": "大ストレート",
-  "cat_int_three_of_a_kind_3": "3のスリーカード",
-  "cat_int_three_of_a_kind_4": "4のスリーカード",
   "cat_int_one_pair": "ワンペア",
   "cat_int_two_pair": "ツーペア",
+  "cat_int_three_of_a_kind_3": "3のスリーカード",
+  "cat_int_three_of_a_kind_4": "4のスリーカード",
   // Skills
   "skill_name_skill_str_mighty": "剛力",
   "skill_desc_skill_str_mighty": "ダイス1つを6にする",
