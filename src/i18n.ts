@@ -62,6 +62,7 @@ const en: Record<string, string> = {
     'guide_write_1': 'Check one category that matches your dice.',
     'guide_write_2': 'If nothing matches → Game Over!',
     'guide_write_3': 'Check Floor 5 → You Win!',
+    'guide_credit': '←Creator',
 };
 
 const ja: Record<string, string> = {
@@ -126,6 +127,7 @@ const ja: Record<string, string> = {
     'guide_write_1': '条件を満たすマスを1つチェック。',
     'guide_write_2': 'どこも埋められない ⇒ 即ゲームオーバー！',
     'guide_write_3': 'B5Fをチェック ⇒ ゲームクリア！',
+    'guide_credit': '←作った人',
 };
 
 const dictionaries: Record<string, Record<string, string>> = { en, ja };
