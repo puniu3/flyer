@@ -22,7 +22,7 @@
         background: #fff;
         color: #000;
         width: 210mm;
-        height: 296mm; /* A4 height approx */
+        height: 296mm;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -36,7 +36,7 @@
         flex-direction: column;
     }
 
-    /* 共通スタイル */
+    /* Common styles */
     h1, h2, h3, p, ul { margin: 0; padding: 0; }
     ul { list-style: none; }
     .box { border: 2px solid #000; padding: 5px; }
@@ -44,10 +44,10 @@
     .center { text-align: center; }
     .bold { font-weight: bold; }
     
-    /* --- 上半分：ルールセクション --- */
+    /* --- Top half: Rules section --- */
     .top-section {
         flex: 0 0 45%;
-        border-bottom: 2px dashed #000; /* キリトリ線 */
+        border-bottom: 2px dashed #000;
         padding-bottom: 10px;
         margin-bottom: 10px;
         display: flex;
@@ -82,15 +82,8 @@
     }
     .rule-box li { margin-bottom: 4px; padding-left: 1em; text-indent: -1em;}
     .rule-box li::before { content: "・"; }
-    
-    .yaku-list {
-        margin-top: 10px;
-        border: 1px solid #000;
-        padding: 8px;
-        font-size: 10pt;
-    }
 
-    /* --- 下半分：プレイシート --- */
+    /* --- Bottom half: Play sheet --- */
     .bottom-section {
         flex: 1;
         display: flex;
@@ -105,7 +98,7 @@
         padding-bottom: 5px;
     }
     
-    /* 3カラム（Stats） */
+    /* 3 columns (Stats) */
     .stats-container {
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
@@ -134,7 +127,7 @@
         background: #fff;
     }
 
-    /* スキルボックス */
+    /* Skill box */
     .skill-box {
         margin-top: 10px;
         border: 3px solid #000;
@@ -154,7 +147,7 @@
     .skill-name { font-weight: bold; font-size: 13pt; text-decoration: underline; }
     .skill-desc { font-size: 10pt; line-height: 1.1; margin-top: 2px;}
 
-    /* ダンジョンエリア */
+    /* Dungeon area */
     .dungeon-container {
         flex: 1;
         display: flex;
@@ -179,13 +172,22 @@
         display: flex;
         align-items: center;
         font-size: 14pt;
-        border-bottom: 1px dotted #ccc;
         padding: 2px 0;
     }
     .floor-row:last-child { border-bottom: none; }
     .floor-id { width: 60px; font-weight: bold; }
     .floor-cond { flex: 1; text-align: center; }
     .floor-cb { width: 24px; height: 24px; border: 3px solid #000; margin-right: 10px;}
+    
+    /* Arrow between floors */
+    .floor-arrow {
+        width: 100%;
+        text-align: center;
+        font-size: 10pt;
+        color: #888;
+        padding: 0;
+        line-height: 1;
+    }
     
     .trap-floor {
         color: #000;
@@ -198,7 +200,7 @@
         padding-top: 10px;
     }
 
-    /* フッター */
+    /* Footer */
     .footer-credit {
         margin-top: auto;
         text-align: right;
@@ -206,7 +208,7 @@
         color: #555;
     }
 
-    /* 印刷時の設定 */
+    /* Print settings */
     @media print {
         body { -webkit-print-color-adjust: exact; }
     }
@@ -246,15 +248,11 @@
                     <h2>3. 書く (WRITE)</h2>
                     <ul>
                         <li>条件を満たすマスを<span class="bold">1つ</span>チェック。</li>
+                        <li>ダンジョンは<span class="bold">B1F→B5Fの順</span>に攻略。</li>
+                        <li>STR/DEX/INTは<span class="bold">順不同</span>でOK。</li>
                         <li>どこも埋められない ⇒ <span class="bold">即ゲームオーバー！</span></li>
                         <li>B5Fをチェック ⇒ <span class="bold">ゲームクリア！</span></li>
                     </ul>
-                </div>
-                <div class="yaku-list">
-                    <span class="bold">[役のメモ]</span><br>
-                    ●3カード: 同じ目3つ (例: 5,5,5,1,2)<br>
-                    ●フルハウス: 3つ揃い+2つ揃い<br>
-                    ●ストレート: 数字が5つ続く (例: 1,2,3,4,5)<br>
                 </div>
             </div>
         </div>
@@ -317,21 +315,25 @@
                 <div class="floor-id">B1F</div>
                 <div class="floor-cond">出目合計 <span class="bold">20 以上</span></div>
             </div>
+            <div class="floor-arrow">↓</div>
             <div class="floor-row">
                 <div class="cb floor-cb"></div>
                 <div class="floor-id">B2F</div>
                 <div class="floor-cond">出目合計 <span class="bold">24 以上</span></div>
             </div>
+            <div class="floor-arrow">↓</div>
             <div class="floor-row">
                 <div class="cb floor-cb"></div>
                 <div class="floor-id">B3F</div>
                 <div class="floor-cond">出目合計 <span class="bold">26 以上</span></div>
             </div>
+            <div class="floor-arrow">↓</div>
             <div class="floor-row trap-floor">
                 <div class="cb floor-cb"></div>
                 <div class="floor-id">B4F</div>
                 <div class="floor-cond">⚠️ 出目合計 <span class="bold">9 以下</span> ⚠️</div>
             </div>
+            <div class="floor-arrow">↓</div>
             <div class="floor-row boss-floor">
                 <div class="cb floor-cb" style="border:4px double #000;"></div>
                 <div class="floor-id">B5F</div>

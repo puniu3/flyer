@@ -75,7 +75,6 @@ categories:
       prerequisite: null
       condition:
         type: full_house
-        allow_five_of_a_kind_as_full_house: true
 
     - id: str_four_of_a_kind
       group: str
@@ -139,7 +138,6 @@ categories:
       condition:
         type: pair
         pair_count: 2
-        allow_four_of_a_kind_as_two_pair: true
 
     - id: int_three_of_a_kind_3
       group: int
