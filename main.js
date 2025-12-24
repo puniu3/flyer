@@ -1438,7 +1438,68 @@ var fr = {
   "guide_write_3": "Niveau 5 coché ? → Gagné !",
   "guide_credit": "←Dev"
 };
-var dictionaries = { en, ja, zh, "zh-TW": zhTW, ko, de, fr };
+var es = {
+  // UI
+  "game_title": "Flyer Dungeon",
+  "status_won": "¡Has Ganado! 🎉",
+  "status_lost": "Fin del Juego 💀",
+  "msg_start": "¡Lanza los dados para empezar!",
+  "label_held": "GUARDADO",
+  "btn_play_again": "JUGAR DE NUEVO ↺",
+  "btn_roll_initial": "LANZAR",
+  "btn_no_rolls": "SIN TIROS",
+  "btn_roll": "RELANZAR ({current}/{max})",
+  "instr_apply_skill": "Elige un dado para {skillName}",
+  "instr_start_turn": "Lanza los dados para empezar tu turno.",
+  "instr_mid_turn": "Guarda dados y relanza. O elige categoría/habilidad.",
+  "instr_choose_category": "Elige una categoría.",
+  "label_unlock_progress": "Desbloqueo: {current}/3",
+  "header_dungeon": "Mazmorra",
+  "header_str": "FUE",
+  "header_dex": "DES",
+  "header_int": "INT",
+  // Categories
+  "cat_dungeon_floor_1": "Nivel 1 (Suma 20+)",
+  "cat_dungeon_floor_2": "Nivel 2 (Suma 24+)",
+  "cat_dungeon_floor_3": "Nivel 3 (Suma 26+)",
+  "cat_dungeon_floor_4": "Nivel 4 (Suma ≤ 9)",
+  "cat_dungeon_floor_5": "Nivel 5 (Generala)",
+  "cat_str_full_house": "Full",
+  "cat_str_four_of_a_kind": "Póker",
+  "cat_str_three_of_a_kind_5": "Trío de 5",
+  "cat_str_three_of_a_kind_6": "Trío de 6",
+  "cat_dex_free": "Libre",
+  "cat_dex_straight": "Escalera",
+  "cat_dex_three_of_a_kind_1": "Trío de 1",
+  "cat_dex_three_of_a_kind_2": "Trío de 2",
+  "cat_int_one_pair": "Un Par",
+  "cat_int_two_pair": "Dos Pares",
+  "cat_int_three_of_a_kind_3": "Trío de 3",
+  "cat_int_three_of_a_kind_4": "Trío de 4",
+  // Skills
+  "skill_name_skill_str_mighty": "Poder",
+  "skill_desc_skill_str_mighty": "Poner un dado en 6",
+  "skill_name_skill_dex_acrobatics": "Acrobacia",
+  "skill_desc_skill_dex_acrobatics": "Reducir dado en 1 (mín 1)",
+  "skill_name_skill_int_metamorph": "Polimorfia",
+  "skill_desc_skill_int_metamorph": "Invertir dado (1<->6...)",
+  // Guide Modal
+  "guide_btn": "?",
+  "guide_title": "Cómo Jugar",
+  "guide_roll_title": "LANZAR",
+  "guide_roll_1": "Lanza 5 dados.",
+  "guide_roll_2": "Guarda los que quieras, relanza el resto.",
+  "guide_roll_3": "Máx 3 tiros en total.",
+  "guide_skill_title": "HABILIDADES",
+  "guide_skill_1": "Desbloquea al cumplir 3 categorías de un atributo.",
+  "guide_skill_2": "1 uso por habilidad por turno.",
+  "guide_write_title": "ELEGIR",
+  "guide_write_1": "Marca una casilla válida.",
+  "guide_write_2": "¿Nada válido? → ¡Fin del Juego!",
+  "guide_write_3": "¿Nivel 5 marcado? → ¡Ganaste!",
+  "guide_credit": "←Dev"
+};
+var dictionaries = { en, ja, zh, "zh-TW": zhTW, ko, de, fr, es };
 function createTranslator(locale2) {
   let lang = "en";
   if (locale2 === "zh-TW" || locale2 === "zh-Hant" || locale2.startsWith("zh-TW")) {
@@ -1453,6 +1514,8 @@ function createTranslator(locale2) {
     lang = "de";
   } else if (locale2.startsWith("fr")) {
     lang = "fr";
+  } else if (locale2.startsWith("es")) {
+    lang = "es";
   }
   const dict = dictionaries[lang] || dictionaries["en"];
   return (key, params) => {
