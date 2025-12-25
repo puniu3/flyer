@@ -1026,9 +1026,9 @@ var en = {
   "instr_choose_category": "Choose a category to score.",
   "label_unlock_progress": "Unlock: {current}/3",
   "header_dungeon": "Dungeon Floor",
-  "header_str": "STR Check",
-  "header_dex": "DEX Check",
-  "header_int": "INT Check",
+  "header_str": "STR",
+  "header_dex": "DEX",
+  "header_int": "INT",
   // Categories
   "cat_dungeon_floor_1": "Floor 1 (Sum 20+)",
   "cat_dungeon_floor_2": "Floor 2 (Sum 24+)",
