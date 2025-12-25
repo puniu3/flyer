@@ -17,9 +17,9 @@ const en: Record<string, string> = {
     'instr_choose_category': 'Choose a category to score.',
     'label_unlock_progress': 'Unlock: {current}/3',
     'header_dungeon': 'Dungeon Floor',
-    'header_str': 'STR Check',
-    'header_dex': 'DEX Check',
-    'header_int': 'INT Check',
+    'header_str': 'STR',
+    'header_dex': 'DEX',
+    'header_int': 'INT',
 
     // Categories
     'cat_dungeon_floor_1': 'Floor 1 (Sum 20+)',
@@ -525,7 +525,7 @@ const dictionaries: Record<string, Record<string, string>> = { en, ja, zh, 'zh-T
 export function createTranslator(locale: string): Translator {
     let lang = 'en';
 
-    // Check specific variants first
+    // specific variants first
     if (locale === 'zh-TW' || locale === 'zh-Hant' || locale.startsWith('zh-TW')) {
         lang = 'zh-TW';
     } else if (locale.startsWith('ja')) {
