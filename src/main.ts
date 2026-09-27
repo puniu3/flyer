@@ -319,9 +319,6 @@ el("result").addEventListener("cancel", (e) => e.preventDefault());
 el("help").addEventListener("click", () => {
   el("guide-content").innerHTML =
     `<h2>${t("guide_title")}</h2>${["roll", "skill", "write"].map((section, i) => `<h3>${i + 1}. ${t(`guide_${section}_title`)}</h3><ul>${[1, 2, ...(section === "skill" ? [] : [3])].map((n) => `<li>${t(`guide_${section}_${n}`)}</li>`).join("")}</ul>`).join("")}`;
-  const clarification = document.createElement("p");
-  clarification.textContent = t("guide_continue");
-  el("guide-content").append(clarification);
   const credit = document.createElement("p");
   credit.className = "guide-credit";
   credit.textContent = "2026 Curiosity Inc.";

@@ -40,6 +40,8 @@ try {
         assert.deepEqual(await page.evaluate(() => window.__flyer.state()), state);
         await page.screenshot({ path: `.browser-check/locale-${type.name()}-${locale}.png` });
         await page.locator("#help").click();
+        assert.equal(await page.locator("#guide-content > p").count(), 1);
+        assert.equal(await page.locator("#guide-content > :last-child").textContent(), "2026 Curiosity Inc.");
         if (locale === "zh") {
           assert.equal(await page.locator("#guide h2").textContent(), "游戏规则");
           assert.ok(await page.evaluate(() => document.fonts.check('32px "Flyer SC"', '掷骰力量葫芦顺子')));

@@ -27,12 +27,12 @@
     "pre_export_peak": 0.847
   },
   "defeat": {
-    "source": ".audio-generation/defeat/outputs/20260927-235908-474942-stable/audio.wav",
-    "sha256": "cb044e5528cf642caa6f3925f9fdce9ebd1bf557b3a0243121229bee5d7b707f",
-    "seed": 207,
+    "source": ".audio-generation/defeat/outputs/20260928-000613-530628-stable/audio.wav",
+    "sha256": "21d04f5ea875214cdd98bfe17165457051b613a9bea7527929757b443f8e8f73",
+    "seed": 221,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.736
+    "pre_export_peak": 0.54
   }
 }

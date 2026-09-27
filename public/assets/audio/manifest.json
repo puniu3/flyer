@@ -1,10 +1,10 @@
 {
   "defeat": {
     "source": "art/audio/sources/defeat.wav",
-    "source_sha256": "cb044e5528cf642caa6f3925f9fdce9ebd1bf557b3a0243121229bee5d7b707f",
+    "source_sha256": "21d04f5ea875214cdd98bfe17165457051b613a9bea7527929757b443f8e8f73",
     "trim_seconds": [
       0,
-      4.6
+      0.78
     ],
     "highpass_hz": 45,
     "stereo_width": 0.25,
@@ -17,13 +17,13 @@
       0.001,
       0.035
     ],
-    "normalization_gain": 0.7207356612392203,
-    "duration": 4.599977324263039,
+    "normalization_gain": 1.1319627344976915,
+    "duration": 0.78,
     "peak": 0.5,
-    "rms": 0.07779132004767937,
+    "rms": 0.09232336571265279,
     "clipped_samples": 0,
-    "bytes": 811480,
-    "sha256": "94df6a76abe25c66866c77880b38bf704a05b878271f26995ff90de4d72587de",
+    "bytes": 137636,
+    "sha256": "d7dc1a35d09be29d21cee7b6494d2d9203076a76a0b2dadbb6d9be6125192cd6",
     "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
   },
   "victory": {
