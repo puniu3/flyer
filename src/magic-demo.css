@@ -1,0 +1,22 @@
+:root { font-family: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif; color: #eadcc0; background: #29271f; color-scheme: dark; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 980px; margin: auto; padding: 36px 24px; }
+a { color: #bca57a; font-size: 14px; }
+h1 { font-size: 28px; font-weight: 400; margin: 28px 0 12px; }
+header p { color: #b5a88d; font-size: 14px; line-height: 1.7; }
+.candidates { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin: 28px 0; }
+article { background: #ddd0b3; color: #403524; border: 1px solid #b79c68; border-radius: 6px; padding: 24px; min-width: 0; }
+article.playing { outline: 2px solid #d9b46c; outline-offset: 3px; }
+.letter { color: #887045; font-size: 14px; }
+h2 { font-size: 21px; font-weight: 400; margin: 10px 0; }
+article p { font-size: 14px; line-height: 1.7; min-height: 48px; }
+button { font: inherit; cursor: pointer; border: 1px solid #9d845c; border-radius: 4px; padding: 10px 20px; background: #514632; color: #f0e1c2; min-height: 44px; touch-action: manipulation; }
+button:focus-visible, input:focus-visible { outline: 2px solid #d9b46c; outline-offset: 3px; }
+article button { width: 100%; }
+footer { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+footer label { display: flex; gap: 12px; align-items: center; margin-left: auto; font-size: 14px; }
+input { accent-color: #c3a46c; width: 140px; }
+#status { flex-basis: 100%; min-height: 2em; font-size: 14px; color: #b5a88d; }
+@media (hover:hover) and (pointer:fine) { button:hover { background: #655438; } }
+@media (max-width:520px) { main { padding: 20px 14px; } .candidates { gap: 12px; } article { padding: 16px; } h2 { font-size: 18px; } footer label { margin-left: 0; } }

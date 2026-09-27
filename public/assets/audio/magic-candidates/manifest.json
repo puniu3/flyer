@@ -1,0 +1,82 @@
+{
+  "a": {
+    "source": "art/audio/magic-candidates/a.wav",
+    "source_sha256": "da07c87b93c143616dda158ccbeb6430ccd80c485dcee2b993e41a715276c7fa",
+    "trim_seconds": [
+      0,
+      1.05
+    ],
+    "fade_seconds": [
+      0.003,
+      0.3
+    ],
+    "fade_out_curve": "half-cosine",
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "normalization_gain": 0.6101715514653044,
+    "duration": 1.05,
+    "peak": 0.5,
+    "clipped_samples": 0,
+    "sha256": "6c0fa78b99ee35404cc2e48a6c7e755e29468d60aa024bb6103767b64eb64e25"
+  },
+  "b": {
+    "source": "art/audio/magic-candidates/b.wav",
+    "source_sha256": "ae04b145b081298c805e434ec3cbb336e0de4d4254942e1602cbf738b526dea7",
+    "trim_seconds": [
+      4.12,
+      4.95
+    ],
+    "fade_seconds": [
+      0.003,
+      0.13
+    ],
+    "fade_out_curve": "half-cosine",
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "normalization_gain": 0.7988548201914686,
+    "duration": 0.83,
+    "peak": 0.5,
+    "clipped_samples": 0,
+    "sha256": "c381b6d85dddbde4026b4b3d9e8fd4d7476d569a70ce266e22c6bdb6326dd63e"
+  },
+  "c": {
+    "source": "art/audio/magic-candidates/c.wav",
+    "source_sha256": "dcbcb19ee94201ffd6cfb764b22fa8de97dd1a6b58499fad556d1cb8b12c75ee",
+    "trim_seconds": [
+      3.65,
+      4.4
+    ],
+    "fade_seconds": [
+      0.003,
+      0.15
+    ],
+    "fade_out_curve": "half-cosine",
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "normalization_gain": 0.7085641004751929,
+    "duration": 0.75,
+    "peak": 0.5,
+    "clipped_samples": 0,
+    "sha256": "ac819c01f2da321093163dc805c3393756dace620fc3577fa6c17dcd20cf759b"
+  },
+  "d": {
+    "source": "art/audio/magic-candidates/d.wav",
+    "source_sha256": "3e3daf0c9d9baaf9745bd8b4782af96170c6c57c0f3d8e4b9b381f5ca313a490",
+    "trim_seconds": [
+      0.16,
+      0.94
+    ],
+    "fade_seconds": [
+      0.003,
+      0.13
+    ],
+    "fade_out_curve": "half-cosine",
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "normalization_gain": 1.7353340786035134,
+    "duration": 0.78,
+    "peak": 0.499969482421875,
+    "clipped_samples": 0,
+    "sha256": "213ae6b21b710ba3f8264dced8da3f55ec0aaae9f25d74330247d1401a86f339"
+  }
+}

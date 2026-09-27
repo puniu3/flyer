@@ -1,0 +1,38 @@
+{
+  "a": {
+    "source": ".audio-generation/magic-a/outputs/20260928-002954-561907-stable/audio.wav",
+    "seed": 251,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.786,
+    "sha256": "da07c87b93c143616dda158ccbeb6430ccd80c485dcee2b993e41a715276c7fa"
+  },
+  "b": {
+    "source": ".audio-generation/magic-b/outputs/20260928-002957-108958-stable/audio.wav",
+    "seed": 252,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.623,
+    "sha256": "ae04b145b081298c805e434ec3cbb336e0de4d4254942e1602cbf738b526dea7"
+  },
+  "c": {
+    "source": ".audio-generation/magic-c/outputs/20260928-002959-644182-stable/audio.wav",
+    "seed": 253,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.746,
+    "sha256": "dcbcb19ee94201ffd6cfb764b22fa8de97dd1a6b58499fad556d1cb8b12c75ee"
+  },
+  "d": {
+    "source": ".audio-generation/magic-d/outputs/20260928-003002-142632-stable/audio.wav",
+    "seed": 254,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.661,
+    "sha256": "3e3daf0c9d9baaf9745bd8b4782af96170c6c57c0f3d8e4b9b381f5ca313a490"
+  }
+}
