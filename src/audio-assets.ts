@@ -1,0 +1,11 @@
+import mighty from "./assets/audio/mighty.mp3?url";
+import acrobatics from "./assets/audio/acrobatics.mp3?url";
+import magic from "./assets/audio/magic.mp3?url";
+import defeat from "./assets/audio/defeat.mp3?url";
+import victory from "./assets/audio/victory.mp3?url";
+import pickup from "./assets/audio/pickup.mp3?url";
+import place from "./assets/audio/place.mp3?url";
+import roll from "./assets/audio/roll.mp3?url";
+import skill from "./assets/audio/skill.mp3?url";
+import gather from "./assets/audio/gather.mp3?url";
+export const AUDIO_URLS = { mighty, acrobatics, magic, defeat, victory, pickup, place, roll, skill, gather };

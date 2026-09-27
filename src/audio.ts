@@ -1,3 +1,4 @@
+import { AUDIO_URLS } from "./audio-assets";
 export const CUES = [
   "pickup",
   "place",
@@ -42,7 +43,7 @@ export class TableAudio {
     this.loading ??= Promise.all(
       CUES.map(async (cue) => {
         const response = await fetch(
-          `${import.meta.env.BASE_URL}assets/audio/${cue}.wav`,
+          AUDIO_URLS[cue],
         );
         if (!response.ok) throw new Error(`Audio unavailable: ${cue}`);
         this.raw.set(cue, await response.arrayBuffer());

@@ -1,0 +1,102 @@
+{
+  "mighty": {
+    "source_sha256": "41c4e037bcdf5a2a4e7dd96dc5354c5c38a10c64e9504a5ac9e35719c1029a92",
+    "sha256": "8b9c4d5ef3e39a9af68ab90af46a14d911a8b466b9a54e0f7e2f58d5c0a7f1b8",
+    "source_bytes": 114704,
+    "bytes": 9093,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "acrobatics": {
+    "source_sha256": "453d11e80cada957c1f2d2f8c3a5ebe192f275f18acafe32dd16a8bf92f63108",
+    "sha256": "9c29fda9dda5bc1919f97b45b7cf449accb92c18d495f7484f812a42563e3ceb",
+    "source_bytes": 63548,
+    "bytes": 7321,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "magic": {
+    "source_sha256": "d478d963c760c320c55868aa3951b4d0c93e696bae7a0239b1bd59ac7fa5a676",
+    "sha256": "4193e7f24e1b08e40e400425e6570d33745c1710237d4bb5e2b394469719a3fd",
+    "source_bytes": 107648,
+    "bytes": 12900,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "defeat": {
+    "source_sha256": "94df6a76abe25c66866c77880b38bf704a05b878271f26995ff90de4d72587de",
+    "sha256": "e8c7e6269d815ee73b2461210940562413c003987e8782266a19a0de030c401a",
+    "source_bytes": 811480,
+    "bytes": 78426,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "victory": {
+    "source_sha256": "39650cd0ba686d399ab8af603bc17f33b855561fdc05d24ddcfda7e5975903bb",
+    "sha256": "6538bc767f842d49fb7f955740862a09109935a8eab417ff6fa1ba02c697c3a5",
+    "source_bytes": 740924,
+    "bytes": 83190,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "pickup": {
+    "source_sha256": "4c3f7b45f68aba85625223c760eadcb4a73f7c388b56eeea295196ecb33bb106",
+    "sha256": "2776b6fef424ea7ea172fc78fdc34094abfec92c5cd1fbd7cb3b3b6a0c38a147",
+    "source_bytes": 34092,
+    "bytes": 3198,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "place": {
+    "source_sha256": "746a874f8ff58fdd1f535ee0967ba8ea5fe516a80aa2f57c25048a920b08e902",
+    "sha256": "15442f8c9d67000546dbe30fea8bcb0f29ed1fc6b5a87df517b9c2c28d023cc9",
+    "source_bytes": 68456,
+    "bytes": 5156,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "roll": {
+    "source_sha256": "dee2ddbd815cf24702967f200ebdedc8ff4ebf4f6c9a363939e8d0d3077c3023",
+    "sha256": "a4d60a08b022b84baf19f8662436e5eadecc4aa59b97336e83d2c9a0db69a9ff",
+    "source_bytes": 211724,
+    "bytes": 21874,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "skill": {
+    "source_sha256": "9a9f82622bb7618c828b00564de703d5b00bfc1428602746e1d1300164ec6d49",
+    "sha256": "17080ce02fe6e000e931e0b52dc3d61153be490c38d688fc6ba65d3ac244045f",
+    "source_bytes": 80720,
+    "bytes": 9120,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  },
+  "gather": {
+    "source_sha256": "24cf27be8a21bb2617bf3ebe44d8eb2e903ce9935c1e667fdc41c4084345b9ed",
+    "sha256": "20e3803137e59ec9f02e332f577b2632a0e7651ee7ce828e47313a58cc961ae6",
+    "source_bytes": 131992,
+    "bytes": 10967,
+    "encoder": "libmp3lame",
+    "quality": 2,
+    "sample_rate": 44100,
+    "channels": 2
+  }
+}

@@ -13,11 +13,12 @@
     "validate:assets": "node tools/validate-assets.mjs",
     "test:browser": "node tools/browser-check.mjs",
     "audio:generate": "python3 tools/generate-audio.py",
-    "audio:prepare": "python3 tools/prepare-audio.py",
+    "audio:prepare": "python3 tools/prepare-audio.py && python3 tools/encode-audio.py",
     "test:audio": "node tools/audio-check.mjs",
     "test:effects": "node tools/effects-check.mjs",
     "test:localization": "node tools/localization-check.mjs",
-    "fonts:prepare": "python3 tools/prepare-fonts.py"
+    "fonts:prepare": "python3 tools/prepare-fonts.py",
+    "audio:encode": "python3 tools/encode-audio.py"
   },
   "dependencies": {
     "three": "0.186.1"
