@@ -31,7 +31,7 @@ for (const button of buttons) button.addEventListener("click", async () => {
     }
     await context.resume();
     if (!buffers.has(cue)) {
-      const path = cue === "current" ? "magic.wav" : `magic-candidates/${cue}.wav`;
+      const path = cue === "current" ? "magic.wav" : `magic-candidates/${cue}.wav?v=tilun-271`;
       const response = await fetch(`${import.meta.env.BASE_URL}assets/audio/${path}`);
       if (!response.ok) throw new Error(String(response.status));
       buffers.set(cue, await context.decodeAudioData(await response.arrayBuffer()));

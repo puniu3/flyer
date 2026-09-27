@@ -1,82 +1,82 @@
 {
   "a": {
     "source": "art/audio/magic-candidates/a.wav",
-    "source_sha256": "da07c87b93c143616dda158ccbeb6430ccd80c485dcee2b993e41a715276c7fa",
+    "source_sha256": "6c274b8d5564378696fb89c220cfce9284b51764f224f99cafd3ef836e474526",
     "trim_seconds": [
       0,
-      1.05
+      1.4
     ],
     "fade_seconds": [
       0.003,
-      0.3
+      0.65
     ],
     "fade_out_curve": "half-cosine",
     "highpass_hz": 45,
     "stereo_width": 0.25,
-    "normalization_gain": 0.6101715514653044,
-    "duration": 1.05,
+    "normalization_gain": 1.1020820779454836,
+    "duration": 1.3999773242630384,
     "peak": 0.5,
     "clipped_samples": 0,
-    "sha256": "6c0fa78b99ee35404cc2e48a6c7e755e29468d60aa024bb6103767b64eb64e25"
+    "sha256": "79df814db61f4c9ac4859deb1845b27456a8148d005c63063dfd235482487132"
   },
   "b": {
     "source": "art/audio/magic-candidates/b.wav",
-    "source_sha256": "ae04b145b081298c805e434ec3cbb336e0de4d4254942e1602cbf738b526dea7",
+    "source_sha256": "ef533a5201725e57e53cd52f51a9e6bfb4a4e6b3167be8cda97f1bc32f2540b0",
     "trim_seconds": [
-      4.12,
-      4.95
+      0,
+      0.95
     ],
     "fade_seconds": [
       0.003,
-      0.13
+      0.45
     ],
     "fade_out_curve": "half-cosine",
     "highpass_hz": 45,
     "stereo_width": 0.25,
-    "normalization_gain": 0.7988548201914686,
-    "duration": 0.83,
+    "normalization_gain": 3.170197344376415,
+    "duration": 0.95,
     "peak": 0.5,
     "clipped_samples": 0,
-    "sha256": "c381b6d85dddbde4026b4b3d9e8fd4d7476d569a70ce266e22c6bdb6326dd63e"
+    "sha256": "425497b6d021eaee8a5bedd7f9b85029ecd134fb98fafa251cf869c2b71c7bd7"
   },
   "c": {
     "source": "art/audio/magic-candidates/c.wav",
-    "source_sha256": "dcbcb19ee94201ffd6cfb764b22fa8de97dd1a6b58499fad556d1cb8b12c75ee",
+    "source_sha256": "4f200b687043a1e553550030c5b140e7b5d8e761fd48ba5cbbb934b302e4668f",
     "trim_seconds": [
-      3.65,
-      4.4
+      0,
+      1.15
     ],
     "fade_seconds": [
       0.003,
-      0.15
+      0.55
     ],
     "fade_out_curve": "half-cosine",
     "highpass_hz": 45,
     "stereo_width": 0.25,
-    "normalization_gain": 0.7085641004751929,
-    "duration": 0.75,
+    "normalization_gain": 0.7736972484013293,
+    "duration": 1.1499773242630384,
     "peak": 0.5,
     "clipped_samples": 0,
-    "sha256": "ac819c01f2da321093163dc805c3393756dace620fc3577fa6c17dcd20cf759b"
+    "sha256": "80be79833f3363314991212c3ed73a31115274c5cc0fde7219c27bab7643a3b9"
   },
   "d": {
     "source": "art/audio/magic-candidates/d.wav",
-    "source_sha256": "3e3daf0c9d9baaf9745bd8b4782af96170c6c57c0f3d8e4b9b381f5ca313a490",
+    "source_sha256": "0ce0819282f9b16fcd9f0bef43f4a848b566505ff5bd586324662e37a7cd74b9",
     "trim_seconds": [
-      0.16,
-      0.94
+      0,
+      1.25
     ],
     "fade_seconds": [
       0.003,
-      0.13
+      0.6
     ],
     "fade_out_curve": "half-cosine",
     "highpass_hz": 45,
     "stereo_width": 0.25,
-    "normalization_gain": 1.7353340786035134,
-    "duration": 0.78,
-    "peak": 0.499969482421875,
+    "normalization_gain": 1.8734466071370748,
+    "duration": 1.25,
+    "peak": 0.5,
     "clipped_samples": 0,
-    "sha256": "213ae6b21b710ba3f8264dced8da3f55ec0aaae9f25d74330247d1401a86f339"
+    "sha256": "de6f1e4ba0ef2cd4806bd15924ae9c0b43bbd727a205bb2be542e56e3464d25a"
   }
 }

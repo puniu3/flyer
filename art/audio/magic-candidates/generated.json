@@ -1,38 +1,38 @@
 {
   "a": {
-    "source": ".audio-generation/magic-a/outputs/20260928-002954-561907-stable/audio.wav",
-    "seed": 251,
+    "source": ".audio-generation/magic-tilun-a/outputs/20260928-003919-408914-stable/audio.wav",
+    "seed": 271,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.786,
-    "sha256": "da07c87b93c143616dda158ccbeb6430ccd80c485dcee2b993e41a715276c7fa"
+    "pre_export_peak": 0.524,
+    "sha256": "6c274b8d5564378696fb89c220cfce9284b51764f224f99cafd3ef836e474526"
   },
   "b": {
-    "source": ".audio-generation/magic-b/outputs/20260928-002957-108958-stable/audio.wav",
-    "seed": 252,
+    "source": ".audio-generation/magic-tilun-b/outputs/20260928-003921-847689-stable/audio.wav",
+    "seed": 271,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.623,
-    "sha256": "ae04b145b081298c805e434ec3cbb336e0de4d4254942e1602cbf738b526dea7"
+    "pre_export_peak": 0.158,
+    "sha256": "ef533a5201725e57e53cd52f51a9e6bfb4a4e6b3167be8cda97f1bc32f2540b0"
   },
   "c": {
-    "source": ".audio-generation/magic-c/outputs/20260928-002959-644182-stable/audio.wav",
-    "seed": 253,
+    "source": ".audio-generation/magic-tilun-c/outputs/20260928-003924-450582-stable/audio.wav",
+    "seed": 271,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.746,
-    "sha256": "dcbcb19ee94201ffd6cfb764b22fa8de97dd1a6b58499fad556d1cb8b12c75ee"
+    "pre_export_peak": 0.659,
+    "sha256": "4f200b687043a1e553550030c5b140e7b5d8e761fd48ba5cbbb934b302e4668f"
   },
   "d": {
-    "source": ".audio-generation/magic-d/outputs/20260928-003002-142632-stable/audio.wav",
-    "seed": 254,
+    "source": ".audio-generation/magic-tilun-d/outputs/20260928-003926-951056-stable/audio.wav",
+    "seed": 271,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.661,
-    "sha256": "3e3daf0c9d9baaf9745bd8b4782af96170c6c57c0f3d8e4b9b381f5ca313a490"
+    "pre_export_peak": 0.272,
+    "sha256": "0ce0819282f9b16fcd9f0bef43f4a848b566505ff5bd586324662e37a7cd74b9"
   }
 }

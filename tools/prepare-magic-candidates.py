@@ -6,7 +6,7 @@ import math
 import wave
 
 root = Path(__file__).resolve().parents[1]
-recipes = {'a': [0, 1.05, .3], 'b': [4.12, 4.95, .13], 'c': [3.65, 4.4, .15], 'd': [.16, .94, .13]}
+recipes = {'a': [0, 1.4, .65], 'b': [0, .95, .45], 'c': [0, 1.15, .55], 'd': [0, 1.25, .6]}
 output = root / 'public/assets/audio/magic-candidates'
 output.mkdir(parents=True, exist_ok=True)
 manifest = {}
