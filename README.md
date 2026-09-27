@@ -4,6 +4,10 @@ A solo dice dungeon on a physical-looking table: a printed cardboard dungeon boa
 
 ## Play locally
 
+For the Japanese text CLI, run `npm ci` then `npm run play`. Enter held **face values** (`55` keeps two fives and rerolls the rest), a category (`B1`, `1s`–`6s`, `pair`, `two pair`, `full house`, `4 of`, `straight`, `free`), or skills followed by a category (`dex 3 int 5 B5`). Skill targets are face values, not die positions. `r` rerolls all dice. Input is case-insensitive; full-width digits and Japanese category names also work. Invalid compound commands change nothing.
+
+The CLI rolls automatically at the start of each turn. It reports the next dungeon requirement, sorted dice, remaining rerolls, available skills, and selectable categories with their ability groups. `remaining`, `look`, `skills`, `rules`, and `help` provide details on demand. `new` starts another run; `quit`, Ctrl-C, or EOF exits. Each action is saved locally in a versioned replay log under `$XDG_STATE_HOME/flyer-dungeon/cli` (default `~/.local/state/flyer-dungeon/cli`). `save` or exit prints the path. Resume with `npm run play -- --resume /path/to/run.json`; `--seed 123` starts a reproducible run, and `--save /path/to/run.json` chooses a new log path. Existing logs are never replaced by a new run. The CLI uses the same rules engine as the browser edition.
+
 ```sh
 npm ci
 npm run dev

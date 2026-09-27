@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "play": "tsx cli/index.ts",
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build && node tools/copy-print.mjs",
-    "type-check": "tsc --noEmit",
+    "build": "npm run type-check && vite build && node tools/copy-print.mjs",
+    "type-check": "tsc --noEmit && tsc --project tsconfig.cli.json",
     "test": "tsx --test tests/*.test.ts",
     "assets": "python3 tools/generate-assets.py && npm run print",
     "print": "tsx tools/print.ts",
