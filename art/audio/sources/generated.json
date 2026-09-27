@@ -25,5 +25,14 @@
     "cfg": 1,
     "seconds": 5,
     "pre_export_peak": 0.847
+  },
+  "defeat": {
+    "source": ".audio-generation/defeat/outputs/20260927-235908-474942-stable/audio.wav",
+    "sha256": "cb044e5528cf642caa6f3925f9fdce9ebd1bf557b3a0243121229bee5d7b707f",
+    "seed": 207,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.736
   }
 }

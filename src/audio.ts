@@ -5,6 +5,7 @@ export const CUES = [
   "skill",
   "gather",
   "victory",
+  "defeat",
 ] as const;
 export type Cue = (typeof CUES)[number];
 

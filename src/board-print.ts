@@ -30,8 +30,7 @@ export function printBoard(canvas: HTMLCanvasElement, base: CanvasImageSource, n
   for (const slot of layout.slots.filter(s => s.group === group)) {
     const y = (slot.z - board.z + board.depth / 2) * 100;
     const numeric = /^[≥≤\d]/u.test(slot.mark);
-    let role = numeric ? slot.mark : dungeon ? t("five_kind") : t(`cat_${slot.id}`);
-    if (locale === "en") role = role.toUpperCase();
+    const role = numeric ? slot.mark : dungeon ? t("five_kind") : t(`cat_${slot.id}`);
     label(dungeon ? 260 : 262, y, role, 32, dungeon ? 240 : 315, "#30291f");
   }
 }

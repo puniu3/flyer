@@ -197,7 +197,7 @@ function settle(token: number) {
     el("again").textContent = t("btn_play_again").replace(/\s*↺/g, "");
     el<HTMLDialogElement>("result").showModal();
     if (!document.hidden)
-      void audio.play(won ? "victory" : "gather", 0.6, 0, won ? 1 : 0.85);
+      void audio.play(won ? "victory" : "defeat", 0.6);
   }
 }
 function dispatch(action: PlayerAction) {
@@ -322,6 +322,10 @@ el("help").addEventListener("click", () => {
   const clarification = document.createElement("p");
   clarification.textContent = t("guide_continue");
   el("guide-content").append(clarification);
+  const credit = document.createElement("p");
+  credit.className = "guide-credit";
+  credit.textContent = "2026 Curiosity Inc.";
+  el("guide-content").append(credit);
   el<HTMLDialogElement>("guide").showModal();
 });
 for (const b of document.querySelectorAll<HTMLButtonElement>("[data-language]")) {

@@ -10,7 +10,7 @@ try {
     ["chromium", chromium],
     ["webkit", webkit],
   ]) {
-    const browser = await type.launch();
+    const browser = await type.launch(type === chromium ? { args: ["--mute-audio"] } : {});
     try {
       const page = await browser.newPage({
         viewport: { width: 1194, height: 834 },
@@ -83,7 +83,34 @@ try {
         0,
         "restart stops the fanfare tail",
       );
+      await page.evaluate(() => {
+        const s = window.__flyer.state();
+        for (const id in s.categories) s.categories[id] = true;
+        s.categories.dungeon_floor_5 = false;
+        s.dice = [1, 2, 3, 4, 5]; s.rollsUsed = 2;
+        window.__flyer.fixture(s);
+        for (let i = 0; i < 5; i++) window.__flyer.tap(`die:${i}`);
+      });
+      await page.locator("#roll").click();
+      await page.waitForFunction(() => window.__flyer.audio().lastCue === "defeat");
+      assert.equal(await page.evaluate(() => window.__flyer.state().status), "lost");
+      const defeatRms = await page.evaluate(async () => {
+        let peak = 0;
+        for (let i = 0; i < 20; i++) {
+          peak = Math.max(peak, window.__flyer.audio().rms);
+          await new Promise(r => setTimeout(r, 25));
+        }
+        return peak;
+      });
+      assert.ok(defeatRms > 0.001, "defeat sting reaches output");
+      const defeatCount = await page.evaluate(() => window.__flyer.audio().count);
+      await page.keyboard.press("Escape");
+      assert.equal(await page.evaluate(() => window.__flyer.audio().count), defeatCount, "defeat cue fires once");
+      await page.locator("#again").click();
+      await page.waitForTimeout(1000);
+      assert.equal(await page.evaluate(() => window.__flyer.audio().rms), 0, "restart stops defeat tail");
       reports.push({
+        defeatRms,
         name,
         peakRms,
         victoryRms,
@@ -103,7 +130,7 @@ try {
   for (const [cue, entry] of Object.entries(manifest)) {
     assert.equal(entry.clipped_samples, 0, cue);
     assert.ok(
-      entry.duration > 0 && entry.duration < (cue === "victory" ? 4.3 : 1.3),
+      entry.duration > 0 && entry.duration < (cue === "defeat" ? 4.7 : cue === "victory" ? 4.3 : 1.3),
       cue,
     );
     assert.ok(entry.peak < 1, cue);
