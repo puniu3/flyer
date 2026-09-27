@@ -28,6 +28,9 @@ export class TableAudio {
     try {
       this.muted =
         localStorage.getItem(`${this.storagePrefix}:muted`) === "true";
+      const stored = localStorage.getItem(`${this.storagePrefix}:volume`);
+      if (stored !== null && Number.isFinite(Number(stored)))
+        this.volume = Math.max(0, Math.min(1, Number(stored)));
     } catch {}
   }
 
