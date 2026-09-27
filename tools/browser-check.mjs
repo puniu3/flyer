@@ -310,6 +310,10 @@ try {
         await page.evaluate(() => window.__flyer.state().status),
         "lost",
       );
+      assert.equal(await page.locator("#result button:visible").count(), 1);
+      await page.mouse.click(5, 5);
+      await page.keyboard.press("Escape");
+      assert.equal(await page.locator("#result").isVisible(), true, "loss requires replay action");
       await page.locator("#again").click();
       await settings();
       await page.locator("#volume").fill("0.31");

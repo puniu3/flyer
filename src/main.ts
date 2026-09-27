@@ -3,7 +3,7 @@ import { getView } from "./rules";
 import { DungeonScene, DEFAULT_CAMERA } from "./scene";
 import { TableAudio } from "./audio";
 import { Session } from "./session";
-import { slots, GROUPS, SKILLS, SKILL_Z, SKILL_CARD, abilityX, markerX } from "./layout";
+import { slots, GROUPS, SKILLS, SKILL_CARD, SHEET_TOP, markerX } from "./layout";
 import { createTranslator } from "./i18n";
 import { loadCamera, readPreference, savePreference } from "./preferences";
 import type { CategoryId, SkillId, PlayerAction, GameState } from "./types";
@@ -12,7 +12,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `<main class="stage" id="stage"><div class="table-ui" id="table-ui"></div><nav class="top-actions"><button id="sound" aria-label="音声切替"></button><button id="help" aria-label="遊び方">?</button></nav><button class="roll" id="roll" disabled><span id="roll-label">Roll</span><small id="roll-remaining"></small></button><div class="loading" id="loading">卓上を準備しています…</div></main>
 <dialog id="settings"><button class="close" data-close>×</button><h2>卓上の調整</h2><label class="settings-row">言語 / Language<select id="language"><option value="ja">日本語</option><option value="en">English</option><option value="zh">简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label><label class="settings-row">音量<input id="volume" type="range" min="0" max="1" step=".01"></label><label class="settings-row">画角<input id="fov" type="range" min="10" max="45" step="1"><output id="fov-value"></output></label><label class="settings-row">俯角<input id="elevation" type="range" min="25" max="75" step="1"><output id="elevation-value"></output></label><label class="settings-row">距離<input id="distance" type="range" min=".6" max="1.8" step=".02"><output id="distance-value"></output></label><div class="dialog-actions"><button id="save-camera">設定を保存</button><button id="default-camera">標準に戻す</button><button id="export">プレイログ</button><button id="restart">最初から</button></div><p class="sound-status" id="audio-status"></p></dialog>
 <dialog id="guide"><button class="close" data-close>×</button><div id="guide-content"></div><div class="dialog-actions"><button id="settings-open">調整</button></div></dialog>
-<dialog id="result"><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button><button id="result-dismiss" data-close>盤面を見る</button></dialog>`;
+<dialog id="result"><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button></dialog>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 let locale = readPreference("language", "ja");
@@ -58,33 +58,35 @@ function place(element: HTMLElement, x: number, y: number, z: number) {
   element.hidden = !p.visible;
 }
 function project() {
-  for (const s of slots) {
+  for (const s of scene.layout.slots) {
     const b = categoryButtons.get(s.id)!;
     place(
       b,
       markerX(s),
-      session.state.categories[s.id]
-        ? 0.34
-        : s.group === "dungeon"
-          ? 0.187
-          : 0.127,
+      session.state.categories[s.id] ? SHEET_TOP + 0.21 : SHEET_TOP + 0.004,
       s.z,
     );
-    const front = scene.project(s.x, 0.13, s.z + 0.38),
-      back = scene.project(s.x, 0.13, s.z - 0.38);
+    const front = scene.project(s.x, SHEET_TOP, s.z + 0.38),
+      back = scene.project(s.x, SHEET_TOP, s.z - 0.38);
     b.style.height = `${Math.min(40, Math.max(10, front.y - back.y))}px`;
     b.style.minHeight = "0";
   }
   GROUPS.forEach((_, i) => {
-    const x = abilityX(i) + SKILL_CARD.offsetX;
-    place(skillButtons[i], x, SKILL_CARD.top, SKILL_Z);
-    const left = scene.project(x - SKILL_CARD.width / 2, SKILL_CARD.top, SKILL_Z);
-    const right = scene.project(x + SKILL_CARD.width / 2, SKILL_CARD.top, SKILL_Z);
-    const front = scene.project(x, SKILL_CARD.top, SKILL_Z + SKILL_CARD.depth / 2);
-    const back = scene.project(x, SKILL_CARD.top, SKILL_Z - SKILL_CARD.depth / 2);
+    const { x: centerX, z } = scene.layout.skillPositions[i];
+    const x = centerX + SKILL_CARD.offsetX;
+    place(skillButtons[i], x, SKILL_CARD.top, z);
+    const left = scene.project(x - SKILL_CARD.width / 2, SKILL_CARD.top, z);
+    const right = scene.project(x + SKILL_CARD.width / 2, SKILL_CARD.top, z);
+    const front = scene.project(x, SKILL_CARD.top, z + SKILL_CARD.depth / 2);
+    const back = scene.project(x, SKILL_CARD.top, z - SKILL_CARD.depth / 2);
     skillButtons[i].style.width = `${right.x - left.x}px`;
     skillButtons[i].style.height = `${front.y - back.y}px`;
   });
+  const roll = el("roll");
+  const dock = scene.rollDock;
+  if (dock) {
+    Object.assign(roll.style, { left: `${dock.x}px`, top: `${dock.y}px`, right: "auto", bottom: "auto", width: `${dock.size}px`, height: `${dock.size}px`, transform: "translate(-50%, -50%)" });
+  } else roll.removeAttribute("style");
   diceButtons.forEach((b, i) => {
     const p = scene.diePosition(i);
     place(b, p.x, p.y + 0.3, p.z);
@@ -185,7 +187,6 @@ function settle(token: number) {
   if (session.state.status !== "playing" && !shownResult) {
     shownResult = true;
     const won = session.state.status === "won";
-    el("result-dismiss").hidden = won;
     el("result").setAttribute("aria-label", won ? "Victory" : "Game over");
     el("result-title").textContent = t(
       won ? "status_won" : "status_lost",
@@ -314,7 +315,7 @@ for (const b of document.querySelectorAll("[data-close]"))
   b.addEventListener("click", () => b.closest("dialog")?.close());
 for (const d of document.querySelectorAll("dialog"))
   d.addEventListener("click", (e) => {
-    if (d.id === "result" && session.state.status === "won") return;
+    if (d.id === "result") return;
     if (e.target === d) {
       const r = d.getBoundingClientRect();
       if (
@@ -326,6 +327,7 @@ for (const d of document.querySelectorAll("dialog"))
         d.close();
     }
   });
+el("result").addEventListener("cancel", (e) => e.preventDefault());
 el("help").addEventListener("click", () => {
   el("guide-content").innerHTML =
     `<h2>${t("guide_title")}</h2>${["roll", "skill", "write"].map((section, i) => `<h3>${i + 1}. ${t(`guide_${section}_title`)}</h3><ul>${[1, 2, ...(section === "skill" ? [] : [3])].map((n) => `<li>${t(`guide_${section}_${n}`)}</li>`).join("")}</ul>`).join("")}`;

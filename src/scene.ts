@@ -5,15 +5,15 @@ import {
   slots,
   GROUPS,
   COLORS,
-  TRAY,
-  DUNGEON,
-  ABILITY,
   SKILL_Z,
   SKILL_CARD,
   SKILLS,
   assetUrl,
   abilityX,
   markerX,
+  makeLayout,
+  SHEET_HEIGHT,
+  SHEET_TOP,
 } from "./layout";
 import type { CategoryId, DieValue, GameView } from "./types";
 
@@ -49,6 +49,11 @@ const faceNormals = [
 ];
 export class DungeonScene {
   readonly renderer: THREE.WebGLRenderer;
+  layout = makeLayout(false);
+  rollDock: { x: number; y: number; size: number } | null = null;
+  private layoutBoards = new Map<boolean, THREE.Group>();
+  private lastView?: GameView;
+  private lastHeld = new Set<number>();
   readonly camera = new THREE.PerspectiveCamera(22, 1, 1, 500);
   readonly controls: OrbitControls;
   private world = new THREE.Scene();
@@ -226,9 +231,10 @@ export class DungeonScene {
     d: number,
     x: number,
     z: number,
-    h = 0.12,
+    h = SHEET_HEIGHT,
   ) {
-    this.box(w, h, d, x, h / 2, z, this.material("#a58a60"));
+    const group = new THREE.Group();
+    group.add(this.box(w, h, d, x, h / 2, z, this.material("#a58a60")));
     const top = new THREE.Mesh(
       new THREE.PlaneGeometry(w, d),
       new THREE.MeshStandardMaterial({
@@ -239,7 +245,8 @@ export class DungeonScene {
     top.rotation.x = -Math.PI / 2;
     top.position.set(x, h + 0.003, z);
     top.receiveShadow = true;
-    this.world.add(top);
+    group.add(top);
+    return group;
   }
   private clone(name: string, color?: string) {
     const group = this.models.get(name)!.clone(true);
@@ -345,39 +352,28 @@ export class DungeonScene {
         roughness: 0.88,
       }),
     );
-    await this.board("board", DUNGEON.width, DUNGEON.depth, DUNGEON.x, DUNGEON.z, 0.18);
-    await Promise.all(
-      GROUPS.map((g, i) => this.board(g, ABILITY.width, ABILITY.depth, abilityX(i), ABILITY.z)),
-    );
-    const rail = this.material("#694d34", 0.7);
-    this.box(
-      TRAY.width,
-      0.18,
-      TRAY.depth,
-      TRAY.x,
-      0.09,
-      TRAY.z,
-      this.material("#535c43", 1),
-    );
-    for (const sign of [-1, 1]) {
-      this.box(
-        TRAY.width + 2 * TRAY.railWidth,
-        TRAY.railHeight,
-        TRAY.railWidth,
-        TRAY.x,
-        TRAY.railHeight / 2,
-        TRAY.z + (sign * (TRAY.depth + TRAY.railWidth)) / 2,
-        rail,
-      );
-      this.box(
-        TRAY.railWidth,
-        TRAY.railHeight,
-        TRAY.depth,
-        TRAY.x + (sign * (TRAY.width + TRAY.railWidth)) / 2,
-        TRAY.railHeight / 2,
-        TRAY.z,
-        rail,
-      );
+    for (const portrait of [false, true]) {
+      const layout = makeLayout(portrait);
+      const group = new THREE.Group();
+      const suffix = portrait ? "-portrait" : "";
+      const d = layout.dungeon;
+      group.add(await this.board(`board${suffix}`, d.width, d.depth, d.x, d.z));
+      for (const [i, name] of GROUPS.entries()) {
+        const b = layout.abilities[i];
+        group.add(await this.board(`${name}${suffix}`, b.width, b.depth, b.x, b.z));
+      }
+      const tray = layout.tray;
+      const rail = this.material("#694d34", 0.7);
+      group.add(this.box(tray.width, 0.18, tray.depth, tray.x, 0.09, tray.z, this.material("#535c43", 1)));
+      for (const sign of [-1, 1]) {
+        group.add(this.box(tray.width + 2 * tray.railWidth, tray.railHeight, tray.railWidth,
+          tray.x, tray.railHeight / 2, tray.z + sign * (tray.depth + tray.railWidth) / 2, rail));
+        group.add(this.box(tray.railWidth, tray.railHeight, tray.depth,
+          tray.x + sign * (tray.width + tray.railWidth) / 2, tray.railHeight / 2, tray.z, rail));
+      }
+      group.visible = false;
+      this.world.add(group);
+      this.layoutBoards.set(portrait, group);
     }
     for (let i = 0; i < 5; i++) {
       const pivot = new THREE.Group();
@@ -385,7 +381,7 @@ export class DungeonScene {
       model.position.y = -0.4;
       pivot.add(model);
       this.world.add(pivot);
-      pivot.position.set(TRAY.x - 4.8 + i * 2.4, 0.58, TRAY.z);
+      pivot.position.set(this.layout.tray.x + (i - 2) * this.layout.dieSpacing, 0.58, this.layout.tray.z);
       this.dice.push(pivot);
       this.hit(
         `die:${i}`,
@@ -425,7 +421,7 @@ export class DungeonScene {
       ring.rotation.x = -Math.PI / 2;
       ring.position.set(
         markerX(s),
-        s.group === "dungeon" ? 0.187 : 0.127,
+        SHEET_TOP + 0.004,
         s.z,
       );
       ring.visible = false;
@@ -434,7 +430,7 @@ export class DungeonScene {
       const marker = this.clone("marker", COLORS[s.group]);
       marker.position.set(
         markerX(s),
-        s.group === "dungeon" ? 0.19 : 0.13,
+        SHEET_TOP + 0.007,
         s.z,
       );
       marker.visible = false;
@@ -449,13 +445,13 @@ export class DungeonScene {
       );
     }
     this.pawn = this.clone("adventurer");
-    this.pawn.position.set(-8.7, 0.19, -4.3);
+    this.pawn.position.set(this.layout.pawnX, SHEET_TOP + 0.007, this.layout.pawnStartZ);
     this.progressTextures = [0, 1, 2].map((count) =>
       this.progressTexture(count),
     );
     GROUPS.forEach((_, i) => {
       const chip = this.clone("skill");
-      chip.position.set(abilityX(i) - 1.4, 0.13, SKILL_Z);
+      chip.position.set(abilityX(i) - 1.4, SHEET_TOP + 0.007, SKILL_Z);
       chip.scale.setScalar(1.5);
       const progress = new THREE.Mesh(
         new THREE.PlaneGeometry(0.7, 0.42),
@@ -478,7 +474,7 @@ export class DungeonScene {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
       const card = new THREE.Group();
-      card.position.set(abilityX(i) + SKILL_CARD.offsetX, 0.13, SKILL_Z);
+      card.position.set(abilityX(i) + SKILL_CARD.offsetX, SHEET_TOP + 0.007, SKILL_Z);
       const stock = new THREE.Mesh(
         new THREE.BoxGeometry(SKILL_CARD.width, 0.045, SKILL_CARD.depth),
         this.material("#c8b799", 0.95),
@@ -499,6 +495,7 @@ export class DungeonScene {
       this.hit(`skill:${i}`, 4.1, 1.0, abilityX(i), 0.27, SKILL_Z);
     });
     this.loaded = true;
+    this.applyLayout();
     this.invalidate();
   }
   setOverlay(fn: () => void) {
@@ -549,6 +546,8 @@ export class DungeonScene {
     this.draw();
   }
   sync(view: GameView, held: Set<number>) {
+    this.lastView = view;
+    this.lastHeld = new Set(held);
     this.finish(false);
     view.dice.forEach((v, i) => {
       if (
@@ -577,12 +576,12 @@ export class DungeonScene {
       this.chipProgress[i].material.map =
         this.progressTextures[Math.min(2, count)];
       this.chips[i].rotation.x = status === "available" ? 0 : Math.PI;
-      this.chips[i].position.y = status === "available" ? 0.13 : 0.41;
+      this.chips[i].position.y = status === "available" ? SHEET_TOP + 0.007 : SHEET_TOP + 0.287;
     });
     const floors = view.categories.filter(
       (s) => s.group === "dungeon" && s.isChecked,
     ).length;
-    this.pawn!.position.set(-8.7, 0.19, floors ? slots[floors - 1].z : -4.3);
+    this.pawn!.position.set(this.layout.pawnX, SHEET_TOP + 0.007, floors ? this.layout.slots[floors - 1].z : this.layout.pawnStartZ);
     this.refreshHits();
     this.invalidate();
   }
@@ -599,9 +598,9 @@ export class DungeonScene {
     for (const i of indices) {
       const yaw = (Math.random() - 0.5) * 1.5;
       const to = new THREE.Vector3(
-        TRAY.x - 4.8 + i * 2.4 + (Math.random() - 0.5) * 0.4,
+        this.layout.tray.x + (i - 2) * this.layout.dieSpacing + (Math.random() - 0.5) * 0.4,
         0.58,
-        TRAY.z + (Math.random() - 0.5) * 0.9,
+        this.layout.tray.z + (Math.random() - 0.5) * 0.9,
       );
       this.rings[i].visible = false;
       this.move(
@@ -631,7 +630,7 @@ export class DungeonScene {
     );
     const chip = this.chips[groupIndex];
     const to = chip.position.clone();
-    to.y = 0.41;
+    to.y = SHEET_TOP + 0.287;
     this.move(
       chip,
       to,
@@ -660,13 +659,13 @@ export class DungeonScene {
       ) {
         const chip = this.chips[i];
         const to = chip.position.clone();
-        to.y = 0.13;
+        to.y = SHEET_TOP + 0.007;
         this.move(chip, to, 420, new THREE.Quaternion());
       }
     });
     if (id.startsWith("dungeon")) {
-      const target = slots.find((s) => s.id === id)!;
-      this.move(this.pawn!, new THREE.Vector3(-8.7, 0.19, target.z), 420);
+      const target = this.layout.slots.find((s) => s.id === id)!;
+      this.move(this.pawn!, new THREE.Vector3(this.layout.pawnX, SHEET_TOP + 0.007, target.z), 420);
     }
   }
   finish(notify = true) {
@@ -743,9 +742,42 @@ export class DungeonScene {
     this.renderer.shadowMap.needsUpdate = true;
     this.draw();
   }
+  private applyLayout() {
+    for (const [portrait, group] of this.layoutBoards) group.visible = portrait === this.layout.portrait;
+    const layout = this.layout;
+    for (const s of layout.slots) {
+      this.markers.get(s.id)!.position.set(markerX(s), SHEET_TOP + 0.007, s.z);
+      this.legalRings.get(s.id)!.position.set(markerX(s), SHEET_TOP + 0.004, s.z);
+      const hit = this.hitObjects.find((h) => h.userData.id === `category:${s.id}`)!;
+      hit.geometry.dispose();
+      hit.geometry = new THREE.BoxGeometry(s.hitWidth, 0.16, s.hitDepth);
+      hit.position.set(s.x, SHEET_TOP + 0.05, s.z);
+    }
+    layout.skillPositions.forEach((p, i) => {
+      this.chips[i].position.x = p.x - 1.4;
+      this.chips[i].position.z = p.z;
+      this.skillCards[i].object.position.set(p.x + SKILL_CARD.offsetX, SHEET_TOP + 0.007, p.z);
+      this.hitObjects.find((h) => h.userData.id === `skill:${i}`)!.position.set(p.x, SHEET_TOP + 0.15, p.z);
+    });
+    this.dice.forEach((die, i) => {
+      die.position.set(layout.tray.x + (i - 2) * layout.dieSpacing, 0.58, layout.tray.z);
+      this.rings[i].position.set(die.position.x, 0.19, die.position.z);
+    });
+    this.pawn!.position.set(layout.pawnX, SHEET_TOP + 0.007, layout.pawnStartZ);
+    this.refreshHits();
+  }
   private resize() {
     const { clientWidth: w, clientHeight: h } = this.host;
     if (!w || !h) return;
+    const portrait = h > w;
+    if (portrait !== this.layout.portrait) {
+      if (this.loaded) this.finish();
+      this.layout = makeLayout(portrait);
+      if (this.loaded) {
+        this.applyLayout();
+        if (this.lastView) this.sync(this.lastView, this.lastHeld);
+      }
+    }
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.home();
@@ -763,20 +795,34 @@ export class DungeonScene {
       h = this.host.clientHeight;
     this.camera.fov = this.settings.fov;
     this.homeDistance =
-      (Math.max(12.0, 21.8 / Math.max(0.35, w / h)) /
+      (Math.max(this.layout.portrait ? 19.2 : 12.0, (this.layout.right - this.layout.left + 2.2) / Math.max(0.35, w / h)) /
         (2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)))) *
       this.settings.distance;
     const pitch = THREE.MathUtils.degToRad(this.settings.elevation);
-    this.controls.target.set(0.25, 0, 0);
+    const centerX = (this.layout.left + this.layout.right) / 2;
+    const centerZ = (this.layout.top + this.layout.bottom) / 2;
+    this.controls.target.set(centerX, 0, centerZ);
     this.camera.position.set(
-      0.25,
+      centerX,
       Math.sin(pitch) * this.homeDistance,
-      Math.cos(pitch) * this.homeDistance,
+      centerZ + Math.cos(pitch) * this.homeDistance,
     );
     this.controls.minDistance = this.homeDistance / 3;
     this.controls.maxDistance = this.homeDistance * 1.6;
     this.camera.updateProjectionMatrix();
     this.controls.update();
+    const dock = this.layout.roll;
+    if (dock) {
+      const p = this.project(dock.x, SHEET_TOP, dock.z);
+      const left = this.project(dock.x - dock.diameter / 2, SHEET_TOP, dock.z);
+      const right = this.project(dock.x + dock.diameter / 2, SHEET_TOP, dock.z);
+      const size = Math.min(112, Math.max(64, right.x - left.x));
+      this.rollDock = {
+        x: Math.max(size / 2 + 12, Math.min(w - size / 2 - 12, p.x)),
+        y: Math.max(size / 2 + 12, Math.min(h - size / 2 - 12, p.y)),
+        size,
+      };
+    } else this.rollDock = null;
     this.draw();
   }
   zoom(factor: number) {
@@ -797,6 +843,7 @@ export class DungeonScene {
   diagnostics() {
     return {
       draws: this.draws,
+      layout: this.layout.portrait ? "portrait" : "landscape",
       keepRings: this.rings.map((ring) => ring.visible),
       skillCards: this.skillCards.map((card) => ({ visible: card.object.visible, scale: card.object.scale.toArray() })),
       triangles: this.renderer.info.render.triangles,

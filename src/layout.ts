@@ -79,7 +79,44 @@ export const slots: Slot[] = [
 ];
 export const slotById = new Map(slots.map((s) => [s.id, s]));
 export const SKILL_Z = 1.0;
-export const SKILL_CARD = { offsetX: 0.55, width: 2.7, depth: 1.08, top: 0.178 };
+export const SKILL_CARD = { offsetX: 0.55, width: 2.7, depth: 1.08, top: 0.318 };
 export const markerX = (slot: Slot) => slot.x - (slot.group === "dungeon" ? 1.2 : 1.65);
 export const assetUrl = (file: string) =>
   `${import.meta.env.BASE_URL}assets/${file}`;
+export const SHEET_HEIGHT = 0.26;
+export const SHEET_TOP = SHEET_HEIGHT + 0.003;
+export function makeLayout(portrait: boolean) {
+  const gap = ABILITY.gap;
+  const dungeon = portrait
+    ? { x: -4.475, z: -1.65, width: 4.2, depth: 13.9 }
+    : { ...DUNGEON, x: ABILITY.x - ABILITY.width / 2 - gap - DUNGEON.width / 2 };
+  const abilities = GROUPS.map((_, i) => portrait
+    ? { x: 2.275, z: -6.4 + i * 4.75, width: 8.6, depth: 4.4 }
+    : { x: abilityX(i), z: ABILITY.z, width: ABILITY.width, depth: ABILITY.depth });
+  const left = dungeon.x - dungeon.width / 2;
+  const right = abilities[abilities.length - 1].x + abilities[abilities.length - 1].width / 2;
+  const trayTop = portrait ? dungeon.z + dungeon.depth / 2 + gap : ABILITY.z + ABILITY.depth / 2 + gap;
+  const trayBottom = portrait ? trayTop + 2.7 : dungeon.z + dungeon.depth / 2;
+  const trayLeft = portrait ? left : abilities[0].x - abilities[0].width / 2;
+  const trayRight = portrait ? right - 2.8 - gap : right;
+  const tray = { ...TRAY, x: (trayLeft + trayRight) / 2, z: (trayTop + trayBottom) / 2,
+    width: trayRight - trayLeft - 2 * TRAY.railWidth,
+    depth: trayBottom - trayTop - 2 * TRAY.railWidth, railHeight: SHEET_TOP };
+  const skillPositions = abilities.map((b) => ({ x: b.x, z: portrait ? b.z + 1.45 : SKILL_Z }));
+  const positions = slots.map((slot) => {
+    const i = slots.filter((s) => s.group === slot.group).findIndex((s) => s.id === slot.id);
+    if (slot.group === "dungeon") return { ...slot, x: dungeon.x,
+      z: dungeon.z - dungeon.depth / 2 + 1.9 + i * (dungeon.depth - 3.4) / 4,
+      hitWidth: dungeon.width - 0.3, hitDepth: portrait ? 2.2 : 1.5 };
+    const b = abilities[GROUPS.indexOf(slot.group)];
+    return { ...slot, x: portrait ? b.x - 2.1 + (i % 2) * 4.2 : b.x,
+      z: portrait ? b.z - 0.75 + Math.floor(i / 2) : slot.z,
+      hitWidth: portrait ? 4.05 : 4.5, hitDepth: 0.85 };
+  });
+  return { portrait, dungeon, abilities, tray, skillPositions, slots: positions,
+    dieSpacing: portrait ? 1.8 : 2.4,
+    pawnX: dungeon.x - 1.2, pawnStartZ: dungeon.z - dungeon.depth / 2 + 0.8,
+    left, right, top: dungeon.z - dungeon.depth / 2, bottom: trayBottom,
+    roll: portrait ? { x: right - 1.4, z: tray.z, diameter: 2.8 } : null };
+}
+export type TableLayout = ReturnType<typeof makeLayout>;
