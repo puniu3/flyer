@@ -54,12 +54,12 @@
     "pre_export_peak": 0.69
   },
   "magic": {
-    "source": ".audio-generation/magic-tilun-b/outputs/20260928-003921-847689-stable/audio.wav",
-    "seed": 271,
+    "source": ".audio-generation/magic/outputs/20260928-010520-848200-stable/audio.wav",
+    "sha256": "657ab548665d0dca5275e094b16a917c1afd5e9132799735731a3d79168f8d34",
+    "seed": 281,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.158,
-    "sha256": "ef533a5201725e57e53cd52f51a9e6bfb4a4e6b3167be8cda97f1bc32f2540b0"
+    "pre_export_peak": 0.642
   }
 }
