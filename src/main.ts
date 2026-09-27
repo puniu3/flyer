@@ -96,9 +96,12 @@ scene.onError = (message) => {
   el("loading").textContent = message;
   el("loading").hidden = !message;
 };
+scene.onAbility = (groupIndex, x) => {
+  void audio.play((["mighty", "acrobatics", "magic"] as const)[groupIndex], 0.7, x / 18);
+};
 scene.onContact = (kind, x) => {
   if (kind !== "die")
-    void audio.play(kind === "skill" ? "skill" : "place", 0.8, x / 18);
+    void audio.play(kind === "skill" ? "skill" : "place", kind === "skill" ? 0.25 : 0.8, x / 18);
 };
 function persistLog() {
   try {

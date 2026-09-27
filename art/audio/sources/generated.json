@@ -34,5 +34,32 @@
     "cfg": 1,
     "seconds": 5,
     "pre_export_peak": 0.736
+  },
+  "mighty": {
+    "source": ".audio-generation/mighty/outputs/20260928-001353-929275-stable/audio.wav",
+    "sha256": "557972c26f884a51d4dd67178b7d9fdc30770609aa604c6ca834def4350366d6",
+    "seed": 231,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.862
+  },
+  "acrobatics": {
+    "source": ".audio-generation/acrobatics/outputs/20260928-001356-478801-stable/audio.wav",
+    "sha256": "3369448a8b19697df5d239b5d4a9aded2daee1e55af0329587e9c85a6d92cb4b",
+    "seed": 232,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.69
+  },
+  "magic": {
+    "source": ".audio-generation/magic/outputs/20260928-001359-136880-stable/audio.wav",
+    "sha256": "079906e1855904acc3c420f44593ac86e8a54b5bd7553a93105d5bf65b5df4ec",
+    "seed": 233,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.5
   }
 }

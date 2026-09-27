@@ -102,6 +102,7 @@ export class DungeonScene {
   private loaded = false;
   private overlay?: () => void;
   onTap: (id: string) => void = () => {};
+  onAbility: (groupIndex: number, x: number) => void = () => {};
   onContact: (kind: "die" | "place" | "skill", x: number) => void = () => {};
   onError: (message: string) => void = () => {};
   constructor(private host: HTMLElement) {
@@ -683,6 +684,7 @@ export class DungeonScene {
   }
   skill(i: number, value: DieValue, groupIndex: number, done: () => void) {
     this.finish(false);
+    this.effects.abilities.start(this.dice[i].position, groupIndex);
     this.onComplete = done;
     for (const ring of this.legalRings.values()) ring.visible = false;
     this.move(
@@ -701,7 +703,10 @@ export class DungeonScene {
       new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.PI, 0, 0)),
       false,
       0,
-      () => this.onContact("skill", chip.position.x),
+      () => {
+        this.onContact("skill", chip.position.x);
+        this.onAbility(groupIndex, this.dice[i].position.x);
+      },
     );
   }
   place(id: CategoryId, next: GameView, done: () => void) {

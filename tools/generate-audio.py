@@ -4,6 +4,9 @@ import time
 import argparse
 root=Path(__file__).resolve().parents[1]
 cues={
+ 'mighty':(231,'TrackType: SFX. One isolated low heavy wooden thud with a padded leather body and a tiny dry brass rattle. A firm tabletop fantasy strength spell impact, compact and warm, under half a second, then silence. No voices, no music, no explosions, no repeating rhythm.'),
+ 'acrobatics':(232,'TrackType: SFX. One quick light airy swish ending in a crisp tiny wooden tap. A nimble tabletop game movement, delicate and dry, under half a second, then silence. No voices, no music, no reverb, no repeating rhythm.'),
+ 'magic':(233,'TrackType: SFX. One small soft crystalline magic chime. A brief glassy shimmer opening with a clear delicate bell contact, gently falling away into silence within one second. Intimate fantasy tabletop spell, no voices, no music, no low rumble, no repeated melody.'),
  'defeat':(207,'TrackType: SFX. A short gentle fantasy game over sting. Three soft low brass notes descending, ending with a muted wooden resonance and a clean short decay into silence. A small acoustic ensemble, subdued and final, about two seconds. No voices, no drums, no looping music, no loud impact.'),
  'victory':(195,'TrackType: SFX. A short triumphant fantasy victory fanfare. Three warm brass trumpet notes rising into one satisfying major chord, with a delicate golden bell accent and a clean natural decay. A compact celebratory game reward sting lasting two seconds, followed by silence. Small acoustic ensemble, no drums, no voice, no looping background music.'),
  'roll':(181,'TrackType: SFX. Five small solid wooden dice tumble together across a felt-lined wooden board game tray. A brief lively cluster of dry rounded wooden clacks, little bouncing ticks slow down and settle. One compact rolling gesture lasting about one second, followed by silence. Close microphone tactile foley. No music, speech, ambience or electronic tones.'),

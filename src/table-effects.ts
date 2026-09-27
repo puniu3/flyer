@@ -1,3 +1,4 @@
+import { AbilityEffects } from "./ability-effects";
 import * as THREE from "three";
 import { softMask } from "./table-finish";
 
@@ -13,7 +14,9 @@ export class TableEffects {
   private glows: Glow[] = [];
   private foils: Foil[] = [];
   private serial = 0;
+  readonly abilities: AbilityEffects;
   constructor(private world: THREE.Scene) {
+    this.abilities = new AbilityEffects(world);
     for (let i = 0; i < 6; i++) {
       const mesh = new THREE.Mesh(this.plane, new THREE.MeshBasicMaterial({
         map: this.mask, color: "#d2a65d", transparent: true, opacity: 0,
@@ -78,9 +81,11 @@ export class TableEffects {
       f.mesh.material.opacity = 0.76 * smooth(p / 0.2) * (1 - smooth((p - 0.48) / 0.52));
       return true;
     });
-    return changing || this.foils.length > 0;
+    const abilityChanging = this.abilities.update(now);
+    return changing || this.foils.length > 0 || abilityChanging;
   }
   clear() {
+    this.abilities.clear();
     for (const f of this.foils) {
       this.world.remove(f.mesh);
       f.mesh.material.dispose();
@@ -93,6 +98,6 @@ export class TableEffects {
     }
   }
   diagnostics() {
-    return { particles: this.foils.length, bursts: this.serial, glow: this.glows.map((g) => g.mesh.material.opacity) };
+    return { abilities: this.abilities.diagnostics(), particles: this.foils.length, bursts: this.serial, glow: this.glows.map((g) => g.mesh.material.opacity) };
   }
 }

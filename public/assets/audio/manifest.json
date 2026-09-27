@@ -1,4 +1,88 @@
 {
+  "mighty": {
+    "source": "art/audio/sources/mighty.wav",
+    "source_sha256": "557972c26f884a51d4dd67178b7d9fdc30770609aa604c6ca834def4350366d6",
+    "trim_seconds": [
+      0,
+      0.65
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.2
+    ],
+    "normalization_gain": 0.9077315252775751,
+    "fade_out_curve": "half-cosine",
+    "duration": 0.65,
+    "peak": 0.6199951171875,
+    "rms": 0.06679937402556589,
+    "clipped_samples": 0,
+    "bytes": 114704,
+    "sha256": "41c4e037bcdf5a2a4e7dd96dc5354c5c38a10c64e9504a5ac9e35719c1029a92",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
+  "acrobatics": {
+    "source": "art/audio/sources/acrobatics.wav",
+    "source_sha256": "3369448a8b19697df5d239b5d4a9aded2daee1e55af0329587e9c85a6d92cb4b",
+    "trim_seconds": [
+      3.49,
+      3.85
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.12
+    ],
+    "normalization_gain": 1.1244673373890528,
+    "fade_out_curve": "half-cosine",
+    "duration": 0.36,
+    "peak": 0.47998046875,
+    "rms": 0.02707841809611654,
+    "clipped_samples": 0,
+    "bytes": 63548,
+    "sha256": "453d11e80cada957c1f2d2f8c3a5ebe192f275f18acafe32dd16a8bf92f63108",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
+  "magic": {
+    "source": "art/audio/sources/magic.wav",
+    "source_sha256": "079906e1855904acc3c420f44593ac86e8a54b5bd7553a93105d5bf65b5df4ec",
+    "trim_seconds": [
+      0,
+      0.85
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.4
+    ],
+    "normalization_gain": 1.0371777651461465,
+    "fade_out_curve": "half-cosine",
+    "duration": 0.85,
+    "peak": 0.499969482421875,
+    "rms": 0.09436337076114133,
+    "clipped_samples": 0,
+    "bytes": 149984,
+    "sha256": "177ca4d1b99c590d6bbe2f06274c1de60aaf901f73d155ba826d6eb80ca9b606",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
   "defeat": {
     "source": "art/audio/sources/defeat.wav",
     "source_sha256": "cb044e5528cf642caa6f3925f9fdce9ebd1bf557b3a0243121229bee5d7b707f",
