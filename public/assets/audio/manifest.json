@@ -15,15 +15,16 @@
     },
     "fade_seconds": [
       0.001,
-      0.035
+      0.3
     ],
     "normalization_gain": 1.1319627344976915,
+    "fade_out_curve": "half-cosine",
     "duration": 0.78,
     "peak": 0.5,
-    "rms": 0.09232336571265279,
+    "rms": 0.08956042926841817,
     "clipped_samples": 0,
     "bytes": 137636,
-    "sha256": "d7dc1a35d09be29d21cee7b6494d2d9203076a76a0b2dadbb6d9be6125192cd6",
+    "sha256": "9237f959af03064dde248d0db76f850d02261b2c6d4d8bbc84f7f31ffe02612d",
     "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
   },
   "victory": {
