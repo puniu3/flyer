@@ -23,8 +23,8 @@ export const slots: Slot[] = [
   ...["≥ 20", "≥ 24", "≥ 26", "≤ 9", "FIVE OF A KIND"].map((mark, i) => ({
     id: `dungeon_floor_${i + 1}` as CategoryId,
     group: "dungeon" as const,
-    x: -5.6 + i * 2.8,
-    z: -4.57,
+    x: -7.5,
+    z: -3.2 + i * 1.7,
     label: `B${i + 1}`,
     mark,
   })),
@@ -53,15 +53,17 @@ export const slots: Slot[] = [
     return entries.map(([id, mark], i) => ({
       id: `${group}_${id}` as CategoryId,
       group,
-      x: -5.2 + g * 5.2,
-      z: -0.77 + i * 0.86,
+      x: -2.7 + g * 4.85,
+      z: -3.2 + i * 1.0,
       label: mark,
       mark,
     }));
   }),
 ];
 export const slotById = new Map(slots.map((s) => [s.id, s]));
-export const TRAY = { x: 0, z: 5.0, width: 12.8, depth: 3.3, floor: 0.18 };
-export const SKILL_Z = 2.92;
+export const TRAY = { x: 2.15, z: 3.55, width: 14.2, depth: 2.6, floor: 0.18 };
+export const SKILL_Z = 1.0;
+export const abilityX = (i: number) => -2.7 + i * 4.85;
+export const markerX = (slot: Slot) => slot.x - (slot.group === "dungeon" ? 1.2 : 1.65);
 export const assetUrl = (file: string) =>
   `${import.meta.env.BASE_URL}assets/${file}`;

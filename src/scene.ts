@@ -9,6 +9,8 @@ import {
   SKILL_Z,
   SKILLS,
   assetUrl,
+  abilityX,
+  markerX,
 } from "./layout";
 import type { CategoryId, DieValue, GameView } from "./types";
 
@@ -19,7 +21,7 @@ export type CameraSettings = {
 };
 export const DEFAULT_CAMERA: CameraSettings = {
   fov: 22,
-  elevation: 45,
+  elevation: 68,
   distance: 1,
 };
 type Motion = {
@@ -44,7 +46,7 @@ const faceNormals = [
 ];
 export class DungeonScene {
   readonly renderer: THREE.WebGLRenderer;
-  readonly camera = new THREE.PerspectiveCamera(22, 1, 0.1, 500);
+  readonly camera = new THREE.PerspectiveCamera(22, 1, 1, 500);
   readonly controls: OrbitControls;
   private world = new THREE.Scene();
   private models = new Map<string, THREE.Group>();
@@ -302,16 +304,16 @@ export class DungeonScene {
         roughness: 0.88,
       }),
     );
-    await this.board("board", 15.4, 4.56, 0, -5.9, 0.18);
+    await this.board("board", 4.2, 10.2, -7.5, 0, 0.18);
     await Promise.all(
-      GROUPS.map((g, i) => this.board(g, 4.8, 5.2, -5.2 + i * 5.2, 0.31)),
+      GROUPS.map((g, i) => this.board(g, 4.5, 6.8, abilityX(i), -1.7)),
     );
     const rail = this.material("#694d34", 0.7);
     this.box(
       TRAY.width,
       0.18,
       TRAY.depth,
-      0,
+      TRAY.x,
       0.09,
       TRAY.z,
       this.material("#535c43", 1),
@@ -319,18 +321,18 @@ export class DungeonScene {
     for (const sign of [-1, 1]) {
       this.box(
         TRAY.width + 0.35,
-        0.36,
+        0.26,
         0.18,
-        0,
-        0.18,
+        TRAY.x,
+        0.13,
         TRAY.z + (sign * (TRAY.depth + 0.18)) / 2,
         rail,
       );
       this.box(
         0.18,
-        0.36,
+        0.26,
         TRAY.depth,
-        (-sign * (TRAY.width + 0.18)) / 2,
+        TRAY.x + (-sign * (TRAY.width + 0.18)) / 2,
         0.18,
         TRAY.z,
         rail,
@@ -342,7 +344,7 @@ export class DungeonScene {
       model.position.y = -0.4;
       pivot.add(model);
       this.world.add(pivot);
-      pivot.position.set(-4.6 + i * 2.3, 0.58, 5);
+      pivot.position.set(TRAY.x - 4.8 + i * 2.4, 0.58, TRAY.z);
       this.dice.push(pivot);
       this.hit(
         `die:${i}`,
@@ -381,7 +383,7 @@ export class DungeonScene {
       );
       ring.rotation.x = -Math.PI / 2;
       ring.position.set(
-        s.x - (s.group === "dungeon" ? 0 : 1.68),
+        markerX(s),
         s.group === "dungeon" ? 0.187 : 0.127,
         s.z,
       );
@@ -390,7 +392,7 @@ export class DungeonScene {
       this.legalRings.set(s.id, ring);
       const marker = this.clone("marker", COLORS[s.group]);
       marker.position.set(
-        s.x - (s.group === "dungeon" ? 0 : 1.68),
+        markerX(s),
         s.group === "dungeon" ? 0.19 : 0.13,
         s.z,
       );
@@ -398,21 +400,21 @@ export class DungeonScene {
       this.markers.set(s.id, marker);
       this.hit(
         `category:${s.id}`,
-        s.group === "dungeon" ? 2.4 : 4.5,
-        s.group === "dungeon" ? 2.0 : 0.75,
+        s.group === "dungeon" ? 3.9 : 4.5,
+        s.group === "dungeon" ? 1.5 : 0.85,
         s.x,
         0.25,
-        s.z - (s.group === "dungeon" ? 0.6 : 0),
+        s.z,
       );
     }
     this.pawn = this.clone("adventurer");
-    this.pawn.position.set(-6.8, 0.19, -7.4);
+    this.pawn.position.set(-8.7, 0.19, -4.3);
     this.progressTextures = [0, 1, 2].map((count) =>
       this.progressTexture(count),
     );
     GROUPS.forEach((_, i) => {
       const chip = this.clone("skill");
-      chip.position.set(-6.8 + i * 5.2, 0.13, SKILL_Z - 0.18);
+      chip.position.set(abilityX(i) - 1.4, 0.13, SKILL_Z);
       chip.scale.setScalar(1.5);
       const progress = new THREE.Mesh(
         new THREE.PlaneGeometry(0.7, 0.42),
@@ -428,7 +430,7 @@ export class DungeonScene {
       chip.add(progress);
       this.chipProgress.push(progress);
       this.chips.push(chip);
-      this.hit(`skill:${i}`, 3.8, 0.7, -5.2 + i * 5.2, 0.27, SKILL_Z);
+      this.hit(`skill:${i}`, 4.1, 1.0, abilityX(i), 0.27, SKILL_Z);
     });
     this.loaded = true;
     this.invalidate();
@@ -514,7 +516,7 @@ export class DungeonScene {
     const floors = view.categories.filter(
       (s) => s.group === "dungeon" && s.isChecked,
     ).length;
-    this.pawn!.position.set(floors ? slots[floors - 1].x : -6.8, 0.19, -7.35);
+    this.pawn!.position.set(-8.7, 0.19, floors ? slots[floors - 1].z : -4.3);
     this.refreshHits();
     this.invalidate();
   }
@@ -531,9 +533,9 @@ export class DungeonScene {
     for (const i of indices) {
       const yaw = (Math.random() - 0.5) * 1.5;
       const to = new THREE.Vector3(
-        -4.6 + i * 2.3 + (Math.random() - 0.5) * 0.52,
+        TRAY.x - 4.8 + i * 2.4 + (Math.random() - 0.5) * 0.4,
         0.58,
-        TRAY.z + (Math.random() - 0.5) * 1.35,
+        TRAY.z + (Math.random() - 0.5) * 0.9,
       );
       this.rings[i].visible = false;
       this.move(
@@ -598,7 +600,7 @@ export class DungeonScene {
     });
     if (id.startsWith("dungeon")) {
       const target = slots.find((s) => s.id === id)!;
-      this.move(this.pawn!, new THREE.Vector3(target.x, 0.19, -7.35), 420);
+      this.move(this.pawn!, new THREE.Vector3(-8.7, 0.19, target.z), 420);
     }
   }
   finish(notify = true) {
@@ -695,15 +697,15 @@ export class DungeonScene {
       h = this.host.clientHeight;
     this.camera.fov = this.settings.fov;
     this.homeDistance =
-      (Math.max(15.6, 18.2 / Math.max(0.35, w / h)) /
+      (Math.max(12.0, 21.8 / Math.max(0.35, w / h)) /
         (2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)))) *
       this.settings.distance;
     const pitch = THREE.MathUtils.degToRad(this.settings.elevation);
-    this.controls.target.set(0, 0, -0.4);
+    this.controls.target.set(0.25, 0, 0);
     this.camera.position.set(
-      0,
+      0.25,
       Math.sin(pitch) * this.homeDistance,
-      -0.4 + Math.cos(pitch) * this.homeDistance,
+      Math.cos(pitch) * this.homeDistance,
     );
     this.controls.minDistance = this.homeDistance / 3;
     this.controls.maxDistance = this.homeDistance * 1.6;

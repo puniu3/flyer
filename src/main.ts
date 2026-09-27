@@ -3,7 +3,7 @@ import { getView } from "./rules";
 import { DungeonScene, DEFAULT_CAMERA } from "./scene";
 import { TableAudio } from "./audio";
 import { Session } from "./session";
-import { slots, GROUPS, SKILLS, SKILL_Z } from "./layout";
+import { slots, GROUPS, SKILLS, SKILL_Z, abilityX, markerX } from "./layout";
 import { createTranslator } from "./i18n";
 import { loadCamera, readPreference, savePreference } from "./preferences";
 import type { CategoryId, SkillId, PlayerAction, GameState } from "./types";
@@ -60,7 +60,7 @@ function project() {
     const b = categoryButtons.get(s.id)!;
     place(
       b,
-      s.x - (s.group === "dungeon" ? 0 : 1.68),
+      markerX(s),
       session.state.categories[s.id]
         ? 0.34
         : s.group === "dungeon"
@@ -74,9 +74,9 @@ function project() {
     b.style.minHeight = "0";
   }
   GROUPS.forEach((_, i) => {
-    place(skillButtons[i], -4.65 + i * 5.2, 0.38, SKILL_Z - 0.13);
-    const a = scene.project(-6.2 + i * 5.2, 0.38, SKILL_Z),
-      b = scene.project(-3.1 + i * 5.2, 0.38, SKILL_Z);
+    place(skillButtons[i], abilityX(i) + 0.6, 0.38, SKILL_Z);
+    const a = scene.project(abilityX(i) - 0.65, 0.38, SKILL_Z),
+      b = scene.project(abilityX(i) + 1.95, 0.38, SKILL_Z);
     skillButtons[i].style.width = `${Math.min(145, Math.max(62, b.x - a.x))}px`;
     skillButtons[i].classList.toggle("compact", b.x - a.x < 95);
   });
