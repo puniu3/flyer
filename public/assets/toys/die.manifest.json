@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "name": "die",
+  "style": "painted_wood",
+  "triangles": 800,
+  "mesh_objects": 2,
+  "bounds_blender": [
+    [
+      -0.3999999463558197,
+      -0.3999999463558197,
+      0.0
+    ],
+    [
+      0.3999999463558197,
+      0.3999999463558197,
+      0.7999999523162842
+    ]
+  ],
+  "design": {
+    "subject": "die",
+    "seed": 0,
+    "construction": "painted wooden tabletop component"
+  },
+  "normalization_scale": 0.7960198098534949,
+  "exported_geometry": {
+    "triangles": 800,
+    "mesh_objects": 2,
+    "bounds_blender": [
+      [
+        -0.3999999463558197,
+        -0.3999999463558197,
+        0.0
+      ],
+      [
+        0.3999999463558197,
+        0.3999999463558197,
+        0.7999999523162842
+      ]
+    ]
+  },
+  "generator": "pieces.py",
+  "generator_sha256": "6ddd48caf1aa31829c551200c6641f94efd52b8beeeaa7726338a04c7eb120e6",
+  "pipeline_sha256": "934d12eddedd395d87a9ea17980177ee90e9adff68a02ad157870f33922e5043",
+  "toykit_sha256": "3568bfcc0bd7046760ad650fb32fd3e2acda7b731b9103952221818e5d898b05",
+  "blender_version": "4.5.14 LTS",
+  "seed": 0,
+  "requested_device": "AUTO",
+  "height": 0.8,
+  "triangle_budget": 1500,
+  "glb_bytes": 52212,
+  "glb_sha256": "64d79df05b0abb43c095a2abc2d7a84a338da26a80c5d598e6ab67ad3139d7cc",
+  "coordinates": {
+    "authoring": "right-handed, +Z up, -Y front",
+    "glb": "right-handed, +Y up, +Z front; ground Y=0; centered X/Z",
+    "units": "meters"
+  },
+  "render": {
+    "source": "clean reimport of exported GLB",
+    "views": [
+      {
+        "view": "front",
+        "camera_blender": [
+          1.9999998807907104,
+          -2.799999713897705,
+          1.9999998807907104
+        ],
+        "target_blender": [
+          0.0,
+          0.0,
+          0.3999999761581421
+        ],
+        "ortho_scale": 1.4590576887130737,
+        "device": "METAL"
+      },
+      {
+        "view": "back",
+        "camera_blender": [
+          -1.9999998807907104,
+          2.799999713897705,
+          1.9999998807907104
+        ],
+        "target_blender": [
+          0.0,
+          0.0,
+          0.3999999761581421
+        ],
+        "ortho_scale": 1.4590576887130737,
+        "device": "METAL"
+      }
+    ],
+    "resolution": [
+      384,
+      384
+    ],
+    "samples": 16,
+    "view_transform": "AgX",
+    "look": "AgX - Medium High Contrast",
+    "exposure": 0.3
+  },
+  "artifacts": {
+    "die.back.png": "72eb1da5f905187e45385d9409a76fe6218c39abdbac555b1960a4454997cb1f",
+    "die.glb": "64d79df05b0abb43c095a2abc2d7a84a338da26a80c5d598e6ab67ad3139d7cc",
+    "die.front.png": "969bcd0b596fd53cb98f97fa29642e1b011e98fc939c769f4ca19650bfc6707c"
+  }
+}

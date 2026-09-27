@@ -1,0 +1,44 @@
+{
+  "pickup": {
+    "source": "art/audio/sources/pickup.wav",
+    "sha256": "84d2a18005f1c7563ece747d87259492f4ca33d900a88bb0f7544b0f417283d2",
+    "model": "Stable Audio 3 Medium",
+    "settings": {
+      "seed": 71,
+      "steps": 8,
+      "seconds": 5.0,
+      "cfg": 1.0
+    },
+    "generator_peak": 0.465,
+    "original_source": ".audio-generation/pickup/outputs/20260927-184401-133236-stable/audio.wav",
+    "provenance": "Porto Vecchio accepted foley master"
+  },
+  "place": {
+    "source": "art/audio/sources/place.wav",
+    "sha256": "258bfe45924767b83758f6495a5f0a65776926b3b21539a60fa33592eba7a482",
+    "model": "Stable Audio 3 Medium",
+    "settings": {
+      "seed": 75,
+      "steps": 8,
+      "seconds": 5.0,
+      "cfg": 1.0
+    },
+    "generator_peak": 0.749,
+    "original_source": ".audio-generation/place/outputs/20260927-184753-982789-stable/audio.wav",
+    "provenance": "Porto Vecchio accepted foley master"
+  },
+  "gather": {
+    "source": "art/audio/sources/gather.wav",
+    "sha256": "1a4f931e5c2000168a29c8d5188427763f3f350f1b5d332253a6439b9529aeef",
+    "model": "Stable Audio 3 Medium",
+    "settings": {
+      "seed": 74,
+      "steps": 8,
+      "seconds": 5.0,
+      "cfg": 1.0
+    },
+    "generator_peak": 0.643,
+    "original_source": ".audio-generation/gather/outputs/20260927-184409-777605-stable/audio.wav",
+    "provenance": "Porto Vecchio accepted foley master"
+  }
+}

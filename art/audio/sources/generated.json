@@ -1,0 +1,20 @@
+{
+  "roll": {
+    "source": ".audio-generation/roll/outputs/20260927-195710-438677-stable/audio.wav",
+    "sha256": "18e5dcb6cbf884fef1d3be949fdc5ea0bbee555c4c79a6da1f606aa2295b721e",
+    "seed": 181,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.258
+  },
+  "skill": {
+    "source": ".audio-generation/skill/outputs/20260927-195713-692488-stable/audio.wav",
+    "sha256": "843f2914ea53cd232d3c6a0302a3cf4c6692a5797c13c93bcf7ae7f5cd5048ed",
+    "seed": 184,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.468
+  }
+}

@@ -1,0 +1,137 @@
+{
+  "pickup": {
+    "source": "art/audio/sources/pickup.wav",
+    "source_sha256": "84d2a18005f1c7563ece747d87259492f4ca33d900a88bb0f7544b0f417283d2",
+    "trim_seconds": [
+      1.337,
+      1.53
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.035
+    ],
+    "normalization_gain": 0.9408207870378718,
+    "duration": 0.19301587301587303,
+    "peak": 0.41998291015625,
+    "rms": 0.02967514530737522,
+    "clipped_samples": 0,
+    "bytes": 34092,
+    "sha256": "4c3f7b45f68aba85625223c760eadcb4a73f7c388b56eeea295196ecb33bb106",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
+  "place": {
+    "source": "art/audio/sources/place.wav",
+    "source_sha256": "258bfe45924767b83758f6495a5f0a65776926b3b21539a60fa33592eba7a482",
+    "trim_seconds": [
+      3.122,
+      3.44
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0.38,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.035
+    ],
+    "normalization_gain": 1.0670171969070443,
+    "duration": 0.3878231292517007,
+    "peak": 0.739990234375,
+    "rms": 0.059825963963315146,
+    "clipped_samples": 0,
+    "bytes": 68456,
+    "sha256": "746a874f8ff58fdd1f535ee0967ba8ea5fe516a80aa2f57c25048a920b08e902",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
+  "roll": {
+    "source": "art/audio/sources/roll.wav",
+    "source_sha256": "18e5dcb6cbf884fef1d3be949fdc5ea0bbee555c4c79a6da1f606aa2295b721e",
+    "trim_seconds": [
+      1.79,
+      2.99
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.035
+    ],
+    "normalization_gain": 2.6384851337839685,
+    "duration": 1.2,
+    "peak": 0.67999267578125,
+    "rms": 0.03931456097428555,
+    "clipped_samples": 0,
+    "bytes": 211724,
+    "sha256": "dee2ddbd815cf24702967f200ebdedc8ff4ebf4f6c9a363939e8d0d3077c3023",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
+  "skill": {
+    "source": "art/audio/sources/skill.wav",
+    "source_sha256": "843f2914ea53cd232d3c6a0302a3cf4c6692a5797c13c93bcf7ae7f5cd5048ed",
+    "trim_seconds": [
+      3.185,
+      3.56
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0.1,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.035
+    ],
+    "normalization_gain": 2.0103819416693196,
+    "duration": 0.4573469387755102,
+    "peak": 0.41998291015625,
+    "rms": 0.017985772863494568,
+    "clipped_samples": 0,
+    "bytes": 80720,
+    "sha256": "9a9f82622bb7618c828b00564de703d5b00bfc1428602746e1d1300164ec6d49",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
+  "gather": {
+    "source": "art/audio/sources/gather.wav",
+    "source_sha256": "1a4f931e5c2000168a29c8d5188427763f3f350f1b5d332253a6439b9529aeef",
+    "trim_seconds": [
+      2.712,
+      3.46
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.035
+    ],
+    "normalization_gain": 1.011813953351349,
+    "duration": 0.7480045351473923,
+    "peak": 0.649993896484375,
+    "rms": 0.02011197398682677,
+    "clipped_samples": 0,
+    "bytes": 131992,
+    "sha256": "24cf27be8a21bb2617bf3ebe44d8eb2e903ce9935c1e667fdc41c4084345b9ed",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  }
+}

@@ -1,16 +1,32 @@
 {
-  "name": "flyer",
-  "version": "1.0.0",
-  "description": "Dice rogue",
+  "name": "flyer-dungeon",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
   "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build && node tools/copy-print.mjs",
     "type-check": "tsc --noEmit",
-    "build": "esbuild src/main.ts --bundle --format=esm --target=esnext --outdir=. --charset=utf8"
+    "test": "tsx --test tests/*.test.ts",
+    "assets": "python3 tools/generate-assets.py && npm run print",
+    "print": "tsx tools/print.ts",
+    "validate:assets": "node tools/validate-assets.mjs",
+    "test:browser": "node tools/browser-check.mjs",
+    "audio:generate": "python3 tools/generate-audio.py",
+    "audio:prepare": "python3 tools/prepare-audio.py",
+    "test:audio": "node tools/audio-check.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "three": "0.186.1"
+  },
   "devDependencies": {
-    "esbuild": "^0.24.0",
-    "typescript": "^5.3.0"
+    "@types/node": "26.6.3",
+    "@types/three": "0.186.0",
+    "gltf-validator": "2.0.0-dev.3.10",
+    "playwright": "1.63.0",
+    "sharp": "^0.35.4",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.1"
   }
 }

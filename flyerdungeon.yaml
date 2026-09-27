@@ -221,10 +221,10 @@ initial_state:
 l10n_semantics:
   # Game Atmosphere & Worldview
   global_tone:
-    concept: "Scribble RPG on a Flyer"
-    description: "A digital adaptation of a solo game played on the blank back side of a promotional flyer (A4 paper). The visuals and text should feel like a 'hand-drawn doodle' or 'indie project', not a polished AAA corporate product."
+    concept: "A physical tabletop dungeon adventure"
+    description: "A solo dice dungeon presented as a printed cardboard board, painted wooden components, and tactile tabletop foley. The printable edition retains its compact paper format."
     target_audience: "Casual gamers, TRPG fans."
-    style_guide: "Casual, Direct, Handmade feel."
+    style_guide: "Casual, direct language. Warm tabletop materials and legible printed components."
 
   nodes:
     game_title:

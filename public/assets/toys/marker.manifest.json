@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "name": "marker",
+  "style": "painted_wood",
+  "triangles": 88,
+  "mesh_objects": 2,
+  "bounds_blender": [
+    [
+      -0.35555553436279297,
+      -0.35555553436279297,
+      0.0
+    ],
+    [
+      0.35555553436279297,
+      0.35555553436279297,
+      0.1599999964237213
+    ]
+  ],
+  "design": {
+    "subject": "marker",
+    "seed": 0,
+    "construction": "painted wooden tabletop component"
+  },
+  "normalization_scale": 0.8888888535676194,
+  "exported_geometry": {
+    "triangles": 88,
+    "mesh_objects": 2,
+    "bounds_blender": [
+      [
+        -0.35555553436279297,
+        -0.35555553436279297,
+        -7.450580596923828e-09
+      ],
+      [
+        0.35555553436279297,
+        0.35555553436279297,
+        0.1599999964237213
+      ]
+    ]
+  },
+  "generator": "pieces.py",
+  "generator_sha256": "6ddd48caf1aa31829c551200c6641f94efd52b8beeeaa7726338a04c7eb120e6",
+  "pipeline_sha256": "934d12eddedd395d87a9ea17980177ee90e9adff68a02ad157870f33922e5043",
+  "toykit_sha256": "3568bfcc0bd7046760ad650fb32fd3e2acda7b731b9103952221818e5d898b05",
+  "blender_version": "4.5.14 LTS",
+  "seed": 0,
+  "requested_device": "AUTO",
+  "height": 0.16,
+  "triangle_budget": 1500,
+  "glb_bytes": 68712,
+  "glb_sha256": "b5d2712e444fc3b9c40032e2931e0ff122d5ab03523ff9e965c7081aa9b0798f",
+  "coordinates": {
+    "authoring": "right-handed, +Z up, -Y front",
+    "glb": "right-handed, +Y up, +Z front; ground Y=0; centered X/Z",
+    "units": "meters"
+  },
+  "render": {
+    "source": "clean reimport of exported GLB",
+    "views": [
+      {
+        "view": "front",
+        "camera_blender": [
+          1.7777776718139648,
+          -2.488888740539551,
+          1.5022221803665161
+        ],
+        "target_blender": [
+          0.0,
+          0.0,
+          0.07999999821186066
+        ],
+        "ortho_scale": 1.210215449333191,
+        "device": "METAL"
+      },
+      {
+        "view": "back",
+        "camera_blender": [
+          -1.7777776718139648,
+          2.488888740539551,
+          1.5022221803665161
+        ],
+        "target_blender": [
+          0.0,
+          0.0,
+          0.07999999821186066
+        ],
+        "ortho_scale": 1.2102153301239014,
+        "device": "METAL"
+      }
+    ],
+    "resolution": [
+      384,
+      384
+    ],
+    "samples": 16,
+    "view_transform": "AgX",
+    "look": "AgX - Medium High Contrast",
+    "exposure": 0.3
+  },
+  "artifacts": {
+    "marker.glb": "b5d2712e444fc3b9c40032e2931e0ff122d5ab03523ff9e965c7081aa9b0798f",
+    "marker.front.png": "ca05bcc6f8a4d9cc28944e3fbcbe0dcc55983a6603fb310acd5021dafdc55e5a",
+    "marker.back.png": "56c03016a5d65a7633f84702f11f390776cca56a56201c39f5027277b7a28f0c"
+  }
+}

@@ -1,0 +1,309 @@
+import { chromium, webkit } from "playwright";
+import { preview } from "vite";
+import fs from "node:fs/promises";
+import assert from "node:assert/strict";
+const server = await preview({ preview: { host: "127.0.0.1", port: 0 } });
+const url = `http://127.0.0.1:${server.httpServer.address().port}/?check`;
+await fs.mkdir(".browser-check", { recursive: true });
+const reports = [];
+try {
+  for (const [name, type, viewport, touch] of [
+    ["chromium", chromium, { width: 1440, height: 1000 }, false],
+    ["webkit-landscape", webkit, { width: 1194, height: 834 }, true],
+    ["webkit-portrait", webkit, { width: 834, height: 1194 }, true],
+    ["chromium-phone", chromium, { width: 390, height: 844 }, true],
+  ]) {
+    const browser = await type.launch();
+    try {
+      const page = await browser.newPage({
+        viewport,
+        hasTouch: touch,
+        deviceScaleFactor: 1,
+      });
+      const errors = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+      page.on("console", (m) => {
+        if (m.type() === "error") errors.push(m.text());
+      });
+      page.on("response", (r) => {
+        if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`);
+      });
+      await page.goto(url);
+      await page.waitForFunction(() => window.__flyer?.ready());
+      const ready = () => page.waitForFunction(() => window.__flyer?.ready());
+      await page.screenshot({ path: `.browser-check/${name}-initial.png` });
+      const bounds = await page.locator("canvas").boundingBox();
+      await page.evaluate(() => window.__flyer.seed(321));
+      await page.locator("#roll").click();
+      await ready();
+      const dice = await page.evaluate(() => window.__flyer.state().dice);
+      assert.deepEqual(
+        await page.evaluate(() =>
+          window.__flyer.diagnostics().dice.map((d) => d.top),
+        ),
+        dice,
+        `${name}: visible dice match rules`,
+      );
+      await page.screenshot({ path: `.browser-check/${name}-rolled.png` });
+      const tap = async (selector) => {
+        const b = await page.locator(selector).boundingBox();
+        assert.ok(b, selector);
+        if (touch)
+          await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
+        else await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2);
+      };
+      await tap('[data-id="die:0"]');
+      assert.equal(
+        await page.locator('[data-id="die:0"]').getAttribute("aria-pressed"),
+        "true",
+      );
+      const heldPosition = await page.evaluate(
+        () => window.__flyer.diagnostics().dice[0].position,
+      );
+      await page.locator("#roll").click();
+      await ready();
+      assert.equal(
+        (await page.evaluate(() => window.__flyer.state().dice))[0],
+        dice[0],
+      );
+      assert.deepEqual(
+        await page.evaluate(
+          () => window.__flyer.diagnostics().dice[0].position,
+        ),
+        heldPosition,
+      );
+      assert.deepEqual(
+        await page.locator("canvas").boundingBox(),
+        bounds,
+        "HUD changes must not resize canvas",
+      );
+      await page.locator("#zoom-in").click();
+      const physical = await page.evaluate(() => {
+        const p = window.__flyer.diagnostics().dice[1].position;
+        return window.__flyer.project(p[0], p[1] + 0.39, p[2]);
+      });
+      if (touch)
+        await page.touchscreen.tap(
+          physical.x + bounds.x,
+          physical.y + bounds.y,
+        );
+      else await page.mouse.click(physical.x + bounds.x, physical.y + bounds.y);
+      assert.equal(
+        await page.locator('[data-id="die:1"]').getAttribute("aria-pressed"),
+        "true",
+        "tap physical die after zoom",
+      );
+      await page.locator("#home").click();
+
+      const beforePan = await page.evaluate(() => window.__flyer.diagnostics());
+      await page.mouse.move(30, 125);
+      await page.mouse.down();
+      await page.mouse.move(100, 150, { steps: 6 });
+      await page.mouse.up();
+      const afterPan = await page.evaluate(() => window.__flyer.diagnostics());
+      assert.notDeepEqual(afterPan.camera, beforePan.camera);
+      assert.ok(
+        afterPan.quaternion.every(
+          (v, i) => Math.abs(v - beforePan.quaternion[i]) < 1e-9,
+        ),
+      );
+      assert.equal(
+        await page.locator('[data-id="die:0"]').getAttribute("aria-pressed"),
+        "true",
+      );
+      await page.locator("#home").click();
+      if (name === "chromium") {
+        const cdp = await page.context().newCDPSession(page);
+        const before = await page.evaluate(
+          () => window.__flyer.diagnostics().camera,
+        );
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchStart",
+          touchPoints: [
+            { x: 500, y: 140, id: 0 },
+            { x: 600, y: 140, id: 1 },
+          ],
+        });
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchMove",
+          touchPoints: [
+            { x: 450, y: 140, id: 0 },
+            { x: 650, y: 140, id: 1 },
+          ],
+        });
+        await cdp.send("Input.dispatchTouchEvent", {
+          type: "touchEnd",
+          touchPoints: [],
+        });
+        assert.notDeepEqual(
+          await page.evaluate(() => window.__flyer.diagnostics().camera),
+          before,
+          "pinch zooms",
+        );
+        assert.equal(
+          await page.locator('[data-id="die:0"]').getAttribute("aria-pressed"),
+          "true",
+          "pinch does not toggle dice",
+        );
+        await page.locator("#home").click();
+      }
+      await page.evaluate(() => {
+        const s = window.__flyer.state();
+        s.dice = [2, 2, 3, 4, 5];
+        s.rollsUsed = 1;
+        s.status = "playing";
+        s.categories.str_full_house =
+          s.categories.str_four_of_a_kind =
+          s.categories.str_three_of_a_kind_5 =
+            true;
+        window.__flyer.fixture(s);
+      });
+      await tap('[data-id="skill:0"]');
+      assert.equal(
+        await page.locator('[data-id="skill:0"]').getAttribute("aria-pressed"),
+        "true",
+      );
+      await page.keyboard.press("Escape");
+      assert.equal(
+        await page.locator('[data-id="skill:0"]').getAttribute("aria-pressed"),
+        "false",
+      );
+      await tap('[data-id="skill:0"]');
+      await tap('[data-id="die:0"]');
+      await ready();
+      assert.equal(
+        (await page.evaluate(() => window.__flyer.state().dice))[0],
+        6,
+      );
+      assert.equal(
+        await page.locator('[data-id="skill:0"]').isDisabled(),
+        true,
+      );
+      await page.screenshot({ path: `.browser-check/${name}-skill.png` });
+      await tap('[data-id="category:dex_free"]');
+      await ready();
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().categories.dex_free),
+        true,
+      );
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().dice.length),
+        0,
+      );
+      assert.equal(
+        await page.locator('[data-id="die:0"]').getAttribute("aria-pressed"),
+        "false",
+      );
+      await page.evaluate(() => {
+        const s = window.__flyer.state();
+        s.dice = [6, 6, 6, 6, 6];
+        s.rollsUsed = 3;
+        for (let i = 1; i < 5; i++) s.categories[`dungeon_floor_${i}`] = true;
+        window.__flyer.fixture(s);
+      });
+      await tap('[data-id="category:dungeon_floor_5"]');
+      await ready();
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().status),
+        "won",
+      );
+      await page.locator("#result").waitFor({ state: "visible" });
+      await page.screenshot({ path: `.browser-check/${name}-won.png` });
+      await page.locator("#again").click();
+      await ready();
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().status),
+        "playing",
+      );
+      await page.evaluate(() => {
+        const s = window.__flyer.state();
+        for (const id in s.categories) s.categories[id] = true;
+        s.categories.dungeon_floor_5 = false;
+        s.dice = [1, 2, 3, 4, 5];
+        s.rollsUsed = 2;
+        window.__flyer.fixture(s);
+      });
+      for (let i = 0; i < 5; i++) await tap(`[data-id="die:${i}"]`);
+      await page.locator("#roll").click();
+      await ready();
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().status),
+        "lost",
+      );
+      await page.locator("#again").click();
+      await page.locator("#settings-open").click();
+      await page.locator("#volume").fill("0.31");
+      await page.locator("#fov").fill("26");
+      await page.locator("#save-camera").click();
+      await page.locator("#sound").click();
+      await page.waitForFunction(
+        () => window.__flyer.audio().state === "suspended",
+      );
+      assert.equal(await page.evaluate(() => window.__flyer.audio().rms), 0);
+      await page.reload();
+      await ready();
+      assert.equal(await page.locator("#sound").textContent(), "音 OFF");
+      assert.equal(await page.locator("#volume").inputValue(), "0.31");
+      assert.equal(await page.locator("#fov").inputValue(), "26");
+      await page.evaluate(() => {
+        document.querySelector("#roll").click();
+        document.querySelector("#roll").click();
+      });
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().rollsUsed),
+        1,
+        "rapid input consumes one roll",
+      );
+      await page.evaluate(() => {
+        Object.defineProperty(document, "hidden", {
+          configurable: true,
+          get: () => true,
+        });
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      await ready();
+      assert.equal(
+        await page.evaluate(() => window.__flyer.diagnostics().motions),
+        0,
+        "hiding finishes presentation",
+      );
+      await page.evaluate(() => {
+        delete document.hidden;
+        document.dispatchEvent(new Event("visibilitychange"));
+      });
+      assert.equal(
+        await page.evaluate(() => window.__flyer.state().rollsUsed),
+        1,
+      );
+      const draws = await page.evaluate(
+        () => window.__flyer.diagnostics().draws,
+      );
+      await page.waitForTimeout(150);
+      assert.ok(
+        (await page.evaluate(() => window.__flyer.diagnostics().draws)) -
+          draws <=
+          1,
+        "idle table stops rendering",
+      );
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      );
+      assert.equal(overflow, false);
+      assert.deepEqual(errors, []);
+      reports.push({
+        name,
+        errors,
+        diagnostics: await page.evaluate(() => window.__flyer.diagnostics()),
+      });
+      console.log(`${name}: passed`);
+    } finally {
+      await browser.close();
+    }
+  }
+  await fs.writeFile(
+    ".browser-check/report.json",
+    JSON.stringify(reports, null, 2),
+  );
+} finally {
+  await new Promise((resolve) => server.httpServer.close(resolve));
+}

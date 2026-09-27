@@ -1,5 +1,7 @@
 node_modules/
-
-/print/*.pdf
-/solver/**
-/writing
+dist/
+.audio-generation/
+.browser-check/
+.playwright-mcp/
+.DS_Store
+__pycache__/
