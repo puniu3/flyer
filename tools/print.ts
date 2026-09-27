@@ -45,6 +45,7 @@ const headingSize = 29;
     }
     body += text(90, y - 41, s.label, 18, "#76664f");
     body += `<circle cx="90" cy="${y}" r="29" fill="#c9b995" stroke="#967c56"/><circle cx="90" cy="${y}" r="24" fill="none" stroke="#f2e4c4"/>`;
+    if (i === 4) body += `<g transform="translate(90 ${y})" fill="none" stroke="#987546" stroke-width="1.6" stroke-linejoin="round"><path d="M-13-6-7-1 0-10 7-1 13-6 10 7H-10Z M-10 11H10"/></g>`;
     if (i < 4) body += text(260, y + 10, s.mark, roleSize);
     else body += text(260, y - 6, "FIVE OF", roleSize) + text(260, y + 31, "A KIND", roleSize);
   });

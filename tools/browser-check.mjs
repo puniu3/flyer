@@ -13,7 +13,7 @@ try {
     ["webkit-portrait", webkit, { width: 834, height: 1194 }, true],
     ["chromium-phone", chromium, { width: 390, height: 844 }, true],
   ]) {
-    const browser = await type.launch();
+    const browser = await type.launch(type === chromium ? { args: ["--mute-audio"] } : {});
     try {
       const page = await browser.newPage({
         viewport,
@@ -31,15 +31,28 @@ try {
       await page.goto(url);
       await page.waitForFunction(() => window.__flyer?.ready());
       const ready = () => page.waitForFunction(() => window.__flyer?.ready());
-      const settings = async () => {
-        await page.locator("#help").click();
-        await page.locator("#settings-open").click();
-      };
-      const home = async () => {
-        await settings();
-        await page.locator("#default-camera").click();
-        await page.locator("#save-camera").click();
-      };
+      const home = () => page.evaluate(() => window.__flyer.resetCamera());
+      assert.equal(await page.locator("#settings, #volume, #fov, #guide button").count(), 0);
+      await page.locator("#help").click();
+      assert.equal(await page.locator("#guide").isVisible(), true);
+      await page.mouse.click(5, 5);
+      assert.equal(await page.locator("#guide").isVisible(), false);
+      await page.locator("#language-open").click();
+      await page.locator('[data-language="en"]').click();
+      assert.equal(await page.locator("html").getAttribute("lang"), "en");
+      assert.equal(await page.locator("#languages").isVisible(), false);
+      await page.reload();
+      await ready();
+      assert.equal(await page.locator('[data-language="en"]').getAttribute("aria-pressed"), "true");
+      await page.locator("#language-open").click();
+      await page.keyboard.press("Escape");
+      assert.equal(await page.locator("#languages").isVisible(), false);
+      await page.locator("#language-open").click();
+      await page.mouse.click(5, 5);
+      assert.equal(await page.locator("#languages").isVisible(), false);
+      await page.locator("#language-open").click();
+      await page.locator('[data-language="ja"]').click();
+
 
       await page.screenshot({ path: `.browser-check/${name}-initial.png` });
       const bounds = await page.locator("canvas").boundingBox();
@@ -316,10 +329,6 @@ try {
       await page.keyboard.press("Escape");
       assert.equal(await page.locator("#result").isVisible(), true, "loss requires replay action");
       await page.locator("#again").click();
-      await settings();
-      await page.locator("#volume").fill("0.31");
-      await page.locator("#fov").fill("26");
-      await page.locator("#save-camera").click();
       await page.locator("#sound").click();
       await page.waitForFunction(
         () => window.__flyer.audio().state === "suspended",
@@ -331,8 +340,7 @@ try {
         await page.locator("#sound").getAttribute("aria-label"),
         "音 OFF",
       );
-      assert.equal(await page.locator("#volume").inputValue(), "0.31");
-      assert.equal(await page.locator("#fov").inputValue(), "26");
+      assert.equal(await page.locator("#volume, #fov").count(), 0);
       await page.evaluate(() => {
         document.querySelector("#roll").click();
         document.querySelector("#roll").click();

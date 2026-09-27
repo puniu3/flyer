@@ -24,12 +24,12 @@ export class TableAudio {
   muted = false;
   volume = 0.55;
 
-  constructor(private storagePrefix = "flyer:v2") {
+  constructor(private storagePrefix = "flyer:v2", restoreVolume = true) {
     try {
       this.muted =
         localStorage.getItem(`${this.storagePrefix}:muted`) === "true";
       const stored = localStorage.getItem(`${this.storagePrefix}:volume`);
-      if (stored !== null && Number.isFinite(Number(stored)))
+      if (restoreVolume && stored !== null && Number.isFinite(Number(stored)))
         this.volume = Math.max(0, Math.min(1, Number(stored)));
     } catch {}
   }

@@ -233,33 +233,32 @@ dialog select {
 dialog input {
   accent-color: #77633e;
 }
-dialog .close {
-  float: right;
-  padding: 4px 9px;
+#languages {
+  position: fixed;
+  inset: max(48px, calc(env(safe-area-inset-top) + 38px)) max(48px, calc(env(safe-area-inset-right) + 36px)) auto auto;
+  margin: 0;
+  padding: 5px;
+  min-width: 124px;
+  border: 1px solid #8c7956;
+  border-radius: 4px;
+  background: #393329;
+  color: #c5b99f;
+  box-shadow: 0 5px 18px #0005;
 }
-.settings-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  margin: 18px 0;
-  font:
-    13px system-ui,
-    sans-serif;
+#languages button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  padding: 9px 12px;
 }
-.settings-row input {
-  width: 185px;
+#languages button[aria-pressed="true"] {
+  background: #5a4b35;
 }
-.settings-row output {
-  min-width: 35px;
-  display: inline-block;
-  text-align: right;
-}
-.dialog-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
+@media (hover: hover) and (pointer: fine) {
+  #languages button:hover { background: #514737; }
 }
 #result {
   text-align: center;
