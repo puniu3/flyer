@@ -46,7 +46,50 @@ try {
         "unmuting must not replay old cues",
       );
       assert.equal(await page.evaluate(() => window.__flyer.audio().rms), 0);
-      reports.push({ name, peakRms, muting: true, stalePlayback: false });
+      await page.evaluate(() => {
+        const state = window.__flyer.state();
+        state.dice = [6, 6, 6, 6, 6];
+        state.rollsUsed = 1;
+        for (let i = 1; i < 5; i++)
+          state.categories[`dungeon_floor_${i}`] = true;
+        window.__flyer.fixture(state);
+      });
+      await page.locator('[data-id="category:dungeon_floor_5"]').click();
+      await page.waitForFunction(
+        () => window.__flyer.audio().lastCue === "victory",
+      );
+      const victoryRms = await page.evaluate(async () => {
+        let peak = 0;
+        for (let i = 0; i < 20; i++) {
+          peak = Math.max(peak, window.__flyer.audio().rms);
+          await new Promise((r) => setTimeout(r, 25));
+        }
+        return peak;
+      });
+      assert.ok(victoryRms > 0.001, "victory fanfare reaches output");
+      const victoryCount = await page.evaluate(
+        () => window.__flyer.audio().count,
+      );
+      await page.waitForTimeout(100);
+      assert.equal(
+        await page.evaluate(() => window.__flyer.audio().count),
+        victoryCount,
+        "victory cue fires once",
+      );
+      await page.locator("#again").click();
+      await page.waitForTimeout(1000);
+      assert.equal(
+        await page.evaluate(() => window.__flyer.audio().rms),
+        0,
+        "restart stops the fanfare tail",
+      );
+      reports.push({
+        name,
+        peakRms,
+        victoryRms,
+        muting: true,
+        stalePlayback: false,
+      });
       console.log(
         `${name}: roll RMS ${peakRms.toFixed(4)}, mute and resume passed`,
       );
@@ -59,7 +102,10 @@ try {
   );
   for (const [cue, entry] of Object.entries(manifest)) {
     assert.equal(entry.clipped_samples, 0, cue);
-    assert.ok(entry.duration > 0 && entry.duration < 1.3, cue);
+    assert.ok(
+      entry.duration > 0 && entry.duration < (cue === "victory" ? 4.3 : 1.3),
+      cue,
+    );
     assert.ok(entry.peak < 1, cue);
   }
   await fs.writeFile(

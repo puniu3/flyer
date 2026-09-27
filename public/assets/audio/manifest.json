@@ -1,4 +1,31 @@
 {
+  "victory": {
+    "source": "art/audio/sources/victory.wav",
+    "source_sha256": "e1e3aa7b7ed48463c5f3944f49347332b0b875fdd1d7740b369787d8d5432781",
+    "trim_seconds": [
+      0,
+      4.2
+    ],
+    "highpass_hz": 45,
+    "stereo_width": 0.25,
+    "body_layer": {
+      "gain": 0,
+      "rate": 0.82,
+      "lowpass_hz": 420
+    },
+    "fade_seconds": [
+      0.001,
+      0.035
+    ],
+    "normalization_gain": 0.8636860796964547,
+    "duration": 4.2,
+    "peak": 0.67999267578125,
+    "rms": 0.11450567471780186,
+    "clipped_samples": 0,
+    "bytes": 740924,
+    "sha256": "39650cd0ba686d399ab8af603bc17f33b855561fdc05d24ddcfda7e5975903bb",
+    "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
+  },
   "pickup": {
     "source": "art/audio/sources/pickup.wav",
     "source_sha256": "84d2a18005f1c7563ece747d87259492f4ca33d900a88bb0f7544b0f417283d2",

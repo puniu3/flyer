@@ -185,9 +185,6 @@ body {
   border-color: transparent;
   background: transparent;
 }
-.category.checked {
-  color: #f3dfb8;
-}
 .category.selected {
   outline: 2px solid #d7a64f;
 }
@@ -283,11 +280,6 @@ dialog .close {
 #result {
   text-align: center;
 }
-#result .result-mark {
-  font-size: 42px;
-  color: #967440;
-  margin: 8px 0;
-}
 #result p {
   margin-bottom: 22px;
 }
@@ -340,4 +332,8 @@ button[hidden] {
   .category {
     width: 36px;
   }
+}
+
+#roll-remaining:empty {
+  display: none;
 }

@@ -73,10 +73,7 @@ try {
       await page.locator("#roll").click();
       await ready();
       const dice = await page.evaluate(() => window.__flyer.state().dice);
-      assert.equal(
-        await page.locator("#roll-remaining").textContent(),
-        "2 回残り",
-      );
+      assert.equal(await page.locator("#roll-remaining").textContent(), "2/2");
       assert.deepEqual(
         await page.evaluate(() =>
           window.__flyer.diagnostics().dice.map((d) => d.top),
@@ -258,6 +255,16 @@ try {
         "won",
       );
       await page.locator("#result").waitFor({ state: "visible" });
+      assert.equal(await page.locator("#result button:visible").count(), 1);
+      assert.equal(await page.locator("#result").innerText(), "もう一度遊ぶ");
+      assert.equal(
+        (await page.locator(".category").allTextContents()).join(""),
+        "",
+      );
+      await page.waitForFunction(
+        () => window.__flyer.audio().lastCue === "victory",
+      );
+
       await page.screenshot({ path: `.browser-check/${name}-won.png` });
       await page.locator("#again").click();
       await ready();

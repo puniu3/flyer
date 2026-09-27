@@ -16,5 +16,14 @@
     "cfg": 1,
     "seconds": 5,
     "pre_export_peak": 0.468
+  },
+  "victory": {
+    "source": ".audio-generation/victory/outputs/20260927-204451-076657-stable/audio.wav",
+    "sha256": "e1e3aa7b7ed48463c5f3944f49347332b0b875fdd1d7740b369787d8d5432781",
+    "seed": 195,
+    "steps": 8,
+    "cfg": 1,
+    "seconds": 5,
+    "pre_export_peak": 0.847
   }
 }

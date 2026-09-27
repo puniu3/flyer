@@ -1,4 +1,11 @@
-export const CUES = ["pickup", "place", "roll", "skill", "gather"] as const;
+export const CUES = [
+  "pickup",
+  "place",
+  "roll",
+  "skill",
+  "gather",
+  "victory",
+] as const;
 export type Cue = (typeof CUES)[number];
 
 export class TableAudio {

@@ -12,7 +12,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 app.innerHTML = `<main class="stage" id="stage"><div class="table-ui" id="table-ui"></div><nav class="top-actions"><button id="sound" aria-label="音声切替"></button><button id="help" aria-label="遊び方">?</button></nav><button class="roll" id="roll" disabled><span id="roll-label">Roll</span><small id="roll-remaining"></small></button><div class="loading" id="loading">卓上を準備しています…</div></main>
 <dialog id="settings"><button class="close" data-close>×</button><h2>卓上の調整</h2><label class="settings-row">言語 / Language<select id="language"><option value="ja">日本語</option><option value="en">English</option><option value="zh">简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label><label class="settings-row">音量<input id="volume" type="range" min="0" max="1" step=".01"></label><label class="settings-row">画角<input id="fov" type="range" min="10" max="45" step="1"><output id="fov-value"></output></label><label class="settings-row">俯角<input id="elevation" type="range" min="25" max="75" step="1"><output id="elevation-value"></output></label><label class="settings-row">距離<input id="distance" type="range" min=".6" max="1.8" step=".02"><output id="distance-value"></output></label><div class="dialog-actions"><button id="save-camera">設定を保存</button><button id="default-camera">標準に戻す</button><button id="export">プレイログ</button><button id="restart">最初から</button></div><p class="sound-status" id="audio-status"></p></dialog>
 <dialog id="guide"><button class="close" data-close>×</button><div id="guide-content"></div><div class="dialog-actions"><button id="settings-open">調整</button></div></dialog>
-<dialog id="result"><div class="result-mark" id="result-mark"></div><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button><button data-close>盤面を見る</button></dialog>`;
+<dialog id="result"><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button><button id="result-dismiss" data-close>盤面を見る</button></dialog>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 let locale = readPreference("language", "ja");
@@ -107,14 +107,10 @@ function render() {
     ? view.rolls.max - view.rolls.current
     : view.rolls.max - 1;
   el("roll-label").textContent = dice.length ? "Reroll" : "Roll";
-  el("roll-remaining").textContent = dice.length
-    ? `${remaining} ${locale === "ja" ? "回残り" : "left"}`
-    : locale === "ja"
-      ? `振り直し ${remaining}回`
-      : `${remaining} rerolls`;
+  el("roll-remaining").textContent = dice.length ? `${remaining}/2` : "";
   el("roll").setAttribute(
     "aria-label",
-    `${dice.length ? "Reroll" : "Roll"}, ${remaining} ${locale === "ja" ? "回の振り直しが残っています" : "rerolls left"}`,
+    dice.length ? `Reroll ${remaining}/2` : "Roll",
   );
   el("roll").setAttribute("aria-busy", String(busy));
   (el("roll") as HTMLButtonElement).disabled =
@@ -123,10 +119,10 @@ function render() {
     const b = categoryButtons.get(s.id)!;
     b.disabled = busy || !s.isSelectable;
     b.className = `table-label category${s.isSelectable && !busy ? " available" : ""}${s.isChecked ? " checked" : ""}`;
-    b.textContent = s.isChecked ? "✓" : "";
+    b.textContent = "";
     b.setAttribute(
       "aria-label",
-      `${t(`cat_${s.id}`)}${s.isChecked ? " ✓" : ""}`,
+      `${t(`cat_${s.id}`)}${s.isChecked ? (locale === "ja" ? " 達成済み" : " completed") : ""}`,
     );
     b.title = t(`cat_${s.id}`);
   }
@@ -177,7 +173,10 @@ function settle(token: number) {
   if (session.state.status !== "playing" && !shownResult) {
     shownResult = true;
     const won = session.state.status === "won";
-    el("result-mark").textContent = won ? "Ⅴ" : "◇";
+    el("result-title").hidden = won;
+    el("result-copy").hidden = won;
+    el("result-dismiss").hidden = won;
+    el("result").setAttribute("aria-label", won ? "Victory" : "Game over");
     el("result-title").textContent = t(
       won ? "status_won" : "status_lost",
     ).replace(/[🎉💀]/gu, "");
@@ -189,10 +188,10 @@ function settle(token: number) {
         : won
           ? "The fifth floor is complete."
           : "No category can be reached with the remaining skills.";
-    el("again").textContent = t("btn_play_again");
+    el("again").textContent = t("btn_play_again").replace(/\s*↺/g, "");
     el<HTMLDialogElement>("result").showModal();
     if (!document.hidden)
-      void audio.play(won ? "place" : "gather", 0.6, 0, won ? 0.9 : 0.85);
+      void audio.play(won ? "victory" : "gather", 0.6, 0, won ? 1 : 0.85);
   }
 }
 function dispatch(action: PlayerAction) {

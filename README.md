@@ -13,7 +13,7 @@ For the shared Mac preview, run `ports --help`, then `preview vite flyer "$PWD"`
 
 Tap a die to hold it. Roll again to reroll only the others, up to three rolls per turn. Tap a highlighted category to place a marker. Three checked spaces on an ability board unlock its skill: tap the skill, then a die. Each skill is usable once per turn. Empty-table taps and Escape cancel skill selection. The fifth dungeon floor wins; after the third roll, defeat waits until no sequence of remaining skills can produce a valid category.
 
-The tabletop fills the viewport. Tap the physical dice directly; held dice have a ring and no numeric labels. The circular Roll button at bottom right shows the remaining rerolls. Drag to pan and pinch or scroll to zoom; the camera keeps its orientation. Small sound and help icons sit at top right. Settings, reached through help, expose field of view, elevation, framing distance, volume, language, restart, and play-log export. Camera changes persist only after Save; navigation gestures remain temporary. Sound preferences and language persist automatically. Japanese is the fixed default; the existing eight translation dictionaries are retained. Board printing uses language-independent numeric patterns and English headings.
+The tabletop fills the viewport. Tap the physical dice directly; held dice have a ring and no numeric labels. The circular button at bottom right starts as `Roll`, then shows `Reroll 2/2`, `Reroll 1/2`, and `Reroll 0/2`. Completed spaces use wooden markers without checkmark overlays. Victory plays a short brass-and-bell fanfare and displays only the play-again button. Drag to pan and pinch or scroll to zoom; the camera keeps its orientation. Small sound and help icons sit at top right. Settings, reached through help, expose field of view, elevation, framing distance, volume, language, restart, and play-log export. Camera changes persist only after Save; navigation gestures remain temporary. Sound preferences and language persist automatically. Japanese is the fixed default; the existing eight translation dictionaries are retained. Board printing uses language-independent numeric patterns and English headings.
 
 The main target is desktop and tablet. On narrow screens, zoom into the desired board to read and select its rows. There is no idle animation, camera orbit, physical dice simulation, or network game. The approximately 1.2-second dice motion presents results already chosen by the rules engine; held dice stay in place. Audio begins after a user gesture, stops when muted or hidden, and does not replay old tails on resume.
 
@@ -49,11 +49,13 @@ npm run audio:generate
 npm run audio:prepare
 ```
 
-`audio:generate` calls the installed `stable` launcher sequentially for the dice roll and cardboard flip (5 seconds, 8 steps, CFG 1.0, fixed seeds). New runs stay under `.audio-generation/` and do not overwrite selected masters. Three selected wood-contact/gather masters are inherited from the Porto Vecchio template. Original WAVs, prompts, provenance and generator settings are preserved under `art/audio/sources/`.
+`audio:generate` calls the installed `stable` launcher sequentially for the dice roll, cardboard flip and victory fanfare (5 seconds, 8 steps, CFG 1.0, fixed seeds). New runs stay under `.audio-generation/` and do not overwrite selected masters. Three selected wood-contact/gather masters are inherited from the Porto Vecchio template. Original WAVs, prompts, provenance and generator settings are preserved under `art/audio/sources/`.
 
 Preparation reads the exact selected masters, trims their chosen intervals, filters rumble, narrows stereo width, optionally layers a slowed low-frequency body, normalizes and fades delivery copies. `public/assets/audio/manifest.json` records processing parameters, file hashes, duration, peak and clipping counts. The runtime limiter sits after master volume. Wood impacts occur on visual contact; cancellation invalidates pending playback.
 
-Open `audio-demo.html` to audition all five cues at an independent saved volume. Audio checks measure post-limiter output, mute and stale-playback behavior. They do not certify perceived timbre; audition the delivery files for that judgment.
+Run `npm run audio:generate -- victory` to generate only a new fanfare candidate.
+
+Open `audio-demo.html` to audition all six cues at an independent saved volume. Audio checks measure post-limiter output, mute and stale-playback behavior. They do not certify perceived timbre; audition the delivery files for that judgment.
 
 ## Rule authority
 

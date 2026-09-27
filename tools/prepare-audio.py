@@ -7,6 +7,7 @@ import wave
 
 root = Path(__file__).resolve().parents[1]
 recipes = {
+    'victory': {'trim': [0, 4.2], 'target_peak': .68, 'body': 0},
     'pickup': {'trim': [1.337, 1.53], 'target_peak': .42, 'body': 0},
     'place': {'trim': [3.122, 3.44], 'target_peak': .74, 'body': .38},
     'roll': {'trim': [1.79, 2.99], 'target_peak': .68, 'body': 0},
