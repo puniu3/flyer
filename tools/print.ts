@@ -39,7 +39,7 @@ for (let i = 0; i < 5; i++) {
       'font-weight="bold"',
     );
   } else {
-    body += text(x, 236, "5 OF", 34, "#251c15", 'font-weight="bold"');
+    body += text(x, 236, "FIVE OF", 30, "#251c15", 'font-weight="bold"');
     body += text(x, 281, "A KIND", 34, "#251c15", 'font-weight="bold"');
   }
   body += `<circle cx="${x}" cy="361" r="25" fill="#d8c59f" stroke="#695439" stroke-width="1.5"/>`;

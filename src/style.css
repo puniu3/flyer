@@ -337,3 +337,7 @@ button[hidden] {
 #roll-remaining:empty {
   display: none;
 }
+
+.skill-label.locked {
+  display: none;
+}

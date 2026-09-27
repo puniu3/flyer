@@ -43,6 +43,11 @@ try {
 
       await page.screenshot({ path: `.browser-check/${name}-initial.png` });
       const bounds = await page.locator("canvas").boundingBox();
+      assert.equal(
+        await page.locator(".skill-label:visible").count(),
+        0,
+        "locked skill labels are absent",
+      );
       assert.deepEqual(
         bounds,
         { x: 0, y: 0, width: viewport.width, height: viewport.height },
@@ -194,6 +199,19 @@ try {
         );
         await home();
       }
+      await page.locator("#roll").click();
+      assert.deepEqual(
+        await page.evaluate(() => window.__flyer.diagnostics().keepRings),
+        [false, false, false, false, false],
+        "last roll immediately hides keep rings",
+      );
+      await ready();
+      await tap('[data-id="die:0"]');
+      assert.deepEqual(
+        await page.evaluate(() => window.__flyer.diagnostics().keepRings),
+        [false, false, false, false, false],
+        "spent rerolls cannot show keep rings",
+      );
       await page.evaluate(() => {
         const s = window.__flyer.state();
         s.dice = [2, 2, 3, 4, 5];

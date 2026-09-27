@@ -51,6 +51,11 @@ export class DungeonScene {
   private dice: THREE.Group[] = [];
   private markers = new Map<CategoryId, THREE.Group>();
   private chips: THREE.Group[] = [];
+  private chipProgress: THREE.Mesh<
+    THREE.PlaneGeometry,
+    THREE.MeshStandardMaterial
+  >[] = [];
+  private progressTextures: THREE.CanvasTexture[] = [];
   private rings: THREE.Mesh[] = [];
   private legalRings = new Map<CategoryId, THREE.Mesh>();
   private pawn?: THREE.Group;
@@ -253,6 +258,24 @@ export class DungeonScene {
     this.world.add(group);
     return group;
   }
+  private progressTexture(count: number) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 128;
+    const context = canvas.getContext("2d")!;
+    context.fillStyle = "#352619";
+    context.font = "bold 76px Georgia, serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(`${count}/3`, 128, 67);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = Math.min(
+      8,
+      this.renderer.capabilities.getMaxAnisotropy(),
+    );
+    return texture;
+  }
   async load() {
     const loader = new GLTFLoader();
     await Promise.all(
@@ -384,10 +407,26 @@ export class DungeonScene {
     }
     this.pawn = this.clone("adventurer");
     this.pawn.position.set(-6.8, 0.19, -7.4);
+    this.progressTextures = [0, 1, 2].map((count) =>
+      this.progressTexture(count),
+    );
     GROUPS.forEach((_, i) => {
       const chip = this.clone("skill");
       chip.position.set(-6.8 + i * 5.2, 0.13, SKILL_Z - 0.18);
       chip.scale.setScalar(1.5);
+      const progress = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.7, 0.42),
+        new THREE.MeshStandardMaterial({
+          map: this.progressTextures[0],
+          transparent: true,
+          depthWrite: false,
+          roughness: 0.95,
+        }),
+      );
+      progress.rotation.x = Math.PI / 2;
+      progress.position.y = -0.003;
+      chip.add(progress);
+      this.chipProgress.push(progress);
       this.chips.push(chip);
       this.hit(`skill:${i}`, 3.8, 0.7, -5.2 + i * 5.2, 0.27, SKILL_Z);
     });
@@ -452,7 +491,8 @@ export class DungeonScene {
     });
     this.dice.forEach((d, i) => {
       d.visible = true;
-      this.rings[i].visible = held.has(i) && view.dice.length > 0;
+      this.rings[i].visible =
+        held.has(i) && view.dice.length > 0 && view.rolls.canRoll;
       this.rings[i].position.x = d.position.x;
       this.rings[i].position.z = d.position.z;
     });
@@ -462,6 +502,12 @@ export class DungeonScene {
     }
     GROUPS.forEach((g, i) => {
       const status = view.skills[SKILLS[g]].status;
+      const count = view.categories.filter(
+        (category) => category.group === g && category.isChecked,
+      ).length;
+      this.chipProgress[i].visible = status === "locked";
+      this.chipProgress[i].material.map =
+        this.progressTextures[Math.min(2, count)];
       this.chips[i].rotation.x = status === "available" ? 0 : Math.PI;
       this.chips[i].position.y = status === "available" ? 0.13 : 0.41;
     });
@@ -472,10 +518,16 @@ export class DungeonScene {
     this.refreshHits();
     this.invalidate();
   }
-  roll(values: DieValue[], indices: number[], done: () => void) {
+  roll(
+    values: DieValue[],
+    indices: number[],
+    canKeep: boolean,
+    done: () => void,
+  ) {
     this.finish(false);
     this.onComplete = done;
     for (const ring of this.legalRings.values()) ring.visible = false;
+    if (!canKeep) for (const ring of this.rings) ring.visible = false;
     for (const i of indices) {
       const yaw = (Math.random() - 0.5) * 1.5;
       const to = new THREE.Vector3(
@@ -677,6 +729,7 @@ export class DungeonScene {
   diagnostics() {
     return {
       draws: this.draws,
+      keepRings: this.rings.map((ring) => ring.visible),
       triangles: this.renderer.info.render.triangles,
       calls: this.renderer.info.render.calls,
       motions: this.motions.length,

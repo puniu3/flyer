@@ -129,27 +129,32 @@ function render() {
   GROUPS.forEach((g, i) => {
     const id = SKILLS[g];
     const skill = view.skills[id];
-    const count = view.categories.filter(
-      (c) => c.group === g && c.isChecked,
-    ).length;
     const b = skillButtons[i];
     b.disabled =
       busy ||
       !dice.length ||
       view.gameStatus !== "playing" ||
       skill.status !== "available";
+    b.classList.toggle("locked", skill.status === "locked");
     b.classList.toggle("active", selectedSkill === id);
     b.setAttribute("aria-pressed", String(selectedSkill === id));
-    b.innerHTML = `${t(`skill_name_${id}`)}<small>${skill.status === "locked" ? `${count} / 3` : skill.status === "used" ? (locale === "ja" ? "使用済み" : "USED") : t(`skill_desc_${id}`)}</small>`;
+    b.innerHTML =
+      skill.status === "locked"
+        ? ""
+        : `${t(`skill_name_${id}`)}<small>${skill.status === "used" ? (locale === "ja" ? "使用済み" : "USED") : t(`skill_desc_${id}`)}</small>`;
   });
   diceButtons.forEach((b, i) => {
-    b.disabled = busy || !dice.length || view.gameStatus !== "playing";
-    b.classList.toggle("held", held.has(i));
+    b.disabled =
+      busy ||
+      !dice.length ||
+      view.gameStatus !== "playing" ||
+      (!view.rolls.canRoll && !selectedSkill);
+    b.classList.toggle("held", held.has(i) && view.rolls.canRoll);
     b.setAttribute(
       "aria-label",
-      `${locale === "ja" ? "ダイス" : "Die"} ${i + 1}: ${dice[i] ?? "—"} ${held.has(i) ? t("label_held") : ""}`,
+      `${locale === "ja" ? "ダイス" : "Die"} ${i + 1}: ${dice[i] ?? "—"} ${held.has(i) && view.rolls.canRoll ? t("label_held") : ""}`,
     );
-    b.setAttribute("aria-pressed", String(held.has(i)));
+    b.setAttribute("aria-pressed", String(held.has(i) && view.rolls.canRoll));
   });
   el("sound").innerHTML =
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/>${audio.muted ? '<path d="m16 9 6 6m0-6-6 6"/>' : '<path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>'}</svg>`;
@@ -225,6 +230,7 @@ function tap(id: string) {
         () => settle(token),
       );
     } else {
+      if (!view.rolls.canRoll) return;
       held.has(i) ? held.delete(i) : held.add(i);
       void audio.play("pickup", 0.6, scene.diePosition(i).x / 18);
       scene.sync(view, held);
@@ -266,7 +272,12 @@ el("roll").addEventListener("click", () => {
   render();
   if (indices.length)
     void audio.play("roll", Math.max(0.35, indices.length / 5));
-  scene.roll(session.state.dice, indices, () => settle(token));
+  scene.roll(
+    session.state.dice,
+    indices,
+    getView(session.state).rolls.canRoll,
+    () => settle(token),
+  );
 });
 function restart() {
   epoch++;

@@ -20,7 +20,7 @@ export type Slot = {
   mark: string;
 };
 export const slots: Slot[] = [
-  ...["≥ 20", "≥ 24", "≥ 26", "≤ 9", "5 ×"].map((mark, i) => ({
+  ...["≥ 20", "≥ 24", "≥ 26", "≤ 9", "FIVE OF A KIND"].map((mark, i) => ({
     id: `dungeon_floor_${i + 1}` as CategoryId,
     group: "dungeon" as const,
     x: -5.6 + i * 2.8,
@@ -32,21 +32,21 @@ export const slots: Slot[] = [
     const entries =
       group === "str"
         ? [
-            ["full_house", "3 + 2"],
-            ["four_of_a_kind", "4 ×"],
+            ["full_house", "FULL HOUSE"],
+            ["four_of_a_kind", "FOUR OF A KIND"],
             ["three_of_a_kind_5", "5 · 5 · 5"],
             ["three_of_a_kind_6", "6 · 6 · 6"],
           ]
         : group === "dex"
           ? [
               ["free", "ANY"],
-              ["straight", "1—5 / 2—6"],
+              ["straight", "STRAIGHT"],
               ["three_of_a_kind_1", "1 · 1 · 1"],
               ["three_of_a_kind_2", "2 · 2 · 2"],
             ]
           : [
-              ["one_pair", "2 ×"],
-              ["two_pair", "2 + 2"],
+              ["one_pair", "ONE PAIR"],
+              ["two_pair", "TWO PAIR"],
               ["three_of_a_kind_3", "3 · 3 · 3"],
               ["three_of_a_kind_4", "4 · 4 · 4"],
             ];
