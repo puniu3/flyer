@@ -311,11 +311,15 @@ button[hidden] {
 
 .roll, #roll-label, #roll-remaining, dialog, dialog button, dialog p, dialog li { font-family: var(--game-font, Georgia, serif); }
 
-#guide .guide-credit {
-  margin: 24px 0 0;
+#guide .guide-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
   padding-top: 12px;
   border-top: 1px solid #b5a182;
-  font-size: 11px;
   color: #89775b;
-  text-align: center;
 }
+#guide .guide-credit { margin: 0; font-size: 11px; }
+#guide .classic-link { color: inherit; font-size: 11px; text-align: right; }

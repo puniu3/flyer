@@ -1,0 +1,959 @@
+:root {
+  --primary-color: #6200EE;
+  --primary-variant: #3700B3;
+  --secondary-color: #03DAC6;
+  --secondary-variant: #018786;
+  --background-color: #F5F5F5;
+  --surface-color: #FFFFFF;
+  --error-color: #B00020;
+  --on-primary: #FFFFFF;
+  --on-secondary: #000000;
+  --on-background: #000000;
+  --on-surface: #000000;
+  --on-error: #FFFFFF;
+
+  --spacing-unit: 8px;
+  --border-radius: 4px;
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  --shadow-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--background-color);
+  color: var(--on-background);
+  line-height: 1.6;
+}
+
+#fd-stage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 3);
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-1);
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+/* Game Status */
+.game-status {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+}
+
+.status-playing {
+  color: var(--primary-color);
+}
+
+.status-won {
+  background-color: var(--secondary-color);
+  color: var(--on-secondary);
+}
+
+.status-lost {
+  background-color: var(--error-color);
+  color: var(--on-error);
+}
+
+/* Dice Section */
+.dice-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.dice-container {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 2);
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 80px; /* Fix CLS: Space for dice + wrapper padding/margin */
+}
+
+.die-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.die {
+  width: 60px;
+  height: 60px;
+  background-color: var(--surface-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: all 0.2s;
+  user-select: none;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.die:active {
+  transform: scale(0.92);
+}
+
+.die.selected {
+  background-color: #fff;
+  border-color: var(--secondary-variant);
+  border-width: 4px;
+  color: var(--on-surface);
+  box-shadow: 0 0 10px rgba(1, 135, 134, 0.5);
+  transform: none;
+}
+
+.held-label {
+    position: absolute;
+    bottom: -25px; /* Position below the die */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--secondary-variant);
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.die.target-mode {
+  border-color: var(--secondary-color);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(3, 218, 198, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(3, 218, 198, 0); }
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-unit);
+}
+
+button {
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  border: none;
+  padding: 10px 0;  /* 左右パディングを削除し、幅固定に合わせる */
+  width: 300px;     /* ★ デスクトップで幅を300pxに固定 */
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: background-color 0.2s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+button:active {
+  transform: scale(0.96);
+}
+
+button:disabled {
+  background-color: #BDBDBD;
+  color: #757575;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.roll-info {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.skill-progress {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-top: auto; /* Push to bottom */
+    text-align: right;
+}
+
+/* Skills Section */
+.skills-section {
+  display: flex;
+  gap: calc(var(--spacing-unit) * 2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.skill-card {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 2);
+  width: 200px;
+  box-shadow: var(--shadow-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-unit);
+  border-left: 5px solid #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.skill-card:active {
+  transform: scale(0.98);
+}
+
+.skill-card.available {
+  cursor: pointer;
+}
+
+.skill-card.locked {
+  opacity: 0.6;
+  background-color: #eee;
+  cursor: default;
+}
+
+.skill-card.used {
+  opacity: 0.6;
+  background-color: #e0e0e0;
+  cursor: default;
+  text-decoration: line-through;
+}
+
+.skill-card.selected {
+  border: 2px solid var(--secondary-color);
+  transform: scale(1.05);
+}
+
+.skill-card.group-str { border-left-color: #F44336; }
+.skill-card.group-dex { border-left-color: #4CAF50; }
+.skill-card.group-int { border-left-color: #2196F3; }
+
+.skill-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.skill-desc {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Categories Section */
+.categories-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.category-group {
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius);
+  padding: calc(var(--spacing-unit) * 2);
+  box-shadow: var(--shadow-1);
+}
+
+.category-group h3 {
+  margin-bottom: var(--spacing-unit);
+  border-bottom: 2px solid #eee;
+  padding-bottom: var(--spacing-unit);
+  text-transform: uppercase;
+  color: #666;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Skill Unlock Progress Indicator - subtle dots showing progress toward skill unlock */
+.skill-unlock-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 8px;
+}
+
+.unlock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ddd;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+/* Filled dots based on group color */
+.category-group.group-str .unlock-dot.filled {
+  background-color: #F44336;
+  border-color: #D32F2F;
+}
+
+.category-group.group-dex .unlock-dot.filled {
+  background-color: #4CAF50;
+  border-color: #388E3C;
+}
+
+.category-group.group-int .unlock-dot.filled {
+  background-color: #2196F3;
+  border-color: #1976D2;
+}
+
+/* Approaching state (2/3) - subtle pulse on the last unfilled dot */
+.skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  animation: approach-pulse 2s infinite;
+}
+
+@keyframes approach-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Color the approaching pulse based on group */
+.category-group.group-str .skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  border-color: #F44336;
+}
+
+.category-group.group-dex .skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  border-color: #4CAF50;
+}
+
+.category-group.group-int .skill-unlock-indicator.approaching .unlock-dot:not(.filled) {
+  border-color: #2196F3;
+}
+
+/* Unlocked state - all dots filled with subtle glow */
+.skill-unlock-indicator.unlocked {
+  position: relative;
+}
+
+.category-group.group-str .skill-unlock-indicator.unlocked .unlock-dot {
+  box-shadow: 0 0 4px rgba(244, 67, 54, 0.5);
+}
+
+.category-group.group-dex .skill-unlock-indicator.unlocked .unlock-dot {
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+}
+
+.category-group.group-int .skill-unlock-indicator.unlocked .unlock-dot {
+  box-shadow: 0 0 4px rgba(33, 150, 243, 0.5);
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius);
+  margin-bottom: 4px;
+  cursor: default;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+/* Dungeon Floor Progression Styling */
+.category-group.dungeon-group .category-item {
+  position: relative;
+  padding-left: calc(var(--spacing-unit) * 3);
+  margin-left: calc(var(--spacing-unit) * 1.5);
+}
+
+/* Vertical progression line */
+.category-group.dungeon-group .category-item::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ddd;
+}
+
+/* First floor: line only goes down */
+.category-group.dungeon-group .category-item:first-of-type::before {
+  top: 50%;
+}
+
+/* Last floor: line only goes up */
+.category-group.dungeon-group .category-item:last-of-type::before {
+  bottom: 50%;
+}
+
+/* Floor node (circle on the line) */
+.category-group.dungeon-group .category-item::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ddd;
+  border: 2px solid #ccc;
+  z-index: 1;
+}
+
+/* Completed floor: highlight line and node */
+.category-group.dungeon-group .category-item.checked::before {
+  background-color: var(--secondary-color);
+}
+
+.category-group.dungeon-group .category-item.checked::after {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-variant);
+}
+
+/* Locked floor (not yet reachable): subtle dimming */
+.category-group.dungeon-group .category-item.floor-locked {
+  opacity: 0.5;
+}
+
+.category-group.dungeon-group .category-item.floor-locked::after {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+/* Next available floor: pulsing node */
+.category-group.dungeon-group .category-item.floor-next::after {
+  background-color: var(--primary-color);
+  border-color: var(--primary-variant);
+  animation: floor-pulse 2s infinite;
+}
+
+@keyframes floor-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(98, 0, 238, 0.4); }
+  50% { box-shadow: 0 0 0 4px rgba(98, 0, 238, 0); }
+}
+
+/* Connect completed floors with highlighted line */
+.category-group.dungeon-group .category-item.checked + .category-item::before {
+  background: linear-gradient(to bottom, var(--secondary-color) 0%, #ddd 100%);
+}
+
+.category-item.selectable {
+  cursor: pointer;
+  background-color: rgba(98, 0, 238, 0.05);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.category-item.checked {
+  background-color: rgba(3, 218, 198, 0.2);
+  color: var(--secondary-variant);
+  font-weight: bold;
+}
+
+.category-item.check-success {
+  animation: success-flash 1s ease-out;
+}
+
+.category-note {
+  margin-left: 0.5em;
+  font-size: 0.9em;
+  color: #555;
+}
+
+@keyframes success-flash {
+  0% { background-color: var(--secondary-color); transform: scale(1.02); }
+  50% { background-color: rgba(3, 218, 198, 0.5); }
+  100% { background-color: rgba(3, 218, 198, 0.2); transform: scale(1); }
+}
+
+.category-name {
+  font-size: 0.9rem;
+}
+
+.category-status {
+  font-size: 1.2rem;
+}
+
+/* Instructions / Help */
+.instructions {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin-top: var(--spacing-unit);
+}
+
+@media (max-width: 768px) {
+  #fd-stage {
+    padding: 10px;
+    gap: 15px;
+  }
+
+  header {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  header h1 {
+    font-size: 1.2rem;
+    text-align: left;
+  }
+
+  .game-status {
+    font-size: 1rem;
+    padding: 4px 8px;
+    margin-top: 0;
+  }
+
+  .dice-section {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--background-color);
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    margin: 0 -10px;
+    width: calc(100% + 20px);
+  }
+
+  .dice-container {
+    padding-top: 10px;
+    gap: 10px;
+    min-height: auto;
+  }
+
+  .die {
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+
+  .controls {
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  .controls button {
+    width: 100%;
+    max-width: none;
+    padding: 12px 0;
+    font-size: 1rem;
+  }
+
+  .instructions {
+    display: none;
+  }
+
+  /* Skills Section: Vertical Stack (List View) */
+  .skills-section {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-x: visible;
+    align-items: stretch;
+    gap: 8px;
+    padding-bottom: 0;
+    margin: 0;
+  }
+  
+  .skills-section::-webkit-scrollbar {
+    display: none;
+  }
+
+  .skill-card {
+    width: 100%;
+    min-width: 0;
+    min-height: auto;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    margin: 0;
+    text-align: left;
+  }
+  
+  .skill-name {
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    margin-right: 10px;
+  }
+  
+  .skill-desc {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: right;
+    flex-grow: 1;
+    line-height: 1.2;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+  }
+
+  .skill-progress {
+    margin-top: 0;
+    margin-left: 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .categories-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .category-group {
+    padding: 10px;
+  }
+
+  .category-group h3 {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+  }
+
+  /* Smaller dots on mobile */
+  .unlock-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .skill-unlock-indicator {
+    gap: 3px;
+    padding-left: 6px;
+  }
+
+  .category-item {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 6px;
+    text-wrap: balance;
+  }
+  
+  .category-item.checked {
+    padding: 2px 4px;
+    min-height: 24px;
+    background-color: transparent;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .category-item.checked .category-name {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Reset display for checked items if needed, or keep as block */
+  }
+
+  .category-item.checked .category-note {
+    display: none; /* Hide conditions for checked items to save space */
+  }
+
+  .category-item.checked .category-status {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .category-item.selectable {
+    padding: 12px 10px;
+    background-color: rgba(98, 0, 238, 0.08);
+    border-radius: 6px;
+    align-items: flex-start; /* Align top for multiline text */
+  }
+  
+  .category-item.selectable .category-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    line-height: 1.3;
+    display: block; /* Ensure block display for line break */
+  }
+
+  .category-note {
+    display: block; /* Force line break on mobile */
+    font-size: 0.75rem;
+    font-weight: normal;
+    color: #666;
+    margin-top: 2px;
+  }
+
+  .category-item.selectable .category-status {
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 2px; /* Align with the first line of text */
+  }
+
+  /* Dungeon progression on mobile - compact version */
+  .category-group.dungeon-group .category-item {
+    padding-left: calc(var(--spacing-unit) * 2.5);
+    margin-left: calc(var(--spacing-unit) * 1);
+  }
+
+  .category-group.dungeon-group .category-item::before {
+    left: 6px;
+  }
+
+  .category-group.dungeon-group .category-item::after {
+    left: 2px;
+    width: 8px;
+    height: 8px;
+  }
+}
+
+.btn-restart {
+  background-color: var(--secondary-color);
+  color: var(--on-secondary);
+}
+
+
+/* ========================================
+   Guide Modal - CRITICAL: Overrides for CSS Reset
+   ======================================== */
+
+/* Help button in header */
+.guide-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--on-primary);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.1s;
+  flex-shrink: 0;
+}
+
+
+.guide-btn:active {
+  transform: scale(0.95);
+}
+
+/*
+ * CRITICAL FIX: Dialog centering and sizing
+ * The global reset (* { margin: 0 }) breaks native <dialog> centering.
+ * We must explicitly set margin: auto and inset: 0 to restore it.
+ * Height must be explicit (not auto) to prevent collapse on mobile/iPad.
+ */
+dialog.guide-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto; /* CRITICAL: Overrides * { margin: 0 } for proper centering */
+  width: 90vw;
+  max-width: 500px;
+  height: 80vh; /* CRITICAL: Prevents height collapse on mobile/iPad */
+  max-height: 80vh;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--surface-color);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  z-index: 1000;
+}
+
+dialog.guide-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Content wrapper - fills the dialog and enables scrolling */
+.guide-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Modal header */
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--primary-color);
+  color: var(--on-primary);
+  flex-shrink: 0;
+}
+
+.guide-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.guide-close-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--on-primary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+
+/* Modal body - scrollable content area */
+.guide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Section styling */
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section:last-child {
+  margin-bottom: 0;
+}
+
+.guide-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.guide-section ul {
+  margin: 0;
+  padding: 0 0 0 1.2em;
+  list-style: disc;
+}
+
+.guide-section li {
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: var(--on-surface);
+}
+
+/* Hand reference section */
+.guide-hands dl {
+  margin: 0;
+  padding: 0;
+}
+
+.guide-hands dt {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--on-surface);
+  margin-top: 10px;
+}
+
+.guide-hands dt:first-child {
+  margin-top: 0;
+}
+
+.guide-hands dd {
+  margin: 4px 0 0 0;
+  padding-left: 1em;
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+.guide-credit {
+  text-align: right;
+  padding: 12px 20px;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+/* Mobile adjustments for modal */
+@media (max-width: 768px) {
+  dialog.guide-modal {
+    width: 95vw;
+    height: 85vh;
+    max-height: 85vh;
+    border-radius: 8px;
+  }
+
+  .guide-header {
+    padding: 12px 16px;
+  }
+
+  .guide-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .guide-body {
+    padding: 16px;
+  }
+
+  .guide-section h3 {
+    font-size: 0.95rem;
+  }
+
+  .guide-section li {
+    font-size: 0.9rem;
+  }
+
+  .guide-hands dt {
+    font-size: 0.9rem;
+  }
+
+  .guide-hands dd {
+    font-size: 0.85rem;
+  }
+
+  .guide-credit {
+    padding: 10px 16px;
+    font-size: 0.8rem;
+  }
+}
+
+.edition-link { max-width: 1200px; margin: 0 auto; padding: 12px 16px 0; text-align: right; font-size: 14px; }
+.edition-link a { display: inline-block; padding: 8px; color: #574529; }

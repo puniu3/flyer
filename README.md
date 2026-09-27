@@ -61,3 +61,7 @@ Open `audio-demo.html` to audition all ten cues at an independent saved volume. 
 ## Rule authority
 
 `flyerdungeon.yaml` retains the rule definitions. `src/rules.ts` owns `init`, `step` and `getView`; `step` accepts an optional random-number source while preserving its previous two-argument call. The scene and DOM are consumers of that engine. No rendering or sound event changes game state. The print version and pre-existing untracked experiments are outside the remake.
+
+## Publication
+
+GitHub Actions builds and deploys `dist/` to https://puniu3.github.io/flyer/. The existing printed QR continues to open the current edition. `/classic/` preserves the deployed original from commit `0d661a85ff69fc2733d4eb8357cbfe5a5826a09d`, with a link back to the current edition. `/print/flyerdungeon.html` retains its existing URL. The Help dialog links to the classic edition. Audio audition pages and candidate audio are excluded from the deployed artifact.
