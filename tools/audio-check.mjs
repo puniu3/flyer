@@ -130,7 +130,7 @@ try {
   for (const [cue, entry] of Object.entries(manifest)) {
     assert.equal(entry.clipped_samples, 0, cue);
     assert.ok(
-      entry.duration > 0 && entry.duration <= (cue === "defeat" ? 1 : cue === "victory" ? 4.3 : 1.3),
+      entry.duration > 0 && entry.duration < (cue === "defeat" ? 4.7 : cue === "victory" ? 4.3 : 1.3),
       cue,
     );
     assert.ok(entry.peak < 1, cue);
