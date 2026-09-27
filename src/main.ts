@@ -170,6 +170,7 @@ function render() {
       : `Sound ${audio.muted ? "off" : "on"}`,
   );
   el("settings-open").textContent = locale === "ja" ? "調整" : "Settings";
+  scene.selectSkill(!busy && !document.hidden && view.gameStatus === "playing" ? selectedSkill : null);
   project();
   scene.draw();
 }
@@ -284,6 +285,7 @@ function restart() {
   epoch++;
   audio.stop();
   scene.finish(false);
+  scene.clearEffects();
   session = new Session(crypto.getRandomValues(new Uint32Array(1))[0]);
   held.clear();
   selectedSkill = null;
@@ -391,6 +393,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     void audio.pause();
     scene.finish();
+    scene.clearEffects();
   } else render();
 });
 void audio.load().catch(() => {});
@@ -419,6 +422,7 @@ if (new URLSearchParams(location.search).has("check")) {
         epoch++;
         audio.stop();
         scene.finish(false);
+        scene.clearEffects();
         session = new Session(seed);
         held.clear();
         selectedSkill = null;
@@ -431,6 +435,7 @@ if (new URLSearchParams(location.search).has("check")) {
         epoch++;
         audio.stop();
         scene.finish(false);
+        scene.clearEffects();
         session.state = structuredClone(state);
         held.clear();
         selectedSkill = null;

@@ -18,7 +18,7 @@ const text = (
 ) =>
   `<text x="${x}" y="${y}" text-anchor="middle" font-family="Georgia, serif" font-size="${size}" fill="${color}" ${extra}>${esc(s)}</text>`;
 const wrap = (w: number, h: number, body: string) =>
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="100%" height="100%" fill="#e1d6bd"/><rect x="12" y="12" width="${w - 24}" height="${h - 24}" fill="none" stroke="#9b8a70" stroke-width="1.2"/>${body}</svg>`;
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".62" numOctaves="3" seed="17"/><feColorMatrix type="saturate" values="0"/></filter></defs><rect width="100%" height="100%" fill="#e1d6bd"/><rect width="100%" height="100%" filter="url(#paper)" opacity=".035"/><rect x="13" y="13" width="${w - 24}" height="${h - 24}" fill="none" stroke="#fff4da" stroke-width="1" stroke-opacity=".7"/><rect x="12" y="12" width="${w - 24}" height="${h - 24}" fill="none" stroke="#9b8a70" stroke-width="1.2"/>${body}</svg>`;
 const roleSize = 32;
 const headingSize = 29;
 {

@@ -1,5 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { surfaceGrain, softMask } from "./table-finish";
+import { TableEffects } from "./table-effects";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import {
   slots,
@@ -15,7 +18,7 @@ import {
   SHEET_HEIGHT,
   SHEET_TOP,
 } from "./layout";
-import type { CategoryId, DieValue, GameView } from "./types";
+import type { CategoryId, DieValue, GameView, SkillId } from "./types";
 
 export type CameraSettings = {
   fov: number;
@@ -53,6 +56,12 @@ export class DungeonScene {
   readonly camera = new THREE.PerspectiveCamera(22, 1, 1, 500);
   readonly controls: OrbitControls;
   private world = new THREE.Scene();
+  private effects = new TableEffects(this.world);
+  private paperGrain = surfaceGrain("paper");
+  private feltGrain = surfaceGrain("felt");
+  private paperEdge = surfaceGrain("edge");
+  private woodGrain = surfaceGrain("wood");
+  private cardShadow = softMask(true);
   private models = new Map<string, THREE.Group>();
   private dice: THREE.Group[] = [];
   private markers = new Map<CategoryId, THREE.Group>();
@@ -109,8 +118,8 @@ export class DungeonScene {
     this.controls.touches.ONE = THREE.TOUCH.PAN;
     this.controls.touches.TWO = THREE.TOUCH.DOLLY_PAN;
     this.controls.addEventListener("change", () => this.draw());
-    this.world.add(new THREE.HemisphereLight("#fff7ed", "#736c59", 1.8));
-    const sun = new THREE.DirectionalLight("#fff4e2", 2.3);
+    this.world.add(new THREE.HemisphereLight("#fffaf3", "#696b62", 1.65));
+    const sun = new THREE.DirectionalLight("#fffaf3", 2.1);
     sun.position.set(-8, 19, 8);
     sun.castShadow = true;
     Object.assign(sun.shadow.camera, {
@@ -123,10 +132,10 @@ export class DungeonScene {
     });
     sun.shadow.mapSize.set(2048, 2048);
     sun.shadow.radius = 3;
-    sun.shadow.normalBias = 0.022;
-    sun.shadow.bias = -0.0001;
+    sun.shadow.normalBias = 0.009;
+    sun.shadow.bias = -0.00005;
     this.world.add(sun);
-    const fill = new THREE.DirectionalLight("#e0ddd1", 0.6);
+    const fill = new THREE.DirectionalLight("#efeee7", 0.7);
     fill.position.set(10, 9, -7);
     this.world.add(fill);
     canvas.addEventListener("pointerdown", (e) => {
@@ -167,6 +176,7 @@ export class DungeonScene {
     canvas.addEventListener("webglcontextlost", (e) => {
       e.preventDefault();
       this.finish();
+      this.clearEffects();
       this.onError("描画を再接続しています…");
     });
     canvas.addEventListener("webglcontextrestored", () => {
@@ -188,8 +198,10 @@ export class DungeonScene {
     y: number,
     z: number,
     material: THREE.Material,
+    bevel = 0,
   ) {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+    const geometry = bevel ? new RoundedBoxGeometry(w, h, d, 2, bevel) : new THREE.BoxGeometry(w, h, d);
+    const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(x, y, z);
     mesh.castShadow = mesh.receiveShadow = true;
     this.world.add(mesh);
@@ -230,12 +242,14 @@ export class DungeonScene {
     h = SHEET_HEIGHT,
   ) {
     const group = new THREE.Group();
-    group.add(this.box(w, h, d, x, h / 2, z, this.material("#a58a60")));
+    group.add(this.box(w, h, d, x, h / 2, z, new THREE.MeshStandardMaterial({ color: "#b8a485", map: this.paperEdge, roughness: 0.98 })));
     const top = new THREE.Mesh(
       new THREE.PlaneGeometry(w, d),
       new THREE.MeshStandardMaterial({
         map: await this.texture(name),
-        roughness: 0.96,
+        roughness: 0.98,
+        bumpMap: this.paperGrain,
+        bumpScale: 0.005,
       }),
     );
     top.rotation.x = -Math.PI / 2;
@@ -251,6 +265,10 @@ export class DungeonScene {
         object.castShadow = object.receiveShadow = true;
         const change = (m: THREE.Material) => {
           const c = m.clone();
+          if (c instanceof THREE.MeshStandardMaterial) {
+            if (c.name === "Maple") c.roughness = 0.5;
+            if (c.name === "Paint" || c.name === "Ochre") c.roughness = 0.55;
+          }
           if (
             color &&
             c.name === "Paint" &&
@@ -284,6 +302,16 @@ export class DungeonScene {
       this.renderer.capabilities.getMaxAnisotropy(),
     );
     return texture;
+  }
+  selectSkill(id: SkillId | null) {
+    const index = GROUPS.findIndex((g) => SKILLS[g] === id);
+    this.effects.select(index >= 0 ? this.chips[index]?.position ?? null : null,
+      this.dice.map((die) => die.position), SHEET_TOP + 0.005);
+    this.draw();
+  }
+  clearEffects() {
+    this.effects.clear();
+    this.draw();
   }
   setSkillCard(index: number, title: string, description: string, status: string, active: boolean) {
     const card = this.skillCards[index];
@@ -358,13 +386,14 @@ export class DungeonScene {
         group.add(await this.board(name, b.width, b.depth, b.x, b.z));
       }
       const tray = layout.tray;
-      const rail = this.material("#694d34", 0.7);
-      group.add(this.box(tray.width, 0.18, tray.depth, tray.x, 0.09, tray.z, this.material("#535c43", 1)));
+      const rail = new THREE.MeshStandardMaterial({ color: "#795737", map: this.woodGrain, roughness: 0.5 });
+      const felt = new THREE.MeshStandardMaterial({ color: "#566044", map: this.feltGrain, bumpMap: this.feltGrain, bumpScale: 0.008, roughness: 1 });
+      group.add(this.box(tray.width, 0.18, tray.depth, tray.x, 0.09, tray.z, felt));
       for (const sign of [-1, 1]) {
         group.add(this.box(tray.width + 2 * tray.railWidth, tray.railHeight, tray.railWidth,
-          tray.x, tray.railHeight / 2, tray.z + sign * (tray.depth + tray.railWidth) / 2, rail));
+          tray.x, tray.railHeight / 2, tray.z + sign * (tray.depth + tray.railWidth) / 2, rail, 0.035));
         group.add(this.box(tray.railWidth, tray.railHeight, tray.depth,
-          tray.x + sign * (tray.width + tray.railWidth) / 2, tray.railHeight / 2, tray.z, rail));
+          tray.x + sign * (tray.width + tray.railWidth) / 2, tray.railHeight / 2, tray.z, rail, 0.035));
       }
       this.world.add(group);
     }
@@ -470,7 +499,7 @@ export class DungeonScene {
       card.position.set(abilityX(i) + SKILL_CARD.offsetX, SHEET_TOP + 0.007, SKILL_Z);
       const stock = new THREE.Mesh(
         new THREE.BoxGeometry(SKILL_CARD.width, 0.045, SKILL_CARD.depth),
-        this.material("#c8b799", 0.95),
+        this.material("#d4c5aa", 0.98),
       );
       stock.position.y = 0.0225;
       stock.castShadow = stock.receiveShadow = true;
@@ -481,7 +510,13 @@ export class DungeonScene {
       face.rotation.x = -Math.PI / 2;
       face.position.y = SKILL_CARD.top - card.position.y;
       face.receiveShadow = true;
-      card.add(stock, face);
+      const contact = new THREE.Mesh(
+        new THREE.PlaneGeometry(SKILL_CARD.width + 0.18, SKILL_CARD.depth + 0.12),
+        new THREE.MeshBasicMaterial({ map: this.cardShadow, color: "#413425", transparent: true, opacity: 0.15, depthWrite: false }),
+      );
+      contact.rotation.x = -Math.PI / 2;
+      contact.position.set(0.025, -0.004, 0.025);
+      card.add(contact, stock, face);
       card.visible = false;
       this.world.add(card);
       this.skillCards.push({ object: card, texture, key: "" });
@@ -651,12 +686,18 @@ export class DungeonScene {
         const chip = this.chips[i];
         const to = chip.position.clone();
         to.y = SHEET_TOP + 0.007;
-        this.move(chip, to, 420, new THREE.Quaternion());
+        const unlocking = this.chipProgress[i].visible;
+        this.move(chip, to, 420, new THREE.Quaternion(), false, 0, () => {
+          if (unlocking) this.effects.burst(to, 6, 650);
+        });
       }
     });
     if (id.startsWith("dungeon")) {
       const target = this.layout.slots.find((s) => s.id === id)!;
-      this.move(this.pawn!, new THREE.Vector3(this.layout.pawnX, SHEET_TOP + 0.007, target.z), 420);
+      const destination = new THREE.Vector3(this.layout.pawnX, SHEET_TOP + 0.007, target.z);
+      this.move(this.pawn!, destination, 420, this.pawn!.quaternion.clone(), false, 0, () => {
+        if (id === "dungeon_floor_5") this.effects.burst(destination, 10, 900);
+      });
     }
   }
   finish(notify = true) {
@@ -722,11 +763,12 @@ export class DungeonScene {
         this.animate(now);
         this.renderer.shadowMap.needsUpdate = true;
       }
+      const effectChanging = this.effects.update(now);
       this.overlay?.();
       if (!this.loaded) this.renderer.shadowMap.needsUpdate = true;
       this.renderer.render(this.world, this.camera);
       this.draws++;
-      if (this.motions.length) this.draw();
+      if (this.motions.length || effectChanging) this.draw();
     });
   }
   private invalidate() {
@@ -813,6 +855,7 @@ export class DungeonScene {
     return {
       draws: this.draws,
       layout: "landscape",
+      effects: this.effects.diagnostics(),
       keepRings: this.rings.map((ring) => ring.visible),
       skillCards: this.skillCards.map((card) => ({ visible: card.object.visible, scale: card.object.scale.toArray() })),
       triangles: this.renderer.info.render.triangles,

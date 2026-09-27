@@ -14,7 +14,8 @@
     "test:browser": "node tools/browser-check.mjs",
     "audio:generate": "python3 tools/generate-audio.py",
     "audio:prepare": "python3 tools/prepare-audio.py",
-    "test:audio": "node tools/audio-check.mjs"
+    "test:audio": "node tools/audio-check.mjs",
+    "test:effects": "node tools/effects-check.mjs"
   },
   "dependencies": {
     "three": "0.186.1"
