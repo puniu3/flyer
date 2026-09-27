@@ -1,4 +1,3 @@
-import { drawSkillDiagram } from "./skill-print";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
@@ -314,10 +313,10 @@ export class DungeonScene {
     this.effects.clear();
     this.draw();
   }
-  setSkillCard(index: number, status: string, active: boolean) {
+  setSkillCard(index: number, title: string, description: string, status: string, active: boolean) {
     const card = this.skillCards[index];
     if (!card) return;
-    const key = JSON.stringify([status, active]);
+    const key = JSON.stringify([title, description, status, active]);
     if (card.key === key) return;
     card.key = key;
     card.object.visible = status !== "locked";
@@ -329,7 +328,24 @@ export class DungeonScene {
       context.strokeStyle = active ? "#986127" : "#b5a182";
       context.lineWidth = active ? 5 : 2;
       context.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
-      drawSkillDiagram(context, index);
+      context.fillStyle = status === "used" ? "#89775b" : "#342a1e";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.font = "48px Georgia, serif";
+      context.fillText(title, canvas.width / 2, 61);
+      context.font = '36px Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif';
+      const words = description.match(/[\p{Script=Latin}\p{N}]+|\s+|./gu) ?? [];
+      const lines: string[] = [];
+      let line = "";
+      for (const segment of words) {
+        if (context.measureText(line + segment).width > canvas.width - 52 && line) {
+          lines.push(line.trim());
+          line = segment.trimStart();
+        } else line += segment;
+      }
+      if (line) lines.push(line.trim());
+      const firstY = 164 - ((lines.length - 1) * 43) / 2;
+      lines.forEach((text, i) => context.fillText(text, canvas.width / 2, firstY + i * 43));
       card.texture.needsUpdate = true;
     }
     this.invalidate();
