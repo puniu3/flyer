@@ -79,6 +79,7 @@ export const slots: Slot[] = [
 ];
 export const slotById = new Map(slots.map((s) => [s.id, s]));
 export const SKILL_Z = 1.0;
+export const SKILL_CARD = { offsetX: 0.55, width: 2.7, depth: 1.08, top: 0.178 };
 export const markerX = (slot: Slot) => slot.x - (slot.group === "dungeon" ? 1.2 : 1.65);
 export const assetUrl = (file: string) =>
   `${import.meta.env.BASE_URL}assets/${file}`;

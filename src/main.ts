@@ -3,7 +3,7 @@ import { getView } from "./rules";
 import { DungeonScene, DEFAULT_CAMERA } from "./scene";
 import { TableAudio } from "./audio";
 import { Session } from "./session";
-import { slots, GROUPS, SKILLS, SKILL_Z, abilityX, markerX } from "./layout";
+import { slots, GROUPS, SKILLS, SKILL_Z, SKILL_CARD, abilityX, markerX } from "./layout";
 import { createTranslator } from "./i18n";
 import { loadCamera, readPreference, savePreference } from "./preferences";
 import type { CategoryId, SkillId, PlayerAction, GameState } from "./types";
@@ -47,6 +47,8 @@ for (const s of slots) {
 GROUPS.forEach((g, i) => {
   const b = button("skill-label", `skill:${i}`);
   skillButtons.push(b);
+  b.addEventListener("focus", render);
+  b.addEventListener("blur", render);
 });
 for (let i = 0; i < 5; i++) diceButtons.push(button("die-hit", `die:${i}`));
 function place(element: HTMLElement, x: number, y: number, z: number) {
@@ -74,11 +76,14 @@ function project() {
     b.style.minHeight = "0";
   }
   GROUPS.forEach((_, i) => {
-    place(skillButtons[i], abilityX(i) + 0.6, 0.38, SKILL_Z);
-    const a = scene.project(abilityX(i) - 0.65, 0.38, SKILL_Z),
-      b = scene.project(abilityX(i) + 1.95, 0.38, SKILL_Z);
-    skillButtons[i].style.width = `${Math.min(145, Math.max(62, b.x - a.x))}px`;
-    skillButtons[i].classList.toggle("compact", b.x - a.x < 95);
+    const x = abilityX(i) + SKILL_CARD.offsetX;
+    place(skillButtons[i], x, SKILL_CARD.top, SKILL_Z);
+    const left = scene.project(x - SKILL_CARD.width / 2, SKILL_CARD.top, SKILL_Z);
+    const right = scene.project(x + SKILL_CARD.width / 2, SKILL_CARD.top, SKILL_Z);
+    const front = scene.project(x, SKILL_CARD.top, SKILL_Z + SKILL_CARD.depth / 2);
+    const back = scene.project(x, SKILL_CARD.top, SKILL_Z - SKILL_CARD.depth / 2);
+    skillButtons[i].style.width = `${right.x - left.x}px`;
+    skillButtons[i].style.height = `${front.y - back.y}px`;
   });
   diceButtons.forEach((b, i) => {
     const p = scene.diePosition(i);
@@ -138,10 +143,12 @@ function render() {
     b.classList.toggle("locked", skill.status === "locked");
     b.classList.toggle("active", selectedSkill === id);
     b.setAttribute("aria-pressed", String(selectedSkill === id));
-    b.innerHTML =
-      skill.status === "locked"
-        ? ""
-        : `${t(`skill_name_${id}`)}<small>${skill.status === "used" ? (locale === "ja" ? "使用済み" : "USED") : t(`skill_desc_${id}`)}</small>`;
+    const title = t(`skill_name_${id}`);
+    const description = skill.status === "used"
+      ? (locale === "ja" ? "使用済み" : "USED")
+      : t(`skill_desc_${id}`);
+    b.setAttribute("aria-label", `${title}: ${description}`);
+    scene.setSkillCard(i, title, description, skill.status, selectedSkill === id || b.matches(":focus-visible"));
   });
   diceButtons.forEach((b, i) => {
     b.disabled =
@@ -307,6 +314,7 @@ for (const b of document.querySelectorAll("[data-close]"))
   b.addEventListener("click", () => b.closest("dialog")?.close());
 for (const d of document.querySelectorAll("dialog"))
   d.addEventListener("click", (e) => {
+    if (d.id === "result" && session.state.status === "won") return;
     if (e.target === d) {
       const r = d.getBoundingClientRect();
       if (

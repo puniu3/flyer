@@ -188,32 +188,13 @@ body {
 .category.selected {
   outline: 2px solid #d7a64f;
 }
-.skill-label {
-  width: 145px;
-  pointer-events: auto;
-  padding: 6px 8px;
-  font:
-    11px system-ui,
-    sans-serif;
-  border-color: #b7a07b;
-  background: #dfcca9;
-  color: #493d2b;
-  box-shadow: 0 2px 3px #201a1430;
-}
+.skill-label,
 .skill-label:disabled {
-  opacity: 1;
-  color: #857559;
-  background: #c1af8d;
-}
-.skill-label.active {
-  outline: 2px solid #ebc981;
-  outline-offset: 2px;
-  background: #f0ddad;
-}
-.skill-label small {
-  display: block;
-  font-size: 9px;
-  margin-top: 3px;
+  opacity: 0;
+  pointer-events: none;
+  padding: 0;
+  border: 0;
+  min-height: 0;
 }
 dialog {
   background: #e0ceb0;
@@ -290,19 +271,6 @@ button[hidden] {
   display: none;
 }
 
-.skill-label {
-  overflow: hidden;
-}
-.skill-label small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.skill-label.compact small {
-  display: none;
-}
-.skill-label.compact {
-  padding: 4px 3px;
-}
 @media (hover: hover) and (pointer: fine) {
   button:not(:disabled):hover {
     filter: brightness(1.08);
@@ -321,13 +289,6 @@ button[hidden] {
     right: max(18px, env(safe-area-inset-right));
     bottom: max(18px, env(safe-area-inset-bottom));
     font-size: 21px;
-  }
-  .skill-label {
-    font-size: 10px;
-    padding: 5px 3px;
-  }
-  .skill-label small {
-    font-size: 8px;
   }
   .category {
     width: 36px;

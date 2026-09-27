@@ -273,6 +273,8 @@ try {
         "won",
       );
       await page.locator("#result").waitFor({ state: "visible" });
+      await page.mouse.click(5, 5);
+      assert.equal(await page.locator("#result").isVisible(), true, "victory stays open after backdrop click");
       assert.equal(await page.locator("#result button:visible").count(), 1);
       assert.equal(await page.locator("#result-title").isVisible(), true);
       assert.match(await page.locator("#result-title").innerText(), /勝利/);

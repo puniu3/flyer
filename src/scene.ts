@@ -9,6 +9,7 @@ import {
   DUNGEON,
   ABILITY,
   SKILL_Z,
+  SKILL_CARD,
   SKILLS,
   assetUrl,
   abilityX,
@@ -60,6 +61,7 @@ export class DungeonScene {
     THREE.MeshStandardMaterial
   >[] = [];
   private progressTextures: THREE.CanvasTexture[] = [];
+  private skillCards: { object: THREE.Group; texture: THREE.CanvasTexture; key: string }[] = [];
   private rings: THREE.Mesh[] = [];
   private legalRings = new Map<CategoryId, THREE.Mesh>();
   private pawn?: THREE.Group;
@@ -280,6 +282,43 @@ export class DungeonScene {
     );
     return texture;
   }
+  setSkillCard(index: number, title: string, description: string, status: string, active: boolean) {
+    const card = this.skillCards[index];
+    if (!card) return;
+    const key = JSON.stringify([title, description, status, active]);
+    if (card.key === key) return;
+    card.key = key;
+    card.object.visible = status !== "locked";
+    if (card.object.visible) {
+      const canvas = card.texture.image as HTMLCanvasElement;
+      const context = canvas.getContext("2d")!;
+      context.fillStyle = "#eee3cd";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.strokeStyle = active ? "#986127" : "#b5a182";
+      context.lineWidth = active ? 5 : 2;
+      context.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+      context.fillStyle = status === "used" ? "#89775b" : "#342a1e";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.font = "48px Georgia, serif";
+      context.fillText(title, canvas.width / 2, 61);
+      context.font = "36px sans-serif";
+      const words = description.match(/[\p{Script=Latin}\p{N}]+|\s+|./gu) ?? [];
+      const lines: string[] = [];
+      let line = "";
+      for (const segment of words) {
+        if (context.measureText(line + segment).width > canvas.width - 52 && line) {
+          lines.push(line.trim());
+          line = segment.trimStart();
+        } else line += segment;
+      }
+      if (line) lines.push(line.trim());
+      const firstY = 164 - ((lines.length - 1) * 43) / 2;
+      lines.forEach((text, i) => context.fillText(text, canvas.width / 2, firstY + i * 43));
+      card.texture.needsUpdate = true;
+    }
+    this.invalidate();
+  }
   async load() {
     const loader = new GLTFLoader();
     await Promise.all(
@@ -432,6 +471,31 @@ export class DungeonScene {
       chip.add(progress);
       this.chipProgress.push(progress);
       this.chips.push(chip);
+      const canvas = document.createElement("canvas");
+      canvas.width = 640;
+      canvas.height = 256;
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
+      const card = new THREE.Group();
+      card.position.set(abilityX(i) + SKILL_CARD.offsetX, 0.13, SKILL_Z);
+      const stock = new THREE.Mesh(
+        new THREE.BoxGeometry(SKILL_CARD.width, 0.045, SKILL_CARD.depth),
+        this.material("#c8b799", 0.95),
+      );
+      stock.position.y = 0.0225;
+      stock.castShadow = stock.receiveShadow = true;
+      const face = new THREE.Mesh(
+        new THREE.PlaneGeometry(SKILL_CARD.width, SKILL_CARD.depth),
+        new THREE.MeshStandardMaterial({ map: texture, roughness: 0.96 }),
+      );
+      face.rotation.x = -Math.PI / 2;
+      face.position.y = SKILL_CARD.top - card.position.y;
+      face.receiveShadow = true;
+      card.add(stock, face);
+      card.visible = false;
+      this.world.add(card);
+      this.skillCards.push({ object: card, texture, key: "" });
       this.hit(`skill:${i}`, 4.1, 1.0, abilityX(i), 0.27, SKILL_Z);
     });
     this.loaded = true;
@@ -734,6 +798,7 @@ export class DungeonScene {
     return {
       draws: this.draws,
       keepRings: this.rings.map((ring) => ring.visible),
+      skillCards: this.skillCards.map((card) => ({ visible: card.object.visible, scale: card.object.scale.toArray() })),
       triangles: this.renderer.info.render.triangles,
       calls: this.renderer.info.render.calls,
       motions: this.motions.length,
