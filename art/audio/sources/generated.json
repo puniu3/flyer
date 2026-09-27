@@ -54,12 +54,12 @@
     "pre_export_peak": 0.69
   },
   "magic": {
-    "source": ".audio-generation/magic/outputs/20260928-001359-136880-stable/audio.wav",
-    "sha256": "079906e1855904acc3c420f44593ac86e8a54b5bd7553a93105d5bf65b5df4ec",
-    "seed": 233,
+    "source": ".audio-generation/magic/outputs/20260928-002212-876328-stable/audio.wav",
+    "sha256": "69e52950cc9fe233e85c0d3f60579175d0e831c8df760995006d08bf514bcc04",
+    "seed": 244,
     "steps": 8,
     "cfg": 1,
     "seconds": 5,
-    "pre_export_peak": 0.5
+    "pre_export_peak": 0.505
   }
 }
