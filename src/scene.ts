@@ -395,6 +395,19 @@ export class DungeonScene {
         group.add(this.box(tray.railWidth, tray.railHeight, tray.depth,
           tray.x + sign * (tray.width + tray.railWidth) / 2, tray.railHeight / 2, tray.z, rail, 0.035));
       }
+      const brass = new THREE.MeshStandardMaterial({ color: "#b39860", metalness: 0.65, roughness: 0.36 });
+      for (const sign of [-1, 1]) {
+        group.add(this.box(tray.width, 0.009, 0.026, tray.x, tray.railHeight + 0.001,
+          tray.z + sign * (tray.depth + tray.railWidth) / 2, brass));
+        group.add(this.box(0.026, 0.009, tray.depth, tray.x + sign * (tray.width + tray.railWidth) / 2,
+          tray.railHeight + 0.001, tray.z, brass));
+        for (const side of [-1, 1]) {
+          const x = tray.x + side * (tray.width + tray.railWidth) / 2;
+          const z = tray.z + sign * (tray.depth + tray.railWidth) / 2;
+          group.add(this.box(0.5, 0.016, 0.13, x - side * 0.18, tray.railHeight + 0.004, z, brass, 0.012));
+          group.add(this.box(0.13, 0.016, 0.5, x, tray.railHeight + 0.004, z - sign * 0.18, brass, 0.012));
+        }
+      }
       this.world.add(group);
     }
     for (let i = 0; i < 5; i++) {
