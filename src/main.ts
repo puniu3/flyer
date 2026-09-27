@@ -146,7 +146,7 @@ function render() {
       ? (locale === "ja" ? "使用済み" : "USED")
       : t(`skill_desc_${id}`);
     b.setAttribute("aria-label", `${title}: ${description}`);
-    scene.setSkillCard(i, title, description, skill.status, selectedSkill === id || b.matches(":focus-visible"));
+    scene.setSkillCard(i, skill.status, selectedSkill === id || b.matches(":focus-visible"));
   });
   diceButtons.forEach((b, i) => {
     b.disabled =
