@@ -7,6 +7,8 @@ import { parseArgs } from "node:util";
 import { helpText, normalizeCommand, playCommand, statusText } from "./game";
 import { loadSession, saveSession } from "./storage";
 import { Session } from "../src/session";
+import { appendTranscript, callContext } from "./transcript";
+import type { TranscriptEvent } from "./transcript";
 
 async function main() {
   const { values } = parseArgs({ options: {
@@ -32,36 +34,70 @@ async function main() {
   };
   let session = values.resume ? loadSession(path) : fresh(values.seed === undefined ? undefined : Number(values.seed));
   saveSession(path, session);
-  console.log(statusText(session.state, true));
-  console.log("操作：help。終了：quit。");
+  const opening = `${statusText(session.state, true)}\n操作：help。終了：quit。`;
+  appendTranscript(path, { event: values.resume ? "resume" : "start", context: callContext(path, session), response: opening });
+  console.log(opening);
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
   const reader = createInterface({ input: process.stdin, output: process.stdout, terminal: interactive, prompt: "> " });
-  reader.on("SIGINT", () => reader.close());
+  let endReason: Extract<TranscriptEvent, { event: "end" }>["reason"] = "eof";
+  const interrupt = () => { endReason = "sigint"; reader.close(); };
+  reader.on("SIGINT", interrupt);
+  process.on("SIGINT", interrupt);
   if (interactive) reader.prompt();
   try {
     for await (const input of reader) {
+      const timestamp = new Date().toISOString();
+      const sourcePath = path;
+      const before = callContext(path, session);
       const command = normalizeCommand(input);
-      if (["quit", "exit", "q", "終了"].includes(command)) break;
-      if (command === "new") {
-        const nextPath = newPath();
-        const nextSession = fresh();
-        saveSession(nextPath, nextSession);
-        path = nextPath;
-        session = nextSession;
-        console.log(statusText(session.state, true));
-      } else if (command === "save") {
-        console.log(`保存先：${path}`);
-      } else {
-        const result = playCommand(session, input);
-        if (result.changed) saveSession(path, session);
-        if (result.text) console.log(result.text);
+      let response: string;
+      let outcome: Extract<TranscriptEvent, { event: "input" }>["outcome"];
+      try {
+        if (["quit", "exit", "q", "終了"].includes(command)) {
+          endReason = "quit";
+          response = "";
+          outcome = "quit";
+        } else if (command === "new") {
+          const nextPath = newPath();
+          const nextSession = fresh();
+          saveSession(nextPath, nextSession);
+          path = nextPath;
+          session = nextSession;
+          response = statusText(session.state, true);
+          outcome = "new";
+        } else if (command === "save") {
+          response = `保存先：${path}`;
+          outcome = "save";
+        } else {
+          const result = playCommand(session, input);
+          if (result.changed) saveSession(path, session);
+          response = result.text;
+          outcome = result.outcome;
+        }
+      } catch (error) {
+        appendTranscript(sourcePath, { event: "input", input, command, outcome: "error", before,
+          after: callContext(path, session), response: `エラー：${(error as Error).message}` }, timestamp);
+        throw error;
       }
+      appendTranscript(sourcePath, { event: "input", input, command, outcome, before,
+        after: callContext(path, session), response }, timestamp);
+      if (outcome === "new") appendTranscript(path, {
+        event: "start", context: callContext(path, session), response, previousRun: sourcePath,
+      });
+      if (response) console.log(response);
+      if (outcome === "quit") break;
       if (interactive) reader.prompt();
     }
+  } catch (error) {
+    endReason = "error";
+    throw error;
   } finally {
+    process.off("SIGINT", interrupt);
     reader.close();
+    const response = endReason === "error" ? "" : `保存先：${path}`;
+    appendTranscript(path, { event: "end", reason: endReason, context: callContext(path, session), response });
+    if (response) console.log(response);
   }
-  console.log(`保存先：${path}`);
 }
 
 main().catch(error => {

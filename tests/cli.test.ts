@@ -7,6 +7,7 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { playCommand, statusText } from "../cli/game";
 import { loadSession, saveSession } from "../cli/storage";
+import type { TranscriptRecord } from "../cli/transcript";
 import { init } from "../src/rules";
 import { RULES_VERSION, Session } from "../src/session";
 import type { CategoryId, DieValue } from "../src/types";
@@ -125,6 +126,28 @@ test("category selection announces unlocking and automatically rolls the next tu
   assert.equal(session.entries.length, 3);
 });
 
+test("turn starts show unused ability categories and remaining also restores the hand", () => {
+  const session = fixture([3, 3, 4, 5, 6]);
+  session.state.categories.str_four_of_a_kind = true;
+  session.state.categories.int_one_pair = true;
+  session.state.categories.int_two_pair = true;
+  unlock(session, "dex");
+  const opening = statusText(session.state, true);
+  assert.match(opening, /能力の未使用枠：\n筋力：フルハウス、5が3個、6が3個。\n敏捷：2が3個。\n知力：3が3個、4が3個。/);
+  assert.doesNotMatch(opening, /フォーカード|ワンペア|ツーペア|ストレート|自由枠/);
+  assert.doesNotMatch(statusText(session.state), /能力の未使用枠/);
+  const remaining = playCommand(session, "remaining").text;
+  assert.ok(remaining.endsWith(statusText(session.state)));
+  assert.match(remaining, /3、3、4、5、6。合計21。 振り直し2回。敏捷使用可/);
+  const next = playCommand(session, "dex 4 3s").text;
+  assert.match(next, /知力：4が3個。/);
+  assert.match(next, /能力の未使用枠/);
+  for (const id of Object.keys(session.state.categories) as CategoryId[]) {
+    if (!id.startsWith("dungeon")) session.state.categories[id] = true;
+  }
+  assert.match(statusText(session.state, true), /能力の未使用枠なし/);
+});
+
 test("spent and locked skills, used categories and depleted rolls are rejected", () => {
   const session = fixture([6, 6, 6, 6, 1], 3);
   session.state.categories.dungeon_floor_1 = true;
@@ -219,6 +242,88 @@ test("the executable handles piped input, restart, EOF, resume and invalid optio
   for (const seed of ["-1", "4294967296", "abc", "1.5", ""]) assert.equal(run(["--seed", seed]).status, 1);
   const restart = run(["--seed", "1"], "new\nquit\n");
   assert.equal(restart.status, 0, restart.stderr);
-  assert.equal(readdirSync(join(directory, "flyer-dungeon", "cli")).length, 2);
+  assert.equal(readdirSync(join(directory, "flyer-dungeon", "cli")).filter(file => file.endsWith(".json")).length, 2);
   assert.notEqual(current, before);
+});
+
+test("every submitted input and exact response is logged with its decision context", t => {
+  const directory = mkdtempSync(join(tmpdir(), "flyer-cli-calls-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const path = join(directory, "run.json");
+  const readCalls = (run: string): TranscriptRecord[] => readFileSync(`${run}.calls.jsonl`, "utf8").trim().split("\n").map(line => JSON.parse(line));
+  const run = (args: string[], input: string) => spawnSync(process.execPath, ["--import", "tsx", resolve("cli/index.ts"), ...args], {
+    input, encoding: "utf8", timeout: 15000,
+  });
+  const inputs = ["remaining", "  ＲＥＭＡＩＮＩＮＧ  ", "999", "", "  ", "help", "skills", "rules", "look", "save", "66", "B1", "remaining", "quit"];
+  const first = run(["--seed", "1880384492", "--save", path], `${inputs.join("\n")}\n`);
+  assert.equal(first.status, 0, first.stderr);
+  const records = readCalls(path);
+  const calls = records.filter((event): event is Extract<TranscriptRecord, { event: "input" }> => event.event === "input");
+  assert.deepEqual(calls.map(call => call.input), inputs);
+  assert.deepEqual(calls.map(call => call.outcome), ["query", "query", "invalid", "empty", "empty", "query", "query", "query", "query", "save", "action", "action", "query", "quit"]);
+  assert.equal(calls[1].command, "remaining");
+  assert.equal(records[0].event, "start");
+  assert.deepEqual(records[records.length - 1], {
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-2", rulesVersion: RULES_VERSION,
+    timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
+    context: calls[calls.length - 1].after, response: `保存先：${path}`,
+  });
+  assert.equal(records.filter(record => record.response).map(record => record.response + "\n").join(""), first.stdout);
+  for (const call of calls) {
+    assert.ok(Number.isFinite(Date.parse(call.timestamp)));
+    if (call.outcome !== "action") assert.deepEqual(call.before, call.after);
+  }
+  assert.equal(calls[10].before.actionCount, 1);
+  assert.equal(calls[10].after.actionCount, 2);
+  assert.equal(calls[10].after.rollsUsed, 2);
+  assert.equal(calls[11].before.turn, 1);
+  assert.equal(calls[11].after.turn, 2);
+  assert.equal(calls[11].after.rollsUsed, 1);
+  assert.equal(calls[12].before.turn, 2);
+  const control = fresh();
+  playCommand(control, "66");
+  playCommand(control, "B1");
+  assert.deepEqual(loadSession(path).dump(), control.dump());
+
+  const prefix = readFileSync(`${path}.calls.jsonl`, "utf8");
+  const resumed = run(["--resume", path], "remaining\n");
+  assert.equal(resumed.status, 0, resumed.stderr);
+  assert.ok(readFileSync(`${path}.calls.jsonl`, "utf8").startsWith(prefix));
+  const extra = readCalls(path).slice(records.length);
+  assert.deepEqual(extra.map(record => record.event), ["resume", "input", "end"]);
+  const end = extra[2];
+  assert.ok(end.event === "end");
+  assert.equal(end.reason, "eof");
+  assert.deepEqual(loadSession(path).dump(), control.dump());
+
+  const restarted = run(["--resume", path], "new\nremaining\nquit\n");
+  assert.equal(restarted.status, 0, restarted.stderr);
+  const transition = readCalls(path).find(record => record.event === "input" && record.outcome === "new");
+  assert.ok(transition?.event === "input");
+  assert.equal(transition.before.run, path);
+  assert.notEqual(transition.after.run, path);
+  assert.equal(transition.after.turn, 1);
+  const next = readCalls(transition.after.run);
+  assert.equal(next[0].event, "start");
+  assert.ok(next[0].event === "start");
+  assert.equal(next[0].previousRun, path);
+  assert.equal(next[0].response, transition.response);
+  assert.deepEqual(next.filter(record => record.event === "input").map(record => record.input), ["remaining", "quit"]);
+  assert.deepEqual(loadSession(path).dump(), control.dump());
+});
+
+test("old replay files gain a transcript on resume without changing engine history", t => {
+  const directory = mkdtempSync(join(tmpdir(), "flyer-cli-old-log-"));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const path = join(directory, "run.json");
+  const session = fresh();
+  saveSession(path, session);
+  const result = spawnSync(process.execPath, ["--import", "tsx", resolve("cli/index.ts"), "--resume", path], {
+    input: "remaining\nquit\n", encoding: "utf8", timeout: 15000,
+  });
+  assert.equal(result.status, 0, result.stderr);
+  const records = readFileSync(`${path}.calls.jsonl`, "utf8").trim().split("\n").map(line => JSON.parse(line));
+  assert.equal(records[0].event, "resume");
+  assert.deepEqual(records.filter(record => record.event === "input").map(record => record.input), ["remaining", "quit"]);
+  assert.deepEqual(loadSession(path).dump(), session.dump());
 });

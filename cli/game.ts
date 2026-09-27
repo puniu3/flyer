@@ -48,6 +48,15 @@ function nextDungeon(state: GameState): string {
   return id ? `${categories[id].name}：${categories[id].condition}。` : "";
 }
 
+function unusedAbilitiesText(state: GameState): string {
+  const view = getView(state);
+  const lines = skills.flatMap(skill => {
+    const remaining = view.categories.filter(c => c.group === skill.group && !c.isChecked);
+    return remaining.length ? [`${groups[skill.group]}：${remaining.map(c => categories[c.id].name).join("、")}。`] : [];
+  });
+  return lines.length ? `能力の未使用枠：\n${lines.join("\n")}` : "能力の未使用枠なし。";
+}
+
 export function statusText(state: GameState, startOfTurn = false): string {
   const view = getView(state);
   const dice = [...state.dice].sort((a, b) => a - b).join("、");
@@ -63,7 +72,7 @@ export function statusText(state: GameState, startOfTurn = false): string {
   const rerolls = view.rolls.max - view.rolls.current;
   const choices = view.categories.filter(c => c.isSelectable).map(c => categoryLabel(c.id));
   return [
-    ...(startOfTurn ? [`第${turn(state)}ターン。${nextDungeon(state)}`] : []),
+    ...(startOfTurn ? [`第${turn(state)}ターン。${nextDungeon(state)}`, unusedAbilitiesText(state)] : []),
     `${dice}。${sum} 振り直し${rerolls ? `${rerolls}回` : "なし"}。${skillText}`,
     `確定可：${choices.join("、") || "なし"}。`,
   ].join("\n");
@@ -97,7 +106,7 @@ export const helpText = [
 function queryText(state: GameState, command: string): string | undefined {
   if (["help", "?", "ヘルプ"].includes(command)) return helpText;
   if (["look", "status", "状況"].includes(command)) return statusText(state, true);
-  if (["remaining", "board", "残り", "残っている枠"].includes(command)) return remainingText(state);
+  if (["remaining", "board", "残り", "残っている枠"].includes(command)) return `${remainingText(state)}\n${statusText(state)}`;
   if (["skills", "スキル"].includes(command)) {
     const view = getView(state);
     const labels = { locked: "未解放", available: "使用可", used: "使用済み" };
@@ -160,16 +169,18 @@ function planCommand(initial: GameState, command: string): PlayerAction[] {
   return actions;
 }
 
-export function playCommand(session: Session, input: string): { text: string; changed: boolean } {
+export type CommandOutcome = "action" | "query" | "invalid" | "empty";
+
+export function playCommand(session: Session, input: string): { text: string; changed: boolean; outcome: CommandOutcome } {
   const command = normalizeCommand(input);
-  if (!command) return { text: "", changed: false };
+  if (!command) return { text: "", changed: false, outcome: "empty" };
   const query = queryText(session.state, command);
-  if (query !== undefined) return { text: query, changed: false };
+  if (query !== undefined) return { text: query, changed: false, outcome: "query" };
   let actions: PlayerAction[];
   try {
     actions = planCommand(session.state, command);
   } catch (error) {
-    return { text: `${(error as Error).message}\n変更なし。${[...session.state.dice].sort((a, b) => a - b).join("、")}。`, changed: false };
+    return { text: `${(error as Error).message}\n変更なし。${[...session.state.dice].sort((a, b) => a - b).join("、")}。`, changed: false, outcome: "invalid" };
   }
   const messages: string[] = [];
   let startOfTurn = false;
@@ -192,5 +203,5 @@ export function playCommand(session: Session, input: string): { text: string; ch
       startOfTurn = true;
     }
   }
-  return { text: [...(messages.length ? [messages.join("")] : []), statusText(session.state, startOfTurn)].join("\n"), changed: true };
+  return { text: [...(messages.length ? [messages.join("")] : []), statusText(session.state, startOfTurn)].join("\n"), changed: true, outcome: "action" };
 }
