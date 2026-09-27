@@ -38,12 +38,11 @@ const headingSize = 29;
   let body = `<path d="M26 26H${dw-26}V112H26Z" fill="#554d40"/><path d="M32 32H${dw-32}V106H32Z" fill="none" stroke="#bb9b62"/>` + text(dw / 2, 78, "DUNGEON", headingSize, "#f0dfb9");
   layout.slots.filter((s) => s.group === "dungeon").forEach((s, i, floors) => {
     const y = (s.z - d.z + d.depth / 2) * 100;
-    if (i < 4) body += `<path d="M90 ${y+35}V${y+133}" stroke="#ae9365" stroke-width="2" stroke-dasharray="2 7"/>`;
-    body += `<path d="M137 ${y+66}V${y-32}Q260 ${y-115} ${dw-28} ${y-32}V${y+66}Z" fill="#c3af8c" stroke="#967c56" stroke-width="2"/><path d="M149 ${y+57}V${y-26}Q260 ${y-97} ${dw-40} ${y-26}V${y+57}Z" fill="#e5d9bd" stroke="#a48b63"/>`;
-    for (const side of [137, dw-40]) {
-      for (let j=0;j<3;j++) body += `<path d="M${side} ${y-8+j*25}h12" stroke="#967c56"/>`;
+    if (i < 4) {
+      const nextY = (floors[i + 1].z - d.z + d.depth / 2) * 100;
+      const dividerY = (y + nextY) / 2;
+      body += `<path d="M30 ${dividerY}H73M107 ${dividerY}H${dw-30}" stroke="#b9a680"/><path d="M84 ${dividerY-4}H96L90 ${dividerY+5}Z" fill="#987546"/>`;
     }
-    body += `<path d="M250 ${y-71} 254 ${y-54}H266L270 ${y-71}Z" fill="#aa8750" stroke="#967c56"/>`;
     body += text(90, y - 41, s.label, 18, "#76664f");
     body += `<circle cx="90" cy="${y}" r="29" fill="#c9b995" stroke="#967c56"/><circle cx="90" cy="${y}" r="24" fill="none" stroke="#f2e4c4"/>`;
     if (i < 4) body += text(260, y + 10, s.mark, roleSize);

@@ -290,8 +290,8 @@ export class DungeonScene {
     canvas.width = 256;
     canvas.height = 128;
     const context = canvas.getContext("2d")!;
-    context.fillStyle = "#352619";
-    context.font = "bold 76px Georgia, serif";
+    context.fillStyle = "#75502c";
+    context.font = "76px Georgia, serif";
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(`${count}/3`, 128, 67);
@@ -333,7 +333,7 @@ export class DungeonScene {
       context.textBaseline = "middle";
       context.font = "48px Georgia, serif";
       context.fillText(title, canvas.width / 2, 61);
-      context.font = "36px sans-serif";
+      context.font = '36px Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif';
       const words = description.match(/[\p{Script=Latin}\p{N}]+|\s+|./gu) ?? [];
       const lines: string[] = [];
       let line = "";
@@ -443,7 +443,7 @@ export class DungeonScene {
     for (const s of slots) {
       const ring = new THREE.Mesh(
         new THREE.RingGeometry(
-          s.group === "dungeon" ? 0.27 : 0.2,
+          s.group === "dungeon" ? 0.252 : 0.2,
           s.group === "dungeon" ? 0.34 : 0.27,
           40,
         ),
