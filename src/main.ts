@@ -9,11 +9,9 @@ import { loadCamera, readPreference, savePreference } from "./preferences";
 import type { CategoryId, SkillId, PlayerAction, GameState } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
-app.innerHTML = `<header class="masthead"><div class="brand"><div class="seal"><span>Ⅴ</span></div><div><h1>FLYER DUNGEON</h1><div class="edition">THE TABLETOP EDITION · SOLO DICE ADVENTURE</div></div></div><nav class="top-actions"><button id="sound" aria-label="音声切替">音 ON</button><button id="help">?</button><button id="settings-open">調整</button></nav></header>
-<main class="stage" id="stage"><div class="table-caption">FIVE DICE. FIVE FLOORS. ONE DESCENT.</div><div class="table-ui" id="table-ui"></div><div class="toast" id="toast" role="status"></div><div class="camera-hint" id="camera-hint">ドラッグで移動 · ピンチで拡大</div><div class="camera-controls"><button id="zoom-out" aria-label="縮小">−</button><button id="home" aria-label="全景に戻す">⌂</button><button id="zoom-in" aria-label="拡大">+</button></div><div class="loading" id="loading">卓上を準備しています…</div></main>
-<footer class="console"><div><p class="status-line" id="status"></p><div class="readout"><span id="sum"></span><span id="roll-count"></span><span id="floor-count"></span></div></div><button class="roll" id="roll" disabled>ダイスを振る</button><div class="detail" id="detail"></div></footer>
+app.innerHTML = `<main class="stage" id="stage"><div class="table-ui" id="table-ui"></div><nav class="top-actions"><button id="sound" aria-label="音声切替"></button><button id="help" aria-label="遊び方">?</button></nav><button class="roll" id="roll" disabled><span id="roll-label">Roll</span><small id="roll-remaining"></small></button><div class="loading" id="loading">卓上を準備しています…</div></main>
 <dialog id="settings"><button class="close" data-close>×</button><h2>卓上の調整</h2><label class="settings-row">言語 / Language<select id="language"><option value="ja">日本語</option><option value="en">English</option><option value="zh">简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label><label class="settings-row">音量<input id="volume" type="range" min="0" max="1" step=".01"></label><label class="settings-row">画角<input id="fov" type="range" min="10" max="45" step="1"><output id="fov-value"></output></label><label class="settings-row">俯角<input id="elevation" type="range" min="25" max="75" step="1"><output id="elevation-value"></output></label><label class="settings-row">距離<input id="distance" type="range" min=".6" max="1.8" step=".02"><output id="distance-value"></output></label><div class="dialog-actions"><button id="save-camera">設定を保存</button><button id="default-camera">標準に戻す</button><button id="export">プレイログ</button><button id="restart">最初から</button></div><p class="sound-status" id="audio-status"></p></dialog>
-<dialog id="guide"><button class="close" data-close>×</button><div id="guide-content"></div></dialog>
+<dialog id="guide"><button class="close" data-close>×</button><div id="guide-content"></div><div class="dialog-actions"><button id="settings-open">調整</button></div></dialog>
 <dialog id="result"><div class="result-mark" id="result-mark"></div><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button><button data-close>盤面を見る</button></dialog>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -45,14 +43,12 @@ function button(className: string, id: string) {
 for (const s of slots) {
   const b = button("category", `category:${s.id}`);
   categoryButtons.set(s.id, b);
-  b.addEventListener("pointerenter", () => describe(s.id));
-  b.addEventListener("focus", () => describe(s.id));
 }
 GROUPS.forEach((g, i) => {
   const b = button("skill-label", `skill:${i}`);
   skillButtons.push(b);
 });
-for (let i = 0; i < 5; i++) diceButtons.push(button("die-label", `die:${i}`));
+for (let i = 0; i < 5; i++) diceButtons.push(button("die-hit", `die:${i}`));
 function place(element: HTMLElement, x: number, y: number, z: number) {
   const p = scene.project(x, y, z);
   element.style.left = `${p.x}px`;
@@ -86,7 +82,7 @@ function project() {
   });
   diceButtons.forEach((b, i) => {
     const p = scene.diePosition(i);
-    place(b, p.x, 0.23, p.z + 0.82);
+    place(b, p.x, p.y + 0.3, p.z);
   });
 }
 scene.setOverlay(project);
@@ -104,40 +100,25 @@ function persistLog() {
     localStorage.setItem("flyer:v2:last-play", JSON.stringify(session.dump()));
   } catch {}
 }
-function describe(id: CategoryId) {
-  const s = slots.find((s) => s.id === id)!;
-  el("detail").textContent = `${t(`cat_${id}`)} · ${s.mark}`;
-}
 function render() {
   const view = getView(session.state);
   const dice = view.dice;
-  el("roll").textContent = busy
-    ? locale === "ja"
-      ? "…"
-      : "…"
-    : !dice.length
-      ? t("btn_roll_initial")
-      : !view.rolls.canRoll
-        ? t("btn_no_rolls")
-        : t("btn_roll", { current: view.rolls.current, max: 3 });
+  const remaining = dice.length
+    ? view.rolls.max - view.rolls.current
+    : view.rolls.max - 1;
+  el("roll-label").textContent = dice.length ? "Reroll" : "Roll";
+  el("roll-remaining").textContent = dice.length
+    ? `${remaining} ${locale === "ja" ? "回残り" : "left"}`
+    : locale === "ja"
+      ? `振り直し ${remaining}回`
+      : `${remaining} rerolls`;
+  el("roll").setAttribute(
+    "aria-label",
+    `${dice.length ? "Reroll" : "Roll"}, ${remaining} ${locale === "ja" ? "回の振り直しが残っています" : "rerolls left"}`,
+  );
+  el("roll").setAttribute("aria-busy", String(busy));
   (el("roll") as HTMLButtonElement).disabled =
     !ready || busy || !view.rolls.canRoll;
-  el("status").textContent =
-    view.gameStatus !== "playing"
-      ? t(`status_${view.gameStatus}`).replace(/[🎉💀]/gu, "")
-      : selectedSkill
-        ? t("instr_apply_skill", {
-            skillName: t(`skill_name_${selectedSkill}`),
-          })
-        : !dice.length
-          ? t("instr_start_turn")
-          : t("instr_mid_turn");
-  el("sum").innerHTML =
-    `${locale === "ja" ? "合計" : "SUM"} <strong>${dice.length ? dice.reduce((a, b) => a + b, 0) : "—"}</strong>`;
-  el("roll-count").innerHTML =
-    `${locale === "ja" ? "投数" : "ROLL"} <strong>${view.rolls.current}<small> / 3</small></strong>`;
-  el("floor-count").innerHTML =
-    `${locale === "ja" ? "地下" : "DEPTH"} <strong>${view.categories.filter((s) => s.group === "dungeon" && s.isChecked).length}<small> / 5</small></strong>`;
   for (const s of view.categories) {
     const b = categoryButtons.get(s.id)!;
     b.disabled = busy || !s.isSelectable;
@@ -168,29 +149,22 @@ function render() {
   diceButtons.forEach((b, i) => {
     b.disabled = busy || !dice.length || view.gameStatus !== "playing";
     b.classList.toggle("held", held.has(i));
-    b.textContent = held.has(i)
-      ? t("label_held")
-      : busy
-        ? "· · ·"
-        : `${i + 1} · ${dice[i] ?? "—"}`;
     b.setAttribute(
       "aria-label",
       `${locale === "ja" ? "ダイス" : "Die"} ${i + 1}: ${dice[i] ?? "—"} ${held.has(i) ? t("label_held") : ""}`,
     );
     b.setAttribute("aria-pressed", String(held.has(i)));
   });
-  el("sound").textContent =
-    `${locale === "ja" ? "音" : "SFX"} ${audio.muted ? "OFF" : "ON"}`;
-  el("camera-hint").textContent =
+  el("sound").innerHTML =
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4Z"/>${audio.muted ? '<path d="m16 9 6 6m0-6-6 6"/>' : '<path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>'}</svg>`;
+  el("sound").setAttribute("aria-pressed", String(!audio.muted));
+  el("sound").setAttribute(
+    "aria-label",
     locale === "ja"
-      ? "ドラッグで移動 · ピンチで拡大"
-      : "Drag to pan · Pinch to zoom";
+      ? `音 ${audio.muted ? "OFF" : "ON"}`
+      : `Sound ${audio.muted ? "off" : "on"}`,
+  );
   el("settings-open").textContent = locale === "ja" ? "調整" : "Settings";
-  if (!selectedSkill && !el("detail").textContent)
-    el("detail").textContent =
-      locale === "ja"
-        ? "達成できるマスに木駒を置いて、地下5階へ。"
-        : "Place a marker on an available space. Reach B5.";
   project();
   scene.draw();
 }
@@ -267,12 +241,10 @@ function tap(id: string) {
     )
       return;
     selectedSkill = selectedSkill === skill ? null : skill;
-    el("detail").textContent = selectedSkill ? t(`skill_desc_${skill}`) : "";
     void audio.play("pickup", 0.4);
     render();
   } else if (kind === "category") {
     const categoryId = value as CategoryId;
-    describe(categoryId);
     if (!view.categories.find((c) => c.id === categoryId)?.isSelectable) return;
     selectedSkill = null;
     dispatch({ type: "select_category", categoryId });
@@ -292,7 +264,6 @@ el("roll").addEventListener("click", () => {
   dispatch({ type: "roll_dice", indexesToReroll: indices });
   busy = true;
   const token = epoch;
-  el("detail").textContent = "";
   render();
   if (indices.length)
     void audio.play("roll", Math.max(0.35, indices.length / 5));
@@ -308,7 +279,6 @@ function restart() {
   busy = false;
   shownResult = false;
   for (const d of document.querySelectorAll("dialog")) d.close();
-  el("detail").textContent = "";
   scene.sync(getView(session.state), held);
   render();
   persistLog();
@@ -320,10 +290,8 @@ el("sound").addEventListener("click", async () => {
   await audio.setMuted(!audio.muted);
   render();
 });
-el("zoom-in").addEventListener("click", () => scene.zoom(0.82));
-el("zoom-out").addEventListener("click", () => scene.zoom(1 / 0.82));
-el("home").addEventListener("click", () => scene.home());
 el("settings-open").addEventListener("click", () => {
+  el<HTMLDialogElement>("guide").close();
   el<HTMLDialogElement>("settings").showModal();
   el("audio-status").textContent = audio.diagnostics().error ?? "";
 });
@@ -359,7 +327,6 @@ el("language").addEventListener("change", () => {
   t = createTranslator(locale);
   document.documentElement.lang = locale;
   savePreference("language", locale);
-  el("detail").textContent = "";
   render();
 });
 el<HTMLInputElement>("volume").value = String(audio.volume);

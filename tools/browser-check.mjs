@@ -31,12 +31,52 @@ try {
       await page.goto(url);
       await page.waitForFunction(() => window.__flyer?.ready());
       const ready = () => page.waitForFunction(() => window.__flyer?.ready());
+      const settings = async () => {
+        await page.locator("#help").click();
+        await page.locator("#settings-open").click();
+      };
+      const home = async () => {
+        await settings();
+        await page.locator("#default-camera").click();
+        await page.locator("#save-camera").click();
+      };
+
       await page.screenshot({ path: `.browser-check/${name}-initial.png` });
       const bounds = await page.locator("canvas").boundingBox();
+      assert.deepEqual(
+        bounds,
+        { x: 0, y: 0, width: viewport.width, height: viewport.height },
+        "table fills viewport",
+      );
+      assert.equal(
+        await page
+          .locator(
+            "header, footer, .camera-controls, .camera-hint, .table-caption, .die-label",
+          )
+          .count(),
+        0,
+      );
+      assert.equal(
+        await page
+          .locator(".die-hit")
+          .allTextContents()
+          .then((a) => a.join("")),
+        "",
+      );
+      const rollBounds = await page.locator("#roll").boundingBox();
+      assert.equal(rollBounds.width, rollBounds.height, "roll is circular");
+      assert.ok(
+        rollBounds.x > viewport.width / 2 && rollBounds.y > viewport.height / 2,
+      );
+
       await page.evaluate(() => window.__flyer.seed(321));
       await page.locator("#roll").click();
       await ready();
       const dice = await page.evaluate(() => window.__flyer.state().dice);
+      assert.equal(
+        await page.locator("#roll-remaining").textContent(),
+        "2 回残り",
+      );
       assert.deepEqual(
         await page.evaluate(() =>
           window.__flyer.diagnostics().dice.map((d) => d.top),
@@ -77,7 +117,17 @@ try {
         bounds,
         "HUD changes must not resize canvas",
       );
-      await page.locator("#zoom-in").click();
+      const cameraBeforeWheel = await page.evaluate(
+        () => window.__flyer.diagnostics().camera,
+      );
+      await page.mouse.move(30, 200);
+      await page.mouse.wheel(0, -180);
+      await page.waitForFunction(
+        (before) =>
+          JSON.stringify(window.__flyer.diagnostics().camera) !==
+          JSON.stringify(before),
+        cameraBeforeWheel,
+      );
       const physical = await page.evaluate(() => {
         const p = window.__flyer.diagnostics().dice[1].position;
         return window.__flyer.project(p[0], p[1] + 0.39, p[2]);
@@ -93,7 +143,7 @@ try {
         "true",
         "tap physical die after zoom",
       );
-      await page.locator("#home").click();
+      await home();
 
       const beforePan = await page.evaluate(() => window.__flyer.diagnostics());
       await page.mouse.move(30, 125);
@@ -111,7 +161,7 @@ try {
         await page.locator('[data-id="die:0"]').getAttribute("aria-pressed"),
         "true",
       );
-      await page.locator("#home").click();
+      await home();
       if (name === "chromium") {
         const cdp = await page.context().newCDPSession(page);
         const before = await page.evaluate(
@@ -145,7 +195,7 @@ try {
           "true",
           "pinch does not toggle dice",
         );
-        await page.locator("#home").click();
+        await home();
       }
       await page.evaluate(() => {
         const s = window.__flyer.state();
@@ -231,7 +281,7 @@ try {
         "lost",
       );
       await page.locator("#again").click();
-      await page.locator("#settings-open").click();
+      await settings();
       await page.locator("#volume").fill("0.31");
       await page.locator("#fov").fill("26");
       await page.locator("#save-camera").click();
@@ -242,7 +292,10 @@ try {
       assert.equal(await page.evaluate(() => window.__flyer.audio().rms), 0);
       await page.reload();
       await ready();
-      assert.equal(await page.locator("#sound").textContent(), "音 OFF");
+      assert.equal(
+        await page.locator("#sound").getAttribute("aria-label"),
+        "音 OFF",
+      );
       assert.equal(await page.locator("#volume").inputValue(), "0.31");
       assert.equal(await page.locator("#fov").inputValue(), "26");
       await page.evaluate(() => {
