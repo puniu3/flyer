@@ -233,33 +233,17 @@ dialog select {
 dialog input {
   accent-color: #77633e;
 }
-dialog .close {
-  float: right;
-  padding: 4px 9px;
+#languages {
+  width: auto;
 }
-.settings-row {
+#languages label {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  margin: 18px 0;
-  font:
-    13px system-ui,
-    sans-serif;
+  gap: 16px;
 }
-.settings-row input {
-  width: 185px;
-}
-.settings-row output {
-  min-width: 35px;
-  display: inline-block;
-  text-align: right;
-}
-.dialog-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 18px;
+#language-open {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-size: 16px;
 }
 #result {
   text-align: center;

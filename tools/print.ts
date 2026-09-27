@@ -43,6 +43,7 @@ const headingSize = 29;
       const dividerY = (y + nextY) / 2;
       body += `<path d="M30 ${dividerY}H73M107 ${dividerY}H${dw-30}" stroke="#b9a680"/><path d="M84 ${dividerY-4}H96L90 ${dividerY+5}Z" fill="#987546"/>`;
     }
+    if (i === 4) body += `<g transform="translate(260 ${y-57})" fill="#b29259" stroke="#987546" stroke-width="1.5" stroke-linejoin="round"><path d="M-22-9-12-1 0-17 12-1 22-9 17 11H-17Z"/><path d="M-17 16H17" fill="none"/></g>`;
     body += text(90, y - 41, s.label, 18, "#76664f");
     body += `<circle cx="90" cy="${y}" r="29" fill="#c9b995" stroke="#967c56"/><circle cx="90" cy="${y}" r="24" fill="none" stroke="#f2e4c4"/>`;
     if (i < 4) body += text(260, y + 10, s.mark, roleSize);

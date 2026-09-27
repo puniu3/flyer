@@ -5,13 +5,13 @@ import { TableAudio } from "./audio";
 import { Session } from "./session";
 import { slots, GROUPS, SKILLS, SKILL_CARD, SHEET_TOP, markerX } from "./layout";
 import { createTranslator } from "./i18n";
-import { loadCamera, readPreference, savePreference } from "./preferences";
+import { readPreference, savePreference } from "./preferences";
 import type { CategoryId, SkillId, PlayerAction, GameState } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app")!;
-app.innerHTML = `<main class="stage" id="stage"><div class="table-ui" id="table-ui"></div><nav class="top-actions"><button id="sound" aria-label="音声切替"></button><button id="help" aria-label="遊び方">?</button></nav><button class="roll" id="roll" disabled><span id="roll-label">Roll</span><small id="roll-remaining"></small></button><div class="loading" id="loading">卓上を準備しています…</div></main>
-<dialog id="settings"><button class="close" data-close>×</button><h2>卓上の調整</h2><label class="settings-row">言語 / Language<select id="language"><option value="ja">日本語</option><option value="en">English</option><option value="zh">简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label><label class="settings-row">音量<input id="volume" type="range" min="0" max="1" step=".01"></label><label class="settings-row">画角<input id="fov" type="range" min="10" max="45" step="1"><output id="fov-value"></output></label><label class="settings-row">俯角<input id="elevation" type="range" min="25" max="75" step="1"><output id="elevation-value"></output></label><label class="settings-row">距離<input id="distance" type="range" min=".6" max="1.8" step=".02"><output id="distance-value"></output></label><div class="dialog-actions"><button id="save-camera">設定を保存</button><button id="default-camera">標準に戻す</button><button id="export">プレイログ</button><button id="restart">最初から</button></div><p class="sound-status" id="audio-status"></p></dialog>
-<dialog id="guide"><button class="close" data-close>×</button><div id="guide-content"></div><div class="dialog-actions"><button id="settings-open">調整</button></div></dialog>
+app.innerHTML = `<main class="stage" id="stage"><div class="table-ui" id="table-ui"></div><nav class="top-actions"><button id="sound" aria-label="音声切替"></button><button id="language-open" aria-label="言語 / Language" aria-haspopup="dialog">🇯🇵</button><button id="help" aria-label="遊び方">?</button></nav><button class="roll" id="roll" disabled><span id="roll-label">Roll</span><small id="roll-remaining"></small></button><div class="loading" id="loading">卓上を準備しています…</div></main>
+<dialog id="languages"><label>Language <select id="language"><option value="ja">日本語</option><option value="en">English</option><option value="zh">简体中文</option><option value="zh-TW">繁體中文</option><option value="ko">한국어</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label></dialog>
+<dialog id="guide"><div id="guide-content"></div></dialog>
 <dialog id="result"><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button></dialog>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -26,8 +26,7 @@ let epoch = 0;
 let shownResult = false;
 const audio = new TableAudio();
 const scene = new DungeonScene(el("stage"));
-let camera = loadCamera();
-scene.configure(camera);
+scene.configure(DEFAULT_CAMERA);
 const ui = el("table-ui");
 const categoryButtons = new Map<CategoryId, HTMLButtonElement>();
 const skillButtons: HTMLButtonElement[] = [];
@@ -169,7 +168,8 @@ function render() {
       ? `音 ${audio.muted ? "OFF" : "ON"}`
       : `Sound ${audio.muted ? "off" : "on"}`,
   );
-  el("settings-open").textContent = locale === "ja" ? "調整" : "Settings";
+  const flags: Record<string, string> = { ja: "🇯🇵", en: "🇬🇧", zh: "🇨🇳", "zh-TW": "🇹🇼", ko: "🇰🇷", de: "🇩🇪", fr: "🇫🇷", es: "🇪🇸" };
+  el("language-open").textContent = flags[locale] ?? flags.en;
   scene.selectSkill(!busy && !document.hidden && view.gameStatus === "playing" ? selectedSkill : null);
   project();
   scene.draw();
@@ -298,18 +298,13 @@ function restart() {
   void audio.play("gather", 0.65);
 }
 el("again").addEventListener("click", restart);
-el("restart").addEventListener("click", restart);
 el("sound").addEventListener("click", async () => {
   await audio.setMuted(!audio.muted);
   render();
 });
-el("settings-open").addEventListener("click", () => {
-  el<HTMLDialogElement>("guide").close();
-  el<HTMLDialogElement>("settings").showModal();
-  el("audio-status").textContent = audio.diagnostics().error ?? "";
+el("language-open").addEventListener("click", () => {
+  el<HTMLDialogElement>("languages").showModal();
 });
-for (const b of document.querySelectorAll("[data-close]"))
-  b.addEventListener("click", () => b.closest("dialog")?.close());
 for (const d of document.querySelectorAll("dialog"))
   d.addEventListener("click", (e) => {
     if (d.id === "result") return;
@@ -342,46 +337,8 @@ el("language").addEventListener("change", () => {
   t = createTranslator(locale);
   document.documentElement.lang = locale;
   savePreference("language", locale);
+  el<HTMLDialogElement>("languages").close();
   render();
-});
-el<HTMLInputElement>("volume").value = String(audio.volume);
-el("volume").addEventListener("input", () =>
-  audio.setVolume(Number(el<HTMLInputElement>("volume").value)),
-);
-function cameraControls() {
-  for (const key of ["fov", "elevation", "distance"] as const) {
-    el<HTMLInputElement>(key).value = String(camera[key]);
-    el(`${key}-value`).textContent =
-      key === "distance" ? camera[key].toFixed(2) : `${camera[key]}°`;
-  }
-}
-for (const key of ["fov", "elevation", "distance"] as const)
-  el(key).addEventListener("input", () => {
-    camera[key] = Number(el<HTMLInputElement>(key).value);
-    scene.configure(camera);
-    cameraControls();
-  });
-el("save-camera").addEventListener("click", () => {
-  savePreference("camera", JSON.stringify(camera));
-  el<HTMLDialogElement>("settings").close();
-});
-el("default-camera").addEventListener("click", () => {
-  camera = { ...DEFAULT_CAMERA };
-  scene.configure(camera);
-  cameraControls();
-});
-cameraControls();
-el("export").addEventListener("click", () => {
-  const url = URL.createObjectURL(
-    new Blob([JSON.stringify(session.dump(), null, 2)], {
-      type: "application/json",
-    }),
-  );
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "flyer-play.json";
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
@@ -410,6 +367,7 @@ try {
 if (new URLSearchParams(location.search).has("check")) {
   Object.assign(window, {
     __flyer: {
+      resetCamera: () => scene.configure(DEFAULT_CAMERA),
       state: () => structuredClone(session.state),
       view: () => getView(session.state),
       log: () => session.dump(),
