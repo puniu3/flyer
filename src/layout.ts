@@ -11,6 +11,23 @@ export const SKILLS: Record<(typeof GROUPS)[number], SkillId> = {
   dex: "skill_dex_acrobatics",
   int: "skill_int_metamorph",
 };
+export const DUNGEON = { x: -7.5, z: 0, width: 4.2, depth: 10.2 };
+export const ABILITY = { x: -2.7, width: 4.5, depth: 6.8, z: -1.7, gap: 0.35 };
+export const abilityX = (i: number) => ABILITY.x + i * (ABILITY.width + ABILITY.gap);
+const trayLeft = abilityX(0) - ABILITY.width / 2;
+const trayRight = abilityX(2) + ABILITY.width / 2;
+const trayTop = ABILITY.z + ABILITY.depth / 2 + ABILITY.gap;
+const trayBottom = DUNGEON.z + DUNGEON.depth / 2;
+const railWidth = 0.18;
+export const TRAY = {
+  x: (trayLeft + trayRight) / 2,
+  z: (trayTop + trayBottom) / 2,
+  width: trayRight - trayLeft - 2 * railWidth,
+  depth: trayBottom - trayTop - 2 * railWidth,
+  railWidth,
+  railHeight: 0.26,
+  floor: 0.18,
+};
 export type Slot = {
   id: CategoryId;
   group: CategoryGroup;
@@ -23,7 +40,7 @@ export const slots: Slot[] = [
   ...["≥ 20", "≥ 24", "≥ 26", "≤ 9", "FIVE OF A KIND"].map((mark, i) => ({
     id: `dungeon_floor_${i + 1}` as CategoryId,
     group: "dungeon" as const,
-    x: -7.5,
+    x: DUNGEON.x,
     z: -3.2 + i * 1.7,
     label: `B${i + 1}`,
     mark,
@@ -53,7 +70,7 @@ export const slots: Slot[] = [
     return entries.map(([id, mark], i) => ({
       id: `${group}_${id}` as CategoryId,
       group,
-      x: -2.7 + g * 4.85,
+      x: abilityX(g),
       z: -3.2 + i * 1.0,
       label: mark,
       mark,
@@ -61,9 +78,7 @@ export const slots: Slot[] = [
   }),
 ];
 export const slotById = new Map(slots.map((s) => [s.id, s]));
-export const TRAY = { x: 2.15, z: 3.55, width: 14.2, depth: 2.6, floor: 0.18 };
 export const SKILL_Z = 1.0;
-export const abilityX = (i: number) => -2.7 + i * 4.85;
 export const markerX = (slot: Slot) => slot.x - (slot.group === "dungeon" ? 1.2 : 1.65);
 export const assetUrl = (file: string) =>
   `${import.meta.env.BASE_URL}assets/${file}`;

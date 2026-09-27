@@ -6,6 +6,8 @@ import {
   GROUPS,
   COLORS,
   TRAY,
+  DUNGEON,
+  ABILITY,
   SKILL_Z,
   SKILLS,
   assetUrl,
@@ -304,9 +306,9 @@ export class DungeonScene {
         roughness: 0.88,
       }),
     );
-    await this.board("board", 4.2, 10.2, -7.5, 0, 0.18);
+    await this.board("board", DUNGEON.width, DUNGEON.depth, DUNGEON.x, DUNGEON.z, 0.18);
     await Promise.all(
-      GROUPS.map((g, i) => this.board(g, 4.5, 6.8, abilityX(i), -1.7)),
+      GROUPS.map((g, i) => this.board(g, ABILITY.width, ABILITY.depth, abilityX(i), ABILITY.z)),
     );
     const rail = this.material("#694d34", 0.7);
     this.box(
@@ -320,20 +322,20 @@ export class DungeonScene {
     );
     for (const sign of [-1, 1]) {
       this.box(
-        TRAY.width + 0.35,
-        0.26,
-        0.18,
+        TRAY.width + 2 * TRAY.railWidth,
+        TRAY.railHeight,
+        TRAY.railWidth,
         TRAY.x,
-        0.13,
-        TRAY.z + (sign * (TRAY.depth + 0.18)) / 2,
+        TRAY.railHeight / 2,
+        TRAY.z + (sign * (TRAY.depth + TRAY.railWidth)) / 2,
         rail,
       );
       this.box(
-        0.18,
-        0.26,
+        TRAY.railWidth,
+        TRAY.railHeight,
         TRAY.depth,
-        TRAY.x + (-sign * (TRAY.width + 0.18)) / 2,
-        0.18,
+        TRAY.x + (sign * (TRAY.width + TRAY.railWidth)) / 2,
+        TRAY.railHeight / 2,
         TRAY.z,
         rail,
       );
