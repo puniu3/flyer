@@ -178,8 +178,6 @@ function settle(token: number) {
   if (session.state.status !== "playing" && !shownResult) {
     shownResult = true;
     const won = session.state.status === "won";
-    el("result-title").hidden = won;
-    el("result-copy").hidden = won;
     el("result-dismiss").hidden = won;
     el("result").setAttribute("aria-label", won ? "Victory" : "Game over");
     el("result-title").textContent = t(

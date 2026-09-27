@@ -274,7 +274,10 @@ try {
       );
       await page.locator("#result").waitFor({ state: "visible" });
       assert.equal(await page.locator("#result button:visible").count(), 1);
-      assert.equal(await page.locator("#result").innerText(), "もう一度遊ぶ");
+      assert.equal(await page.locator("#result-title").isVisible(), true);
+      assert.match(await page.locator("#result-title").innerText(), /勝利/);
+      assert.equal(await page.locator("#result-copy").isVisible(), true);
+      assert.equal(await page.locator("#result-copy").innerText(), "地下5階を踏破しました。");
       assert.equal(
         (await page.locator(".category").allTextContents()).join(""),
         "",
