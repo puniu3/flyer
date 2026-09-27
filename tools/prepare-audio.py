@@ -9,7 +9,7 @@ root = Path(__file__).resolve().parents[1]
 recipes = {
     'mighty': {'trim': [0, .65], 'target_peak': .62, 'body': 0, 'fade_out': .2},
     'acrobatics': {'trim': [3.49, 3.85], 'target_peak': .48, 'body': 0, 'fade_out': .12},
-    'magic': {'trim': [0, .85], 'target_peak': .5, 'body': 0, 'fade_out': .4},
+    'magic': {'trim': [0, .95], 'target_peak': .5, 'body': 0, 'fade_in': .003, 'fade_out': .45},
     'defeat': {'trim': [0, 4.6], 'target_peak': .5, 'body': 0},
     'victory': {'trim': [0, 4.2], 'target_peak': .68, 'body': 0},
     'pickup': {'trim': [1.337, 1.53], 'target_peak': .42, 'body': 0},
@@ -53,11 +53,12 @@ for cue, recipe in recipes.items():
                 samples[i][channel] += filtered[channel] * recipe['body']
     frames = len(samples)
     fade_out = recipe.get('fade_out', .035)
+    fade_in = recipe.get('fade_in', .001)
     for i, frame in enumerate(samples):
         tail = min(1, max(0, (frames - 1 - i) / (rate * fade_out)))
         if 'fade_out' in recipe:
             tail = .5 - .5 * math.cos(math.pi * tail)
-        envelope = min(1, i / (rate * .001), tail)
+        envelope = min(1, i / (rate * fade_in), tail)
         for channel in range(2):
             frame[channel] *= max(0, envelope)
     gain = recipe['target_peak'] / max(abs(value) for frame in samples for value in frame)
@@ -72,7 +73,7 @@ for cue, recipe in recipes.items():
         'source': str(path.relative_to(root)), 'source_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
         'trim_seconds': recipe['trim'], 'highpass_hz': 45, 'stereo_width': .25,
         'body_layer': {'gain': recipe['body'], 'rate': .82, 'lowpass_hz': 420},
-        'fade_seconds': [.001, fade_out], 'normalization_gain': gain,
+        'fade_seconds': [fade_in, fade_out], 'normalization_gain': gain,
         **({'fade_out_curve': 'half-cosine'} if 'fade_out' in recipe else {}),
         'duration': frames / rate, 'peak': max(abs(value) for value in pcm) / 32768,
         'rms': math.sqrt(sum((value / 32768) ** 2 for value in pcm) / len(pcm)),

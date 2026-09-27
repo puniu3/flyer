@@ -57,10 +57,10 @@
   },
   "magic": {
     "source": "art/audio/sources/magic.wav",
-    "source_sha256": "69e52950cc9fe233e85c0d3f60579175d0e831c8df760995006d08bf514bcc04",
+    "source_sha256": "ef533a5201725e57e53cd52f51a9e6bfb4a4e6b3167be8cda97f1bc32f2540b0",
     "trim_seconds": [
       0,
-      0.85
+      0.95
     ],
     "highpass_hz": 45,
     "stereo_width": 0.25,
@@ -70,17 +70,17 @@
       "lowpass_hz": 420
     },
     "fade_seconds": [
-      0.001,
-      0.4
+      0.003,
+      0.45
     ],
-    "normalization_gain": 1.4442925234129143,
+    "normalization_gain": 3.170197344376415,
     "fade_out_curve": "half-cosine",
-    "duration": 0.85,
+    "duration": 0.95,
     "peak": 0.5,
-    "rms": 0.04397494624559286,
+    "rms": 0.036326903611013976,
     "clipped_samples": 0,
-    "bytes": 149984,
-    "sha256": "3f145c545571351ba794bc3b0b07e59bc7c6c8b1e649028190334e43ce3e4d82",
+    "bytes": 167624,
+    "sha256": "425497b6d021eaee8a5bedd7f9b85029ecd134fb98fafa251cf869c2b71c7bd7",
     "listening_review": "Audition in audio-demo.html; waveform validation does not certify timbre."
   },
   "defeat": {
