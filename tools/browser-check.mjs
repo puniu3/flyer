@@ -39,6 +39,7 @@ try {
       assert.equal(await page.locator("#guide").isVisible(), false);
       await page.locator("#language-open").click();
       await page.locator('[data-language="en"]').click();
+      await page.waitForFunction(() => document.documentElement.lang === "en");
       assert.equal(await page.locator("html").getAttribute("lang"), "en");
       assert.equal(await page.locator("#languages").isVisible(), false);
       await page.reload();
@@ -52,6 +53,7 @@ try {
       assert.equal(await page.locator("#languages").isVisible(), false);
       await page.locator("#language-open").click();
       await page.locator('[data-language="ja"]').click();
+      await page.waitForFunction(() => document.documentElement.lang === "ja");
 
 
       await page.screenshot({ path: `.browser-check/${name}-initial.png` });
@@ -338,7 +340,7 @@ try {
       await ready();
       assert.equal(
         await page.locator("#sound").getAttribute("aria-label"),
-        "音 OFF",
+        "音声 OFF",
       );
       assert.equal(await page.locator("#volume, #fov").count(), 0);
       await page.evaluate(() => {

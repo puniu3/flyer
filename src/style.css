@@ -1,3 +1,7 @@
+:root:lang(ja), [lang="ja"] { font-family: "Flyer JP", serif; }
+:root:lang(zh), [lang="zh"] { font-family: "Flyer SC", serif; }
+:root:lang(zh-TW), [lang="zh-TW"] { font-family: "Flyer TC", serif; }
+:root:lang(ko), [lang="ko"] { font-family: "Flyer KR", serif; }
 :root {
   font-family: Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif;
   color: #e9dbc0;
@@ -304,3 +308,5 @@ button[hidden] {
 .skill-label.locked {
   display: none;
 }
+
+.roll, #roll-label, #roll-remaining, dialog, dialog button, dialog p, dialog li { font-family: var(--game-font, Georgia, serif); }

@@ -15,7 +15,9 @@
     "audio:generate": "python3 tools/generate-audio.py",
     "audio:prepare": "python3 tools/prepare-audio.py",
     "test:audio": "node tools/audio-check.mjs",
-    "test:effects": "node tools/effects-check.mjs"
+    "test:effects": "node tools/effects-check.mjs",
+    "test:localization": "node tools/localization-check.mjs",
+    "fonts:prepare": "python3 tools/prepare-fonts.py"
   },
   "dependencies": {
     "three": "0.186.1"

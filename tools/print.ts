@@ -29,13 +29,11 @@ const crest = (g: number) => {
   ];
   return `<g transform="translate(73 72)" stroke="#eddbad" fill="none"><path d="M0-43 32-31V9Q29 31 0 44Q-29 31-32 9V-31Z" stroke-width="1.5"/><path d="${paths[g]}" stroke-width="2.5" stroke-linejoin="round"/></g>`;
 };
-const roleSize = 32;
-const headingSize = 29;
 {
   const layout = makeLayout();
   const d = layout.dungeon;
   const dw = Math.round(d.width * 100), dh = Math.round(d.depth * 100);
-  let body = `<path d="M26 26H${dw-26}V112H26Z" fill="#554d40"/><path d="M32 32H${dw-32}V106H32Z" fill="none" stroke="#bb9b62"/>` + text(dw / 2, 78, "DUNGEON", headingSize, "#f0dfb9");
+  let body = `<path d="M26 26H${dw-26}V112H26Z" fill="#554d40"/><path d="M32 32H${dw-32}V106H32Z" fill="none" stroke="#bb9b62"/>`;
   layout.slots.filter((s) => s.group === "dungeon").forEach((s, i, floors) => {
     const y = (s.z - d.z + d.depth / 2) * 100;
     if (i < 4) {
@@ -46,8 +44,7 @@ const headingSize = 29;
     body += text(90, y - 41, s.label, 18, "#76664f");
     body += `<circle cx="90" cy="${y}" r="29" fill="#c9b995" stroke="#967c56"/><circle cx="90" cy="${y}" r="24" fill="none" stroke="#f2e4c4"/>`;
     if (i === 4) body += `<g transform="translate(90 ${y})" fill="none" stroke="#987546" stroke-width="1.6" stroke-linejoin="round"><path d="M-13-6-7-1 0-10 7-1 13-6 10 7H-10Z M-10 11H10"/></g>`;
-    if (i < 4) body += text(260, y + 10, s.mark, roleSize);
-    else body += text(260, y - 6, "FIVE OF", roleSize) + text(260, y + 31, "A KIND", roleSize);
+
   });
   const dungeonSvg = wrap(dw, dh, body);
   await fs.writeFile(`art/board.svg`, dungeonSvg);
@@ -56,13 +53,12 @@ const headingSize = 29;
     const board = layout.abilities[g];
     const w = Math.round(board.width * 100), h = Math.round(board.depth * 100);
     let b = `<rect x="26" y="26" width="${w-52}" height="98" fill="${COLORS[group]}"/><rect x="32" y="32" width="${w-64}" height="86" fill="none" stroke="#d5bb83" stroke-width="1"/>${crest(g)}`;
-    b += text(267, 82, ["Strength", "Dexterity", "Intellect"][g], headingSize, "#fff0cf");
+
     layout.slots.filter((s) => s.group === group).forEach((s) => {
-      const x = (s.x - board.x + board.width / 2) * 100;
       const y = (s.z - board.z + board.depth / 2) * 100;
       const mark = (markerX(s) - board.x + board.width / 2) * 100;
       b += `<rect x="30" y="${y-41}" width="${w-60}" height="82" rx="2" fill="${COLORS[group]}" fill-opacity=".055" stroke="#b9a680"/><path d="M104 ${y-31}V${y+31}M${w-42} ${y-28}h-9M${w-42} ${y-28}v9M${w-42} ${y+28}h-9M${w-42} ${y+28}v-9" fill="none" stroke="#af9668"/><circle cx="${mark}" cy="${y}" r="26" fill="#cdbd9a" stroke="${COLORS[group]}" stroke-width="1.2"/><circle cx="${mark}" cy="${y}" r="21" fill="none" stroke="#f6e9ca"/>`;
-      b += text(x + 37, y + 10, s.mark, roleSize);
+
     });
     b += `<path d="M35 550H${w-35}M35 554H${w-35}" stroke="#b19665"/><path d="M${w/2-7} 552l7-7 7 7-7 7Z" fill="#b19665"/>`;
     const svg = wrap(w, h, b);

@@ -5,7 +5,7 @@ import { DungeonScene, DEFAULT_CAMERA } from "./scene";
 import { TableAudio } from "./audio";
 import { Session } from "./session";
 import { slots, GROUPS, SKILLS, SKILL_CARD, SHEET_TOP, markerX } from "./layout";
-import { createTranslator } from "./i18n";
+import { translator, loadLocaleFont, fontFamily } from "./localization";
 import { readPreference, savePreference } from "./preferences";
 import type { CategoryId, SkillId, PlayerAction, GameState } from "./types";
 
@@ -18,7 +18,9 @@ const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 let locale = readPreference("language", "ja");
 document.documentElement.lang = locale;
-let t = createTranslator(locale);
+let t = translator(locale);
+el("loading").textContent = t("loading");
+el("roll-label").textContent = t("roll");
 let session = new Session(crypto.getRandomValues(new Uint32Array(1))[0]);
 let held = new Set<number>();
 let selectedSkill: SkillId | null = null;
@@ -109,11 +111,11 @@ function render() {
   const remaining = dice.length
     ? view.rolls.max - view.rolls.current
     : view.rolls.max - 1;
-  el("roll-label").textContent = dice.length ? "Reroll" : "Roll";
+  el("roll-label").textContent = dice.length ? t("reroll") : t("roll");
   el("roll-remaining").textContent = dice.length ? `${remaining}/2` : "";
   el("roll").setAttribute(
     "aria-label",
-    dice.length ? `Reroll ${remaining}/2` : "Roll",
+    dice.length ? `${t("reroll")} ${remaining}/2` : t("roll"),
   );
   el("roll").setAttribute("aria-busy", String(busy));
   (el("roll") as HTMLButtonElement).disabled =
@@ -125,7 +127,7 @@ function render() {
     b.textContent = "";
     b.setAttribute(
       "aria-label",
-      `${t(`cat_${s.id}`)}${s.isChecked ? (locale === "ja" ? " 達成済み" : " completed") : ""}`,
+      `${t(`cat_${s.id}`)}${s.isChecked ? ` ${t("completed")}` : ""}`,
     );
     b.title = t(`cat_${s.id}`);
   }
@@ -143,7 +145,7 @@ function render() {
     b.setAttribute("aria-pressed", String(selectedSkill === id));
     const title = t(`skill_name_${id}`);
     const description = skill.status === "used"
-      ? (locale === "ja" ? "使用済み" : "USED")
+      ? t("used")
       : t(`skill_desc_${id}`);
     b.setAttribute("aria-label", `${title}: ${description}`);
     scene.setSkillCard(i, title, description, skill.status, selectedSkill === id || b.matches(":focus-visible"));
@@ -157,7 +159,7 @@ function render() {
     b.classList.toggle("held", held.has(i) && view.rolls.canRoll);
     b.setAttribute(
       "aria-label",
-      `${locale === "ja" ? "ダイス" : "Die"} ${i + 1}: ${dice[i] ?? "—"} ${held.has(i) && view.rolls.canRoll ? t("label_held") : ""}`,
+      `${t("die")} ${i + 1}: ${dice[i] ?? "—"} ${held.has(i) && view.rolls.canRoll ? t("label_held") : ""}`,
     );
     b.setAttribute("aria-pressed", String(held.has(i) && view.rolls.canRoll));
   });
@@ -166,13 +168,14 @@ function render() {
   el("sound").setAttribute("aria-pressed", String(!audio.muted));
   el("sound").setAttribute(
     "aria-label",
-    locale === "ja"
-      ? `音 ${audio.muted ? "OFF" : "ON"}`
-      : `Sound ${audio.muted ? "off" : "on"}`,
+    `${t("sound")} ${audio.muted ? "OFF" : "ON"}`,
   );
   el("language-open").innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>`;
   for (const b of document.querySelectorAll<HTMLButtonElement>("[data-language]"))
     b.setAttribute("aria-pressed", String(b.dataset.language === locale));
+  el("help").setAttribute("aria-label", t("guide_title"));
+  el("language-open").setAttribute("aria-label", t("language"));
+  el("languages").setAttribute("aria-label", t("language"));
   scene.selectSkill(!busy && !document.hidden && view.gameStatus === "playing" ? selectedSkill : null);
   project();
   scene.draw();
@@ -186,18 +189,11 @@ function settle(token: number) {
   if (session.state.status !== "playing" && !shownResult) {
     shownResult = true;
     const won = session.state.status === "won";
-    el("result").setAttribute("aria-label", won ? "Victory" : "Game over");
+    el("result").setAttribute("aria-label", t(won ? "status_won" : "status_lost"));
     el("result-title").textContent = t(
       won ? "status_won" : "status_lost",
     ).replace(/[🎉💀]/gu, "");
-    el("result-copy").textContent =
-      locale === "ja"
-        ? won
-          ? "地下5階を踏破しました。"
-          : "残る技能を使っても、達成できる役がありません。"
-        : won
-          ? "The fifth floor is complete."
-          : "No category can be reached with the remaining skills.";
+    el("result-copy").textContent = t(won ? "victory_copy" : "loss_copy");
     el("again").textContent = t("btn_play_again").replace(/\s*↺/g, "");
     el<HTMLDialogElement>("result").showModal();
     if (!document.hidden)
@@ -324,18 +320,19 @@ el("help").addEventListener("click", () => {
   el("guide-content").innerHTML =
     `<h2>${t("guide_title")}</h2>${["roll", "skill", "write"].map((section, i) => `<h3>${i + 1}. ${t(`guide_${section}_title`)}</h3><ul>${[1, 2, ...(section === "skill" ? [] : [3])].map((n) => `<li>${t(`guide_${section}_${n}`)}</li>`).join("")}</ul>`).join("")}`;
   const clarification = document.createElement("p");
-  clarification.textContent =
-    locale === "ja"
-      ? "3投目の後も、残る技能で役を作れる間は続けられます。"
-      : "After the third roll, play continues while remaining skills can still produce a valid category.";
+  clarification.textContent = t("guide_continue");
   el("guide-content").append(clarification);
   el<HTMLDialogElement>("guide").showModal();
 });
 for (const b of document.querySelectorAll<HTMLButtonElement>("[data-language]")) {
-  b.addEventListener("click", () => {
-    locale = b.dataset.language!;
-    t = createTranslator(locale);
+  b.addEventListener("click", async () => {
+    const next = b.dataset.language!;
+    await loadLocaleFont(next);
+    locale = next;
+    t = translator(locale);
     document.documentElement.lang = locale;
+    document.documentElement.style.setProperty("--game-font", fontFamily(locale));
+    scene.setLocale(locale);
     savePreference("language", locale);
     el("languages").hidePopover();
     el("language-open").focus();
@@ -357,6 +354,10 @@ document.addEventListener("visibilitychange", () => {
 });
 void audio.load().catch(() => {});
 try {
+  el("loading").textContent = t("loading");
+  await loadLocaleFont(locale);
+  document.documentElement.style.setProperty("--game-font", fontFamily(locale));
+  scene.setLocale(locale);
   await scene.load();
   ready = true;
   scene.sync(getView(session.state), held);
@@ -364,7 +365,7 @@ try {
   render();
 } catch (error) {
   el("loading").textContent =
-    `読み込みに失敗しました。再読み込みしてください。 ${String(error)}`;
+    `${t("load_error")} ${String(error)}`;
 }
 if (new URLSearchParams(location.search).has("check")) {
   Object.assign(window, {

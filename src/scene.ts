@@ -1,3 +1,5 @@
+import { printBoard } from "./board-print";
+import { fontFamily } from "./localization";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
@@ -84,6 +86,17 @@ export class DungeonScene {
   private hitObjects: THREE.Mesh[] = [];
   private pointers = new Map<number, { x: number; y: number; drag: boolean }>();
   private homeDistance = 40;
+  private locale = "ja";
+  private boardPrints: { name: string; base: HTMLImageElement; texture: THREE.CanvasTexture }[] = [];
+  setLocale(locale: string) {
+    this.locale = locale;
+    for (const board of this.boardPrints) {
+      printBoard(board.texture.image, board.base, board.name, locale);
+      board.texture.needsUpdate = true;
+    }
+    for (const card of this.skillCards) card.key = "";
+    this.invalidate();
+  }
   private settings: CameraSettings = { ...DEFAULT_CAMERA };
   private draws = 0;
   private loaded = false;
@@ -243,10 +256,21 @@ export class DungeonScene {
   ) {
     const group = new THREE.Group();
     group.add(this.box(w, h, d, x, h / 2, z, new THREE.MeshStandardMaterial({ color: "#b8a485", map: this.paperEdge, roughness: 0.98 })));
+    const baseTexture = await this.texture(name);
+    const base = baseTexture.image as HTMLImageElement;
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(w * 100);
+    canvas.height = Math.round(d * 100);
+    printBoard(canvas, base, name, this.locale);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
+    this.boardPrints.push({ name, base, texture });
+    baseTexture.dispose();
     const top = new THREE.Mesh(
       new THREE.PlaneGeometry(w, d),
       new THREE.MeshStandardMaterial({
-        map: await this.texture(name),
+        map: texture,
         roughness: 0.98,
         bumpMap: this.paperGrain,
         bumpScale: 0.005,
@@ -331,9 +355,9 @@ export class DungeonScene {
       context.fillStyle = status === "used" ? "#89775b" : "#342a1e";
       context.textAlign = "center";
       context.textBaseline = "middle";
-      context.font = "48px Georgia, serif";
+      context.font = `48px ${fontFamily(this.locale)}`;
       context.fillText(title, canvas.width / 2, 61);
-      context.font = '36px Georgia, "Hiragino Mincho ProN", "Yu Mincho", serif';
+      context.font = `36px ${fontFamily(this.locale)}`;
       const words = description.match(/[\p{Script=Latin}\p{N}]+|\s+|./gu) ?? [];
       const lines: string[] = [];
       let line = "";
