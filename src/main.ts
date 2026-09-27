@@ -82,11 +82,6 @@ function project() {
     skillButtons[i].style.width = `${right.x - left.x}px`;
     skillButtons[i].style.height = `${front.y - back.y}px`;
   });
-  const roll = el("roll");
-  const dock = scene.rollDock;
-  if (dock) {
-    Object.assign(roll.style, { left: `${dock.x}px`, top: `${dock.y}px`, right: "auto", bottom: "auto", width: `${dock.size}px`, height: `${dock.size}px`, transform: "translate(-50%, -50%)" });
-  } else roll.removeAttribute("style");
   diceButtons.forEach((b, i) => {
     const p = scene.diePosition(i);
     place(b, p.x, p.y + 0.3, p.z);

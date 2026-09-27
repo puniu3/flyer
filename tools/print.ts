@@ -21,9 +21,8 @@ const wrap = (w: number, h: number, body: string) =>
   `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="100%" height="100%" fill="#e1d6bd"/><rect x="12" y="12" width="${w - 24}" height="${h - 24}" fill="none" stroke="#9b8a70" stroke-width="1.2"/>${body}</svg>`;
 const roleSize = 32;
 const headingSize = 29;
-for (const portrait of [false, true]) {
-  const layout = makeLayout(portrait);
-  const suffix = portrait ? "-portrait" : "";
+{
+  const layout = makeLayout();
   const d = layout.dungeon;
   const dw = Math.round(d.width * 100), dh = Math.round(d.depth * 100);
   let body = text(268, 65, "DUNGEON", headingSize);
@@ -39,8 +38,8 @@ for (const portrait of [false, true]) {
     else body += text(260, y - 6, "FIVE OF", roleSize) + text(260, y + 31, "A KIND", roleSize);
   });
   const dungeonSvg = wrap(dw, dh, body);
-  await fs.writeFile(`art/board${suffix}.svg`, dungeonSvg);
-  await sharp(Buffer.from(dungeonSvg)).png().toFile(`${out}/board${suffix}.png`);
+  await fs.writeFile(`art/board.svg`, dungeonSvg);
+  await sharp(Buffer.from(dungeonSvg)).png().toFile(`${out}/board.png`);
   for (const [g, group] of GROUPS.entries()) {
     const board = layout.abilities[g];
     const w = Math.round(board.width * 100), h = Math.round(board.depth * 100);
@@ -54,8 +53,8 @@ for (const portrait of [false, true]) {
       b += text(x + 37, y + 10, s.mark, roleSize);
     });
     const svg = wrap(w, h, b);
-    await fs.writeFile(`art/${group}${suffix}.svg`, svg);
-    await sharp(Buffer.from(svg)).png().toFile(`${out}/${group}${suffix}.png`);
+    await fs.writeFile(`art/${group}.svg`, svg);
+    await sharp(Buffer.from(svg)).png().toFile(`${out}/${group}.png`);
   }
 }
 const wood = await sharp("art/textures/maple.png")

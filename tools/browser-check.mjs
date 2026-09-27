@@ -43,6 +43,7 @@ try {
 
       await page.screenshot({ path: `.browser-check/${name}-initial.png` });
       const bounds = await page.locator("canvas").boundingBox();
+      assert.equal(await page.evaluate(() => window.__flyer.diagnostics().layout), "landscape", "layout is fixed in every orientation");
       assert.equal(
         await page.locator(".skill-label:visible").count(),
         0,

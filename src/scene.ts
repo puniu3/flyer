@@ -49,11 +49,7 @@ const faceNormals = [
 ];
 export class DungeonScene {
   readonly renderer: THREE.WebGLRenderer;
-  layout = makeLayout(false);
-  rollDock: { x: number; y: number; size: number } | null = null;
-  private layoutBoards = new Map<boolean, THREE.Group>();
-  private lastView?: GameView;
-  private lastHeld = new Set<number>();
+  readonly layout = makeLayout();
   readonly camera = new THREE.PerspectiveCamera(22, 1, 1, 500);
   readonly controls: OrbitControls;
   private world = new THREE.Scene();
@@ -352,15 +348,14 @@ export class DungeonScene {
         roughness: 0.88,
       }),
     );
-    for (const portrait of [false, true]) {
-      const layout = makeLayout(portrait);
+    {
+      const layout = this.layout;
       const group = new THREE.Group();
-      const suffix = portrait ? "-portrait" : "";
       const d = layout.dungeon;
-      group.add(await this.board(`board${suffix}`, d.width, d.depth, d.x, d.z));
+      group.add(await this.board("board", d.width, d.depth, d.x, d.z));
       for (const [i, name] of GROUPS.entries()) {
         const b = layout.abilities[i];
-        group.add(await this.board(`${name}${suffix}`, b.width, b.depth, b.x, b.z));
+        group.add(await this.board(name, b.width, b.depth, b.x, b.z));
       }
       const tray = layout.tray;
       const rail = this.material("#694d34", 0.7);
@@ -371,9 +366,7 @@ export class DungeonScene {
         group.add(this.box(tray.railWidth, tray.railHeight, tray.depth,
           tray.x + sign * (tray.width + tray.railWidth) / 2, tray.railHeight / 2, tray.z, rail));
       }
-      group.visible = false;
       this.world.add(group);
-      this.layoutBoards.set(portrait, group);
     }
     for (let i = 0; i < 5; i++) {
       const pivot = new THREE.Group();
@@ -546,8 +539,6 @@ export class DungeonScene {
     this.draw();
   }
   sync(view: GameView, held: Set<number>) {
-    this.lastView = view;
-    this.lastHeld = new Set(held);
     this.finish(false);
     view.dice.forEach((v, i) => {
       if (
@@ -743,7 +734,6 @@ export class DungeonScene {
     this.draw();
   }
   private applyLayout() {
-    for (const [portrait, group] of this.layoutBoards) group.visible = portrait === this.layout.portrait;
     const layout = this.layout;
     for (const s of layout.slots) {
       this.markers.get(s.id)!.position.set(markerX(s), SHEET_TOP + 0.007, s.z);
@@ -769,15 +759,6 @@ export class DungeonScene {
   private resize() {
     const { clientWidth: w, clientHeight: h } = this.host;
     if (!w || !h) return;
-    const portrait = h > w;
-    if (portrait !== this.layout.portrait) {
-      if (this.loaded) this.finish();
-      this.layout = makeLayout(portrait);
-      if (this.loaded) {
-        this.applyLayout();
-        if (this.lastView) this.sync(this.lastView, this.lastHeld);
-      }
-    }
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.home();
@@ -795,7 +776,7 @@ export class DungeonScene {
       h = this.host.clientHeight;
     this.camera.fov = this.settings.fov;
     this.homeDistance =
-      (Math.max(this.layout.portrait ? 19.2 : 12.0, (this.layout.right - this.layout.left + 2.2) / Math.max(0.35, w / h)) /
+      (Math.max(12.0, (this.layout.right - this.layout.left + 2.2) / Math.max(0.35, w / h)) /
         (2 * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2)))) *
       this.settings.distance;
     const pitch = THREE.MathUtils.degToRad(this.settings.elevation);
@@ -811,18 +792,6 @@ export class DungeonScene {
     this.controls.maxDistance = this.homeDistance * 1.6;
     this.camera.updateProjectionMatrix();
     this.controls.update();
-    const dock = this.layout.roll;
-    if (dock) {
-      const p = this.project(dock.x, SHEET_TOP, dock.z);
-      const left = this.project(dock.x - dock.diameter / 2, SHEET_TOP, dock.z);
-      const right = this.project(dock.x + dock.diameter / 2, SHEET_TOP, dock.z);
-      const size = Math.min(112, Math.max(64, right.x - left.x));
-      this.rollDock = {
-        x: Math.max(size / 2 + 12, Math.min(w - size / 2 - 12, p.x)),
-        y: Math.max(size / 2 + 12, Math.min(h - size / 2 - 12, p.y)),
-        size,
-      };
-    } else this.rollDock = null;
     this.draw();
   }
   zoom(factor: number) {
@@ -843,7 +812,7 @@ export class DungeonScene {
   diagnostics() {
     return {
       draws: this.draws,
-      layout: this.layout.portrait ? "portrait" : "landscape",
+      layout: "landscape",
       keepRings: this.rings.map((ring) => ring.visible),
       skillCards: this.skillCards.map((card) => ({ visible: card.object.visible, scale: card.object.scale.toArray() })),
       triangles: this.renderer.info.render.triangles,
