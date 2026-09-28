@@ -24,7 +24,7 @@ export type TranscriptEvent = (
 
 export type TranscriptRecord = TranscriptEvent & {
   logVersion: "flyer-cli-calls-1";
-  uiVersion: "cli-7";
+  uiVersion: "cli-8";
   rulesVersion: string;
   timestamp: string;
   responseChannel: "stdout" | "stderr";
@@ -33,7 +33,7 @@ export type TranscriptRecord = TranscriptEvent & {
 export function appendTranscript(run: string, event: TranscriptEvent, timestamp = new Date().toISOString()): void {
   mkdirSync(dirname(run), { recursive: true });
   const record: TranscriptRecord = {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-7", rulesVersion: RULES_VERSION, timestamp,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-8", rulesVersion: RULES_VERSION, timestamp,
     responseChannel: "stdout", ...event,
   };
   appendFileSync(`${run}.calls.jsonl`, `${JSON.stringify(record)}\n`, { mode: 0o600 });
