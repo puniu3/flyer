@@ -321,7 +321,7 @@ test("every submitted input and exact response is logged with its decision conte
   assert.equal(calls[1].command, "remaining");
   assert.equal(records[0].event, "start");
   assert.deepEqual(records[records.length - 1], {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-8", rulesVersion: RULES_VERSION,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-9", rulesVersion: RULES_VERSION,
     timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
     context: calls[calls.length - 1].after, response: `保存先：${path}`, responseChannel: "stderr",
   });
