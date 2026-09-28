@@ -51,7 +51,7 @@ function nextDungeon(state: GameState): string {
 
 function unusedAbilitiesText(state: GameState): string {
   const remaining = getView(state).categories.filter(c => c.group !== "dungeon" && !c.isChecked);
-  return remaining.length <= 2 ? `能力の残り：${remaining.map(c => categoryLabel(c.id)).join("、") || "なし"}。` : "";
+  return remaining.length <= 5 ? `能力の残り：${remaining.map(c => categoryLabel(c.id)).join("、") || "なし"}。` : "";
 }
 
 function diceText(state: GameState): string {

@@ -127,12 +127,29 @@ test("category selection announces unlocking and automatically rolls the next tu
   assert.equal(session.entries.length, 3);
 });
 
-test("unlocking every skill does not show the remaining list when three ability slots remain", () => {
+test("three remaining ability slots are shown with every skill unlocked", () => {
   const session = fixture([3, 3, 4, 5, 6]);
   for (const group of ["str", "dex", "int"] as const) unlock(session, group);
   const text = statusText(session.state, true);
   assert.match(text, /全スキル使用可/);
-  assert.doesNotMatch(text, /能力の残り/);
+  assert.match(text, /能力の残り：筋力の「6が3個」、敏捷の「2が3個」、知力の「4が3個」。/);
+});
+
+test("remaining abilities appear at five slots, not six, and only in the turn summary", () => {
+  const session = fixture([1, 2, 3, 4, 5]);
+  for (const id of Object.keys(session.state.categories) as CategoryId[]) {
+    if (!id.startsWith("dungeon")) session.state.categories[id] = true;
+  }
+  for (const id of ["str_three_of_a_kind_5", "str_three_of_a_kind_6", "dex_three_of_a_kind_1",
+    "dex_three_of_a_kind_2", "int_three_of_a_kind_3", "int_three_of_a_kind_4"] as CategoryId[]) {
+    session.state.categories[id] = false;
+  }
+  assert.doesNotMatch(statusText(session.state, true), /能力の残り/);
+  session.state.categories.int_three_of_a_kind_3 = true;
+  assert.equal(getView(session.state).skills.skill_str_mighty.status, "locked");
+  assert.match(statusText(session.state, true), /能力の残り：筋力の「5が3個」、筋力の「6が3個」、敏捷の「1が3個」、敏捷の「2が3個」、知力の「4が3個」。/);
+  assert.doesNotMatch(statusText(session.state), /能力の残り/);
+  assert.doesNotMatch(playCommand(session, "r").text, /能力の残り/);
 });
 
 test("two or fewer remaining ability slots are shown at turn start independently of skill unlocks", () => {
@@ -292,7 +309,7 @@ test("every submitted input and exact response is logged with its decision conte
   assert.equal(calls[1].command, "remaining");
   assert.equal(records[0].event, "start");
   assert.deepEqual(records[records.length - 1], {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-3", rulesVersion: RULES_VERSION,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-4", rulesVersion: RULES_VERSION,
     timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
     context: calls[calls.length - 1].after, response: `保存先：${path}`, responseChannel: "stderr",
   });

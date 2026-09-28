@@ -1,0 +1,32 @@
+[
+  {
+    "input": "dex 2 4 of",
+    "actionCountAfter": 24,
+    "afterLine": "第9ターン。B2：合計24以上。",
+    "insertLine": "能力の残り：筋力の「5が3個」、筋力の「6が3個」、敏捷の「1が3個」、知力の「3が3個」、知力の「4が3個」。"
+  },
+  {
+    "input": "B2",
+    "actionCountAfter": 27,
+    "afterLine": "B2突破。第10ターン。B3：合計26以上。",
+    "insertLine": "能力の残り：筋力の「5が3個」、筋力の「6が3個」、敏捷の「1が3個」、知力の「3が3個」、知力の「4が3個」。"
+  },
+  {
+    "input": "6s",
+    "actionCountAfter": 31,
+    "afterLine": "第11ターン。B3：合計26以上。",
+    "insertLine": "能力の残り：筋力の「5が3個」、敏捷の「1が3個」、知力の「3が3個」、知力の「4が3個」。"
+  },
+  {
+    "input": "str 4 B3",
+    "actionCountAfter": 36,
+    "afterLine": "第12ターン。B4：合計9以下。",
+    "insertLine": "能力の残り：筋力の「5が3個」、敏捷の「1が3個」、知力の「3が3個」、知力の「4が3個」。"
+  },
+  {
+    "input": "dex 2 1s",
+    "actionCountAfter": 41,
+    "afterLine": "第13ターン。B4：合計9以下。",
+    "insertLine": "能力の残り：筋力の「5が3個」、知力の「3が3個」、知力の「4が3個」。"
+  }
+]

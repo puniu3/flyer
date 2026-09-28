@@ -33,6 +33,17 @@ const fixturePath = new URL("./fixtures/cli-dialogue-golden.json", import.meta.u
 const fixtureBytes = readFileSync(fixturePath);
 const golden: Golden = JSON.parse(fixtureBytes.toString("utf8"));
 const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
+const thresholdChanges: { input: string; actionCountAfter: number; afterLine: string; insertLine: string }[] =
+  JSON.parse(readFileSync(new URL("./fixtures/cli-dialogue-threshold-5.json", import.meta.url), "utf8"));
+
+function expectedResponse(exchange: Exchange): string {
+  const change = thresholdChanges.find(change => change.input === exchange.input && change.actionCountAfter === exchange.actionCountAfter);
+  if (!change) return exchange.response;
+  const lines = exchange.response.split("\n");
+  assert.equal(lines.filter(line => line === change.afterLine).length, 1);
+  lines.splice(lines.indexOf(change.afterLine) + 1, 0, change.insertLine);
+  return lines.join("\n");
+}
 
 function equalBytes(actual: string | Buffer, expected: string | Buffer, label: string) {
   const received = Buffer.from(actual);
@@ -51,6 +62,11 @@ test("the owner-approved dialogue fixture is unchanged", () => {
     }
   }
   assert.equal(hash(Buffer.from(golden.fork.response, "utf8")), golden.fork.responseSha256);
+  assert.equal(thresholdChanges.length, 5);
+  for (const change of thresholdChanges) {
+    assert.equal(golden.shared.filter(exchange => exchange.input === change.input
+      && exchange.actionCountAfter === change.actionCountAfter).length, 1);
+  }
 });
 
 for (const [name, branch] of Object.entries(golden.branches)) {
@@ -65,7 +81,7 @@ for (const [name, branch] of Object.entries(golden.branches)) {
       } else {
         response = playCommand(session, exchange.input).text;
       }
-      equalBytes(response, exchange.response, `${name} response ${index}: ${exchange.input ?? "start"}`);
+      equalBytes(response, expectedResponse(exchange), `${name} response ${index}: ${exchange.input ?? "start"}`);
       assert.equal(session.entries.length, exchange.actionCountAfter);
       assert.deepEqual(session.entries.slice(exchange.actionCountBefore).map(entry => entry.action), exchange.actions);
       assert.equal(hash(JSON.stringify(session.state)), exchange.stateSha256);
@@ -84,13 +100,13 @@ for (const [name, branch] of Object.entries(golden.branches)) {
       input, timeout: 15000,
     });
     assert.equal(result.status, 0, result.stderr.toString("utf8"));
-    equalBytes(result.stdout, exchanges.map(exchange => exchange.response + "\n").join(""), `${name} stdout`);
+    equalBytes(result.stdout, exchanges.map(exchange => expectedResponse(exchange) + "\n").join(""), `${name} stdout`);
     equalBytes(result.stderr, `保存先：${path}\n`, `${name} exit metadata`);
     const records: TranscriptRecord[] = readFileSync(`${path}.calls.jsonl`, "utf8").trim().split("\n").map(line => JSON.parse(line));
     const responses = records.filter(record => record.event === "start" || record.event === "input");
     assert.equal(responses.length, exchanges.length);
     for (const [index, record] of responses.entries()) {
-      equalBytes(record.response, exchanges[index].response, `${name} recorded response ${index}`);
+      equalBytes(record.response, expectedResponse(exchanges[index]), `${name} recorded response ${index}`);
       if (record.event === "input") assert.equal(record.input, exchanges[index].input);
     }
     assert.equal(hash(JSON.stringify(loadSession(path).dump())), branch.engineLogSha256);
@@ -113,6 +129,6 @@ test("the saved fork resumes at the same random position and follows the winning
     input: branch.exchanges.map(exchange => exchange.input).join("\n") + "\n", timeout: 15000,
   });
   assert.equal(result.status, 0, result.stderr.toString("utf8"));
-  equalBytes(result.stdout, [golden.fork.response, ...branch.exchanges.map(exchange => exchange.response)].map(text => text + "\n").join(""), "fork stdout");
+  equalBytes(result.stdout, [golden.fork.response, ...branch.exchanges.map(expectedResponse)].map(text => text + "\n").join(""), "fork stdout");
   assert.equal(hash(JSON.stringify(loadSession(path).dump())), branch.engineLogSha256);
 });
