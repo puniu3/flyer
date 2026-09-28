@@ -9,16 +9,16 @@ const categories: Record<CategoryId, { name: string; condition: string; aliases:
   dungeon_floor_3: { name: "B3", condition: "合計26以上", aliases: ["b3", "地下3階"] },
   dungeon_floor_4: { name: "B4", condition: "合計9以下", aliases: ["b4", "地下4階"] },
   dungeon_floor_5: { name: "B5", condition: "5個すべて同じ目", aliases: ["b5", "地下5階"] },
-  str_full_house: { name: "フルハウス", condition: "同じ目3個と別の目2個", aliases: ["full house", "fullhouse", "フルハウス"] },
-  str_four_of_a_kind: { name: "フォーカード", condition: "同じ目4個以上", aliases: ["4 of", "f of", "four of a kind", "フォーカード"] },
+  str_full_house: { name: "フルハウス", condition: "同じ目3個と別の目2個", aliases: ["full house", "full", "house", "boat", "fh", "3+2", "2+3", "フルハウス", "フル"] },
+  str_four_of_a_kind: { name: "フォーカード", condition: "同じ目4個以上", aliases: ["4 of", "f of", "four of a kind", "4 of a kind", "four kind", "4 kind", "four card", "4 card", "quads", "quad", "4oak", "4+1", "1+4", "フォーカード", "4カード"] },
   str_three_of_a_kind_5: { name: "5が3個", condition: "5が3個以上", aliases: ["5s", "5が3個"] },
   str_three_of_a_kind_6: { name: "6が3個", condition: "6が3個以上", aliases: ["6s", "6が3個"] },
-  dex_free: { name: "自由枠", condition: "出目を問わない", aliases: ["free", "自由枠"] },
-  dex_straight: { name: "ストレート", condition: "1〜5または2〜6を1個ずつ", aliases: ["straight", "straigt", "ストレート"] },
+  dex_free: { name: "自由枠", condition: "出目を問わない", aliases: ["free", "any", "chance", "自由枠", "自由", "フリー"] },
+  dex_straight: { name: "ストレート", condition: "1〜5または2〜6を1個ずつ", aliases: ["straight", "straigt", "run", "sequence", "ストレート", "連番"] },
   dex_three_of_a_kind_1: { name: "1が3個", condition: "1が3個以上", aliases: ["1s", "1が3個"] },
   dex_three_of_a_kind_2: { name: "2が3個", condition: "2が3個以上", aliases: ["2s", "2が3個"] },
-  int_one_pair: { name: "ワンペア", condition: "同じ目2個以上", aliases: ["pair", "one pair", "ワンペア"] },
-  int_two_pair: { name: "ツーペア", condition: "異なる2種類の目が各2個以上", aliases: ["two pair", "two pairs", "ツーペア"] },
+  int_one_pair: { name: "ワンペア", condition: "同じ目2個以上", aliases: ["pair", "one pair", "1 pair", "1p", "ワンペア", "ペア", "1ペア"] },
+  int_two_pair: { name: "ツーペア", condition: "異なる2種類の目が各2個以上", aliases: ["two pair", "two pairs", "2 pair", "2 pairs", "2p", "double pair", "2+2", "2+2+1", "ツーペア", "ツーペアー", "2ペア"] },
   int_three_of_a_kind_3: { name: "3が3個", condition: "3が3個以上", aliases: ["3s", "3が3個"] },
   int_three_of_a_kind_4: { name: "4が3個", condition: "4が3個以上", aliases: ["4s", "4が3個"] },
 };
@@ -31,6 +31,35 @@ const categoryIds = Object.keys(categories) as CategoryId[];
 
 export function normalizeCommand(input: string): string {
   return input.normalize("NFKC").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function categoryKey(input: string): string {
+  return normalizeCommand(input).replace(/[\s_\-「」『』・]/g, "")
+    .replace(/[ぁ-ゖ]/g, char => String.fromCharCode(char.charCodeAt(0) + 0x60));
+}
+
+const categoryAliases = categoryIds.map(id => {
+  const aliases = [...categories[id].aliases];
+  const face = id.match(/three_of_a_kind_([1-6])$/)?.[1];
+  if (face) aliases.push(`${face}x3`, `${face}×3`, `${face}*3`, `${face}が3つ`, `${face}を3個`);
+  const floor = id.match(/dungeon_floor_([1-5])$/)?.[1];
+  if (floor) aliases.push(`b${floor}f`, `地下${floor}`, `地下${floor}f`);
+  const group = id.split("_")[0] as CategoryGroup;
+  return { id, group, aliases: [...new Set(aliases.map(categoryKey))] };
+});
+
+function resolveCategory(command: string): CategoryId | undefined {
+  let key = categoryKey(command);
+  const qualifier = Object.entries(groups).find(([, name]) => key.startsWith(name));
+  if (qualifier) key = key.slice(qualifier[1].length).replace(/^ノ/, "");
+  const candidates = categoryAliases.filter(category => !qualifier || category.group === qualifier[0]);
+  const exact = candidates.filter(category => category.aliases.includes(key));
+  if (exact.length) return exact.length === 1 ? exact[0].id : undefined;
+  if (!/^[a-zァ-ヶー]{2,}$/.test(key)) return undefined;
+  if (["str", "dex", "int", "turn", "help", "look", "status", "remaining", "board", "skills", "rules", "roll", "new", "quit", "exit", "save"]
+    .some(reserved => reserved.startsWith(key))) return undefined;
+  const matches = candidates.filter(category => category.aliases.some(alias => alias.startsWith(key)));
+  return matches.length === 1 ? matches[0].id : undefined;
 }
 
 function turn(state: GameState): number {
@@ -223,7 +252,7 @@ function planCommand(initial: GameState, command: string): PlayerAction[] {
     actions.push({ type: "roll_dice", indexesToReroll: state.dice.map((_, i) => i).filter(i => !held.has(i)) });
     return actions;
   }
-  const categoryId = categoryIds.find(id => categories[id].aliases.includes(rest));
+  const categoryId = resolveCategory(rest);
   if (!categoryId) throw new Error("入力を解釈できません。helpで操作一覧。");
   const category = getView(state).categories.find(c => c.id === categoryId)!;
   if (category.isChecked) throw new Error(`${categoryLabel(categoryId)}は使用済みです。`);

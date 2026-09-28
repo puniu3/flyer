@@ -250,6 +250,63 @@ test("aliases used in conversation and Japanese names select the same categories
   }
 });
 
+test("category synonyms, separators and unambiguous abbreviations preserve canonical actions", () => {
+  const cases: [string, string[], DieValue[]][] = [
+    ["full house", ["full", "house", "boat", "FH", "3+2", "2 + 3", "３＋２", "full-house", "full_house", "fu", "フル", "ふるはうす", "ﾌﾙﾊｳｽ", "筋力のフルハウス"], [2, 2, 2, 4, 4]],
+    ["4 of", ["quad", "quads", "4ofakind", "four-kind", "fourcard", "4 card", "4oak", "4+1", "1 + 4", "フォー", "ふぉーかーど"], [2, 2, 2, 2, 4]],
+    ["pair", ["onepair", "1 pair", "1p", "pa", "ペア", "わんぺあ", "知力のワンペア"], [2, 2, 3, 4, 5]],
+    ["two pair", ["twopairs", "2-pair", "2 pairs", "2p", "double pair", "2+2", "2 + 2 + 1", "tw", "つーぺあ", "2ペア"], [2, 2, 3, 3, 4]],
+    ["straight", ["run", "sequence", "stra", "すとれーと", "連番", "敏捷のストレート"], [1, 2, 3, 4, 5]],
+    ["free", ["any", "chance", "fr", "自由", "フリー", "ふりー"], [1, 2, 3, 4, 5]],
+    ["B1", ["b 1", "B1F", "b-1", "地下1", "地下１階", "ダンジョンのB1"], [6, 6, 6, 6, 6]],
+  ];
+  for (const face of [1, 2, 3, 4, 5, 6] as const) {
+    cases.push([`${face}s`, [`${face} s`, `${face}x3`, `${face}×3`, `${face} * 3`, `${face}が3つ`, `「${face}が3個」`], [face, face, face, 1, 6]]);
+  }
+  for (const [canonical, aliases, dice] of cases) for (const alias of aliases) {
+    const expected = fixture(dice);
+    const actual = fixture(dice);
+    const result = playCommand(actual, alias);
+    assert.equal(result.changed, true, alias);
+    assert.deepEqual(result, playCommand(expected, canonical), alias);
+    assert.deepEqual(actual.dump(), expected.dump(), alias);
+  }
+});
+
+test("ambiguous names never depend on which slots remain playable", () => {
+  for (const used of [false, true]) for (const command of ["f", "s", "st", "str", "bo", "three", "3+", "筋力free", "知力のフルハウス", "full boat"]) {
+    const session = fixture([2, 2, 2, 4, 4]);
+    session.state.categories.dex_free = used;
+    session.state.categories.str_four_of_a_kind = used;
+    const before = structuredClone(session.dump());
+    assert.equal(playCommand(session, command).outcome, "invalid", command);
+    assert.deepEqual(session.dump(), before, command);
+  }
+  for (const command of ["12345", "22", "3", "4"]) {
+    const session = fixture(command === "22" ? [2, 2, 3, 4, 5] : [1, 2, 3, 4, 5]);
+    assert.equal(playCommand(session, command).outcome, "action", command);
+    assert.equal(session.entries[0].action.type, "roll_dice", command);
+  }
+});
+
+test("new aliases work after skills and invalid compound commands remain atomic", () => {
+  for (const alias of ["full", "boat", "3 + 2", "筋力のフルハウス"]) {
+    const actual = fixture([2, 2, 2, 4, 3]);
+    const expected = fixture([2, 2, 2, 4, 3]);
+    unlock(actual, "int");
+    unlock(expected, "int");
+    assert.deepEqual(playCommand(actual, `int 3 ${alias}`), playCommand(expected, "int 3 full house"));
+    assert.deepEqual(actual.dump(), expected.dump());
+  }
+  for (const command of ["int 3 f", "int 3 boat", "int 3 3+2 rubbish"]) {
+    const session = fixture([2, 2, 2, 5, 3]);
+    unlock(session, "int");
+    const before = structuredClone(session.dump());
+    assert.equal(playCommand(session, command).outcome, "invalid");
+    assert.deepEqual(session.dump(), before);
+  }
+});
+
 test("saved sessions replay exactly, including the next random draw; damaged logs are rejected", t => {
   const directory = mkdtempSync(join(tmpdir(), "flyer-cli-storage-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
