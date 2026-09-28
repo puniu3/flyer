@@ -15,7 +15,7 @@ async function main() {
     seed: { type: "string" }, resume: { type: "string" }, save: { type: "string" }, help: { type: "boolean" },
   } });
   if (values.help) {
-    console.log("npm run play -- [--seed 整数] [--save 保存先]\nnpm run play -- --resume 保存先\n\n" + helpText);
+    console.log(helpText + "\n\n起動コマンド\nnpm run play -- [--seed 整数] [--save 保存先]\nnpm run play -- --resume 保存先");
     return;
   }
   if (values.resume && (values.seed !== undefined || values.save)) throw new Error("--resumeは--seed、--saveと併用できません。");
