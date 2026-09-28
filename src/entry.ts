@@ -7,8 +7,11 @@ if (legacy) {
   target.search = query.toString();
   location.replace(target.href);
 } else {
-  const ui = query.get("ui")?.toLowerCase();
-  if (ui === "text") void import("./text-main");
-  else if (ui === "classic") void import("./classic-main");
-  else void import("./main");
+  const editions = new Map<string, () => Promise<unknown>>([
+    ["text", () => import("./text-main")],
+    ["classic", () => import("./classic-main")],
+    ["3d", () => import("./main")],
+  ]);
+  const ui = query.get("ui")?.toLowerCase() ?? "3d";
+  void (editions.get(ui) ?? editions.get("3d")!)();
 }

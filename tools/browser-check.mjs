@@ -2,6 +2,7 @@ import { chromium, webkit } from "playwright";
 import { preview } from "vite";
 import fs from "node:fs/promises";
 import assert from "node:assert/strict";
+import { checkEditions } from "./edition-check.mjs";
 const server = await preview({ preview: { host: "127.0.0.1", port: 0 } });
 const url = `http://127.0.0.1:${server.httpServer.address().port}/?check`;
 await fs.mkdir(".browser-check", { recursive: true });
@@ -15,6 +16,7 @@ try {
   ]) {
     const browser = await type.launch(type === chromium ? { args: ["--mute-audio"] } : {});
     try {
+      await checkEditions(browser, url, viewport);
       const page = await browser.newPage({
         viewport,
         hasTouch: touch,
