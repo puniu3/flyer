@@ -34,7 +34,7 @@ async function main() {
   };
   let session = values.resume ? loadSession(path) : fresh(values.seed === undefined ? undefined : Number(values.seed));
   saveSession(path, session);
-  const opening = `${statusText(session.state, true)}\n操作：help。終了：quit。`;
+  const opening = statusText(session.state, true, Boolean(values.resume));
   appendTranscript(path, { event: values.resume ? "resume" : "start", context: callContext(path, session), response: opening });
   console.log(opening);
   const interactive = Boolean(process.stdin.isTTY && process.stdout.isTTY);
@@ -76,7 +76,7 @@ async function main() {
         }
       } catch (error) {
         appendTranscript(sourcePath, { event: "input", input, command, outcome: "error", before,
-          after: callContext(path, session), response: `エラー：${(error as Error).message}` }, timestamp);
+          after: callContext(path, session), response: `エラー：${(error as Error).message}`, responseChannel: "stderr" }, timestamp);
         throw error;
       }
       appendTranscript(sourcePath, { event: "input", input, command, outcome, before,
@@ -95,8 +95,8 @@ async function main() {
     process.off("SIGINT", interrupt);
     reader.close();
     const response = endReason === "error" ? "" : `保存先：${path}`;
-    appendTranscript(path, { event: "end", reason: endReason, context: callContext(path, session), response });
-    if (response) console.log(response);
+    appendTranscript(path, { event: "end", reason: endReason, context: callContext(path, session), response, responseChannel: "stderr" });
+    if (response) console.error(response);
   }
 }
 

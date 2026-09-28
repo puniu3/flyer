@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import { playCommand, statusText } from "../cli/game";
 import { loadSession, saveSession } from "../cli/storage";
 import type { TranscriptRecord } from "../cli/transcript";
-import { init } from "../src/rules";
+import { getView, init } from "../src/rules";
 import { RULES_VERSION, Session } from "../src/session";
 import type { CategoryId, DieValue } from "../src/types";
 
@@ -96,7 +96,8 @@ test("skills target current face values after earlier commands in the same line"
   assert.equal(session.state.categories.dungeon_floor_4, true);
   assert.equal(session.state.rollsUsed, 1);
   assert.match(result.text, /B5：5個すべて同じ目/);
-  assert.doesNotMatch(result.text, /合計/);
+  assert.match(result.text, /^筋力で5を6、知力で6を1にし、合計9でB4突破。\n/);
+  assert.doesNotMatch(statusText(session.state), /合計/);
 });
 
 test("queries show requirements, group associations and skill availability without changing state", () => {
@@ -109,7 +110,7 @@ test("queries show requirements, group associations and skill availability witho
   assert.match(statusText(session.state, true), /第1ターン。B1：合計20以上/);
   assert.match(statusText(session.state), /知力のツーペア/);
   assert.doesNotMatch(statusText(session.state), /第1ターン/);
-  assert.match(playCommand(session, "remaining").text, /B5（5個すべて同じ目・前階突破後）/);
+  assert.match(playCommand(session, "remaining").text, /B4（合計9以下）→B5（5個同じ目）/);
   assert.match(playCommand(session, "rules").text, /筋力のフルハウス/);
 });
 
@@ -126,26 +127,41 @@ test("category selection announces unlocking and automatically rolls the next tu
   assert.equal(session.entries.length, 3);
 });
 
-test("turn starts show unused ability categories and remaining also restores the hand", () => {
+test("unlocking every skill does not show the remaining list when three ability slots remain", () => {
+  const session = fixture([3, 3, 4, 5, 6]);
+  for (const group of ["str", "dex", "int"] as const) unlock(session, group);
+  const text = statusText(session.state, true);
+  assert.match(text, /全スキル使用可/);
+  assert.doesNotMatch(text, /能力の残り/);
+});
+
+test("two or fewer remaining ability slots are shown at turn start independently of skill unlocks", () => {
+  const session = fixture([3, 3, 4, 5, 6]);
+  for (const id of Object.keys(session.state.categories) as CategoryId[]) {
+    if (!id.startsWith("dungeon")) session.state.categories[id] = true;
+  }
+  session.state.categories.str_three_of_a_kind_5 = false;
+  session.state.categories.str_three_of_a_kind_6 = false;
+  assert.equal(getView(session.state).skills.skill_str_mighty.status, "locked");
+  assert.match(statusText(session.state, true), /能力の残り：筋力の「5が3個」、筋力の「6が3個」。/);
+  assert.doesNotMatch(statusText(session.state), /能力の残り/);
+  assert.doesNotMatch(playCommand(session, "r").text, /能力の残り/);
+  session.state.categories.str_three_of_a_kind_5 = true;
+  assert.match(statusText(session.state, true), /能力の残り：筋力の「6が3個」。/);
+  session.state.categories.str_three_of_a_kind_6 = true;
+  assert.match(statusText(session.state, true), /能力の残り：なし。/);
+});
+
+test("remaining restores the hand, rolls and skills without duplicating legal choices", () => {
   const session = fixture([3, 3, 4, 5, 6]);
   session.state.categories.str_four_of_a_kind = true;
   session.state.categories.int_one_pair = true;
   session.state.categories.int_two_pair = true;
   unlock(session, "dex");
-  const opening = statusText(session.state, true);
-  assert.match(opening, /能力の未使用枠：\n筋力：フルハウス、5が3個、6が3個。\n敏捷：2が3個。\n知力：3が3個、4が3個。/);
-  assert.doesNotMatch(opening, /フォーカード|ワンペア|ツーペア|ストレート|自由枠/);
-  assert.doesNotMatch(statusText(session.state), /能力の未使用枠/);
   const remaining = playCommand(session, "remaining").text;
-  assert.ok(remaining.endsWith(statusText(session.state)));
-  assert.match(remaining, /3、3、4、5、6。合計21。 振り直し2回。敏捷使用可/);
-  const next = playCommand(session, "dex 4 3s").text;
-  assert.match(next, /知力：4が3個。/);
-  assert.match(next, /能力の未使用枠/);
-  for (const id of Object.keys(session.state.categories) as CategoryId[]) {
-    if (!id.startsWith("dungeon")) session.state.categories[id] = true;
-  }
-  assert.match(statusText(session.state, true), /能力の未使用枠なし/);
+  assert.match(remaining, /筋力：フルハウス、5が3個、6が3個。解放まであと2枠。\n敏捷：2が3個。\n知力：3が3個、4が3個。解放まであと1枠。/);
+  assert.ok(remaining.endsWith("現在3、3、4、5、6。振り直し2回。敏捷使用可。"));
+  assert.doesNotMatch(remaining, /確定可|フォーカード|ワンペア|ツーペア|ストレート|自由枠|スキル解放済み/);
 });
 
 test("spent and locked skills, used categories and depleted rolls are rejected", () => {
@@ -158,6 +174,18 @@ test("spent and locked skills, used categories and depleted rolls are rejected",
   unlock(session, "dex");
   assert.equal(playCommand(session, "dex 1").changed, true);
   assert.equal(playCommand(session, "dex 6").changed, false);
+});
+
+test("restoring a turn after a skill preserves its use and does not claim a fresh turn", () => {
+  const session = fixture([1, 2, 3, 4, 5]);
+  unlock(session, "str");
+  assert.match(statusText(session.state, true, true), /^第4ターン開始に戻りました。/);
+  playCommand(session, "str 5");
+  const before = structuredClone(session.state);
+  const text = statusText(session.state, true, true);
+  assert.match(text, /^第4ターンに戻りました。/);
+  assert.match(text, /1、2、3、4、6。合計16。振り直し2回。スキル使用済み。/);
+  assert.deepEqual(session.state, before);
 });
 
 test("third-roll loss and skill-assisted wins are left to the rules engine", () => {
@@ -182,7 +210,7 @@ test("aliases used in conversation and Japanese names select the same categories
     [["f of", "4 of", "フォーカード"], "str_four_of_a_kind", [2, 2, 2, 2, 4]],
     [["two pair", "ツーペア"], "int_two_pair", [2, 2, 3, 3, 4]],
     [["pair", "ワンペア"], "int_one_pair", [2, 2, 3, 4, 5]],
-    [["straight", "ストレート"], "dex_straight", [1, 2, 3, 4, 5]],
+    [["straight", "straigt", "ストレート"], "dex_straight", [1, 2, 3, 4, 5]],
     [["free", "自由枠"], "dex_free", [1, 2, 3, 4, 5]],
     [["B1", "地下1階"], "dungeon_floor_1", [6, 6, 6, 6, 6]],
   ];
@@ -264,11 +292,14 @@ test("every submitted input and exact response is logged with its decision conte
   assert.equal(calls[1].command, "remaining");
   assert.equal(records[0].event, "start");
   assert.deepEqual(records[records.length - 1], {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-2", rulesVersion: RULES_VERSION,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-3", rulesVersion: RULES_VERSION,
     timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
-    context: calls[calls.length - 1].after, response: `保存先：${path}`,
+    context: calls[calls.length - 1].after, response: `保存先：${path}`, responseChannel: "stderr",
   });
-  assert.equal(records.filter(record => record.response).map(record => record.response + "\n").join(""), first.stdout);
+  for (const channel of ["stdout", "stderr"] as const) {
+    assert.equal(records.filter(record => record.response && record.responseChannel === channel)
+      .map(record => record.response + "\n").join(""), first[channel]);
+  }
   for (const call of calls) {
     assert.ok(Number.isFinite(Date.parse(call.timestamp)));
     if (call.outcome !== "action") assert.deepEqual(call.before, call.after);

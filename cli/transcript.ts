@@ -15,23 +15,26 @@ export function callContext(run: string, session: Session) {
 
 type CallContext = ReturnType<typeof callContext>;
 
-export type TranscriptEvent =
+export type TranscriptEvent = (
   | { event: "start" | "resume"; context: CallContext; response: string; previousRun?: string }
   | { event: "input"; input: string; command: string; outcome: CommandOutcome | "new" | "quit" | "save" | "error";
       before: CallContext; after: CallContext; response: string }
-  | { event: "end"; reason: "quit" | "eof" | "sigint" | "error"; context: CallContext; response: string };
+  | { event: "end"; reason: "quit" | "eof" | "sigint" | "error"; context: CallContext; response: string }
+) & { responseChannel?: "stdout" | "stderr" };
 
 export type TranscriptRecord = TranscriptEvent & {
   logVersion: "flyer-cli-calls-1";
-  uiVersion: "cli-2";
+  uiVersion: "cli-3";
   rulesVersion: string;
   timestamp: string;
+  responseChannel: "stdout" | "stderr";
 };
 
 export function appendTranscript(run: string, event: TranscriptEvent, timestamp = new Date().toISOString()): void {
   mkdirSync(dirname(run), { recursive: true });
   const record: TranscriptRecord = {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-2", rulesVersion: RULES_VERSION, timestamp, ...event,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-3", rulesVersion: RULES_VERSION, timestamp,
+    responseChannel: "stdout", ...event,
   };
   appendFileSync(`${run}.calls.jsonl`, `${JSON.stringify(record)}\n`, { mode: 0o600 });
 }
