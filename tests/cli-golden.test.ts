@@ -35,14 +35,20 @@ const golden: Golden = JSON.parse(fixtureBytes.toString("utf8"));
 const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
 const thresholdChanges: { input: string; actionCountAfter: number; afterLine: string; insertLine: string }[] =
   JSON.parse(readFileSync(new URL("./fixtures/cli-dialogue-threshold-5.json", import.meta.url), "utf8"));
+const compactChanges: { before: string; after: string }[] =
+  JSON.parse(readFileSync(new URL("./fixtures/cli-dialogue-compact-abilities.json", import.meta.url), "utf8"));
+
+function compactResponse(response: string): string {
+  return response.split("\n").map(line => compactChanges.find(change => change.before === line)?.after ?? line).join("\n");
+}
 
 function expectedResponse(exchange: Exchange): string {
   const change = thresholdChanges.find(change => change.input === exchange.input && change.actionCountAfter === exchange.actionCountAfter);
-  if (!change) return exchange.response;
+  if (!change) return compactResponse(exchange.response);
   const lines = exchange.response.split("\n");
   assert.equal(lines.filter(line => line === change.afterLine).length, 1);
   lines.splice(lines.indexOf(change.afterLine) + 1, 0, change.insertLine);
-  return lines.join("\n");
+  return compactResponse(lines.join("\n"));
 }
 
 function equalBytes(actual: string | Buffer, expected: string | Buffer, label: string) {
@@ -129,6 +135,6 @@ test("the saved fork resumes at the same random position and follows the winning
     input: branch.exchanges.map(exchange => exchange.input).join("\n") + "\n", timeout: 15000,
   });
   assert.equal(result.status, 0, result.stderr.toString("utf8"));
-  equalBytes(result.stdout, [golden.fork.response, ...branch.exchanges.map(expectedResponse)].map(text => text + "\n").join(""), "fork stdout");
+  equalBytes(result.stdout, [compactResponse(golden.fork.response), ...branch.exchanges.map(expectedResponse)].map(text => text + "\n").join(""), "fork stdout");
   assert.equal(hash(JSON.stringify(loadSession(path).dump())), branch.engineLogSha256);
 });

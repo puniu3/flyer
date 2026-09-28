@@ -51,7 +51,13 @@ function nextDungeon(state: GameState): string {
 
 function unusedAbilitiesText(state: GameState): string {
   const remaining = getView(state).categories.filter(c => c.group !== "dungeon" && !c.isChecked);
-  return remaining.length <= 5 ? `能力の残り：${remaining.map(c => categoryLabel(c.id)).join("、") || "なし"}。` : "";
+  if (remaining.length > 5) return "";
+  const summaries = skills.flatMap(skill => {
+    const rows = remaining.filter(c => c.group === skill.group);
+    const names = rows.map(c => c.id.includes("three_of_a_kind") ? `${c.id.slice(-1)}s` : categories[c.id].name);
+    return names.length ? [`${groups[skill.group]} ${names.join("、")}。`] : [];
+  });
+  return `残り：${summaries.join("") || "なし。"}`;
 }
 
 function diceText(state: GameState): string {

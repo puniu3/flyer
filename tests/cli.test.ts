@@ -132,7 +132,7 @@ test("three remaining ability slots are shown with every skill unlocked", () => 
   for (const group of ["str", "dex", "int"] as const) unlock(session, group);
   const text = statusText(session.state, true);
   assert.match(text, /全スキル使用可/);
-  assert.match(text, /能力の残り：筋力の「6が3個」、敏捷の「2が3個」、知力の「4が3個」。/);
+  assert.match(text, /残り：筋力 6s。敏捷 2s。知力 4s。/);
 });
 
 test("remaining abilities appear at five slots, not six, and only in the turn summary", () => {
@@ -144,12 +144,12 @@ test("remaining abilities appear at five slots, not six, and only in the turn su
     "dex_three_of_a_kind_2", "int_three_of_a_kind_3", "int_three_of_a_kind_4"] as CategoryId[]) {
     session.state.categories[id] = false;
   }
-  assert.doesNotMatch(statusText(session.state, true), /能力の残り/);
+  assert.doesNotMatch(statusText(session.state, true), /残り：/);
   session.state.categories.int_three_of_a_kind_3 = true;
   assert.equal(getView(session.state).skills.skill_str_mighty.status, "locked");
-  assert.match(statusText(session.state, true), /能力の残り：筋力の「5が3個」、筋力の「6が3個」、敏捷の「1が3個」、敏捷の「2が3個」、知力の「4が3個」。/);
-  assert.doesNotMatch(statusText(session.state), /能力の残り/);
-  assert.doesNotMatch(playCommand(session, "r").text, /能力の残り/);
+  assert.match(statusText(session.state, true), /残り：筋力 5s、6s。敏捷 1s、2s。知力 4s。/);
+  assert.doesNotMatch(statusText(session.state), /残り：/);
+  assert.doesNotMatch(playCommand(session, "r").text, /残り：/);
 });
 
 test("two or fewer remaining ability slots are shown at turn start independently of skill unlocks", () => {
@@ -160,13 +160,24 @@ test("two or fewer remaining ability slots are shown at turn start independently
   session.state.categories.str_three_of_a_kind_5 = false;
   session.state.categories.str_three_of_a_kind_6 = false;
   assert.equal(getView(session.state).skills.skill_str_mighty.status, "locked");
-  assert.match(statusText(session.state, true), /能力の残り：筋力の「5が3個」、筋力の「6が3個」。/);
-  assert.doesNotMatch(statusText(session.state), /能力の残り/);
-  assert.doesNotMatch(playCommand(session, "r").text, /能力の残り/);
+  assert.match(statusText(session.state, true), /残り：筋力 5s、6s。/);
+  assert.doesNotMatch(statusText(session.state), /残り：/);
+  assert.doesNotMatch(playCommand(session, "r").text, /残り：/);
   session.state.categories.str_three_of_a_kind_5 = true;
-  assert.match(statusText(session.state, true), /能力の残り：筋力の「6が3個」。/);
+  assert.match(statusText(session.state, true), /残り：筋力 6s。/);
   session.state.categories.str_three_of_a_kind_6 = true;
-  assert.match(statusText(session.state, true), /能力の残り：なし。/);
+  assert.match(statusText(session.state, true), /残り：なし。/);
+});
+
+test("compact remaining abilities preserve named hands and group each ability once", () => {
+  const session = fixture([1, 2, 3, 4, 5]);
+  const remaining: CategoryId[] = ["str_full_house", "str_three_of_a_kind_6", "dex_straight",
+    "dex_three_of_a_kind_1", "dex_three_of_a_kind_2"];
+  for (const id of Object.keys(session.state.categories) as CategoryId[]) {
+    if (!id.startsWith("dungeon")) session.state.categories[id] = !remaining.includes(id);
+  }
+  assert.equal(statusText(session.state, true).split("\n")[1],
+    "残り：筋力 フルハウス、6s。敏捷 ストレート、1s、2s。");
 });
 
 test("remaining restores the hand, rolls and skills without duplicating legal choices", () => {
@@ -309,7 +320,7 @@ test("every submitted input and exact response is logged with its decision conte
   assert.equal(calls[1].command, "remaining");
   assert.equal(records[0].event, "start");
   assert.deepEqual(records[records.length - 1], {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-4", rulesVersion: RULES_VERSION,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-5", rulesVersion: RULES_VERSION,
     timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
     context: calls[calls.length - 1].after, response: `保存先：${path}`, responseChannel: "stderr",
   });
