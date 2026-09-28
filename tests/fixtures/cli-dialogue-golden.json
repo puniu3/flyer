@@ -1,0 +1,738 @@
+{
+  "fixtureVersion": 1,
+  "status": "frozen",
+  "rulesVersion": "flyer-1",
+  "seed": 2454587467,
+  "responseEncoding": "UTF-8",
+  "responseBoundary": "assistant final message, no terminal framing or trailing newline",
+  "shared": [
+    {
+      "input": null,
+      "actionCountBefore": 0,
+      "actionCountAfter": 1,
+      "response": "第1ターン。B1：合計20以上。\n1、2、5、6、6。合計20。振り直し2回。スキル未解放。\n確定可：B1、知力のワンペア、敏捷の自由枠。",
+      "responseSha256": "a725a9116825e7eb8becefa5f7d5027a9342d80f890f94a5bba1b2b5286266be",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "58df3fecb7c0398749b70a9bae1298b81d089e8e75a6b8ca4b3bbb21a93641a4"
+    },
+    {
+      "input": "B1",
+      "actionCountBefore": 1,
+      "actionCountAfter": 3,
+      "response": "B1突破。第2ターン。B2：合計24以上。\n1、3、5、5、6。合計20。振り直し2回。\n確定可：知力のワンペア、敏捷の自由枠。",
+      "responseSha256": "dd7b7a810709c94df33af80856721b438da9bc9935d2cde15972ff55a44d2d62",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "dungeon_floor_1"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "ae30690f489d9c57d417a6670ae2eb25048d9e052a2093af420582bcdac0fe76"
+    },
+    {
+      "input": "556",
+      "actionCountBefore": 3,
+      "actionCountAfter": 4,
+      "response": "1、4、5、5、6。合計21。振り直し1回。\n確定可：知力のワンペア、敏捷の自由枠。",
+      "responseSha256": "f8562bf7cbc3e754036496c237733a171608bd4a218bde654db5d752240f0e66",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            1,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "1a46948baf39ff1e7d1051709610b909679741ceb907a4e2f8b740dc9e95114c"
+    },
+    {
+      "input": "4556",
+      "actionCountBefore": 4,
+      "actionCountAfter": 5,
+      "response": "3、4、5、5、6。合計23。振り直しなし。\n確定可：知力のワンペア、敏捷の自由枠。",
+      "responseSha256": "aedcf5529964fb6c192a49b7b6e8ef48ac0dd4690249f0845dd62d7992aaf773",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            1
+          ]
+        }
+      ],
+      "stateSha256": "347591147f4bc867b2760afd26a9e5f4f2b7195e24eab4d3e8ec936481c61a17"
+    },
+    {
+      "input": "pair",
+      "actionCountBefore": 5,
+      "actionCountAfter": 7,
+      "response": "知力のワンペア確定。知力1/3。\n第3ターン。B2：合計24以上。\n2、3、3、4、5。合計17。振り直し2回。\n確定可：敏捷の自由枠。",
+      "responseSha256": "afa3bfbb6c80446f3f8e71779e47a36712eaca38cbf5ba6f4041e247b9b14dba",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "int_one_pair"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "d3ba8b14ccf3f2d7c712f9a2ca5d431ba4460a4f5d7b93cccf2db100d9448e9e"
+    },
+    {
+      "input": "2345",
+      "actionCountBefore": 7,
+      "actionCountAfter": 8,
+      "response": "1、2、3、4、5。合計15。振り直し1回。\n確定可：敏捷のストレート、敏捷の自由枠。",
+      "responseSha256": "bb09042b75c52ef4eaf5670e1f3c0af0a3f959657d928d1ac33b2616b368908b",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            1
+          ]
+        }
+      ],
+      "stateSha256": "cc2bfeedd303c2c81b6f3443c46c73315394719f3d2c01c6b276a90d24727f4f"
+    },
+    {
+      "input": "straigt",
+      "actionCountBefore": 8,
+      "actionCountAfter": 10,
+      "response": "敏捷のストレート確定。敏捷1/3。\n第4ターン。B2：合計24以上。\n1、3、4、5、6。合計19。振り直し2回。\n確定可：敏捷の自由枠。",
+      "responseSha256": "7226feaff52bace6b743fd677e91ed14cabc08aca37a52b9f04bdbe18db71fe4",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "dex_straight"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "f9d11510fb8f1afc43b9fdc2d5a27d1c9882eb5e0e6e8eb710972ff3f5331f71"
+    },
+    {
+      "input": "56",
+      "actionCountBefore": 10,
+      "actionCountAfter": 11,
+      "response": "2、4、5、6、6。合計23。振り直し1回。\n確定可：敏捷の自由枠。",
+      "responseSha256": "1b1e59d6ce7d0682898f60f2fe352d9812128a9e17fbf5762e042e8d719a1640",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            1,
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "4af91ea2311c842f3391293c917828f99a04090f826608fb569de3cac4bd88f3"
+    },
+    {
+      "input": "566",
+      "actionCountBefore": 11,
+      "actionCountAfter": 12,
+      "response": "1、4、5、6、6。合計22。振り直しなし。\n確定可：敏捷の自由枠。",
+      "responseSha256": "620a111e292f9492299bb01854a952b2b43d4476de77b4fc7f0febb18c7b9b6b",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "a84ac99a0888ce24c75dfeb54d2b6638604a98fd7d7e31c9368fe5a114b2483d"
+    },
+    {
+      "input": "free",
+      "actionCountBefore": 12,
+      "actionCountAfter": 14,
+      "response": "敏捷の自由枠確定。敏捷2/3。\n第5ターン。B2：合計24以上。\n1、2、2、2、4。合計11。振り直し2回。\n確定可：敏捷の「2が3個」。",
+      "responseSha256": "121ce27daaeb422c47973c72399bf8c94edf5167f9803891075b435971f0abee",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "dex_free"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "c3e5e47573df9ab40f51c61f1e1b1dfc759b3c0851667e32565307b84e1a6d3c"
+    },
+    {
+      "input": "2s",
+      "actionCountBefore": 14,
+      "actionCountAfter": 16,
+      "response": "敏捷の「2が3個」確定。敏捷スキル解放：毎ターン1回、1個の出目を1減らせます。\n第6ターン。B2：合計24以上。\n1、1、1、4、6。合計13。振り直し2回。敏捷使用可。\n確定可：敏捷の「1が3個」。",
+      "responseSha256": "4a10a3aeb926484f76e854963ecaa4cb8ae6c8d8fe9e5a92e91d00ce38d1d6fe",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "dex_three_of_a_kind_2"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "cb16731a957c708757cd4a80a026f97ab3e775dddcfcb2b4a2773e2a1ddb44c1"
+    },
+    {
+      "input": "111",
+      "actionCountBefore": 16,
+      "actionCountAfter": 17,
+      "response": "1、1、1、3、3。合計9。振り直し1回。敏捷使用可。\n確定可：筋力のフルハウス、敏捷の「1が3個」、知力のツーペア。",
+      "responseSha256": "2084b2f0f670df0cfa7f02983c3b39149d09fc065cfaf464d152c9aa7dd81de5",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            1,
+            2
+          ]
+        }
+      ],
+      "stateSha256": "99ed0cfcea407cc89bf957c11fd4a5a6cf1d36e663cd63dc28c53262143b25a9"
+    },
+    {
+      "input": "full house",
+      "actionCountBefore": 17,
+      "actionCountAfter": 19,
+      "response": "筋力のフルハウス確定。筋力1/3。\n第7ターン。B2：合計24以上。\n1、1、1、3、3。合計9。振り直し2回。敏捷使用可。\n確定可：敏捷の「1が3個」、知力のツーペア。",
+      "responseSha256": "61c207b62d1bb1e6841b2401038ba6a6573c8e24cae06fd4177ae7504a84b90e",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "str_full_house"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "42767db12a3da87f4869a672551afdfb5b1eb2256bd073b6cad411d47b6494dc"
+    },
+    {
+      "input": "two pair",
+      "actionCountBefore": 19,
+      "actionCountAfter": 21,
+      "response": "知力のツーペア確定。知力2/3。\n第8ターン。B2：合計24以上。\n1、1、1、2、3。合計8。振り直し2回。敏捷使用可。\n確定可：敏捷の「1が3個」。",
+      "responseSha256": "0686d43c2265cdc5a88af626603e52bd387efa5c68a86bd807aa0cb28a7a90de",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "int_two_pair"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "15be0fcd8e9b26b042e00583bd202d97d015adeb1f94a6d0ff6d8d6be8cbe84d"
+    },
+    {
+      "input": "dex 2 4 of",
+      "actionCountBefore": 21,
+      "actionCountAfter": 24,
+      "response": "敏捷で2を1にし、筋力のフォーカード確定。筋力2/3。\n第9ターン。B2：合計24以上。\n1、2、5、6、6。合計20。振り直し2回。敏捷使用可。\n確定可：なし。",
+      "responseSha256": "a179df11e6fba5b08f49437cbecc01fce69b480b5ab393a36591c9911bd3c262",
+      "actions": [
+        {
+          "type": "use_skill",
+          "skillId": "skill_dex_acrobatics",
+          "targetDieIndex": 4
+        },
+        {
+          "type": "select_category",
+          "categoryId": "str_four_of_a_kind"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "46761809802bd925f205b5fdbc3d99971bab94d109cff3ac0dd4e8022fb0c9d5"
+    },
+    {
+      "input": "566",
+      "actionCountBefore": 24,
+      "actionCountAfter": 25,
+      "response": "3、5、6、6、6。合計26。振り直し1回。敏捷使用可。\n確定可：B2、筋力の「6が3個」。",
+      "responseSha256": "1a823c25be227803a9a34b1cc16bfea785644ac7d60f4d6596d559cfc60b5c34",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            2
+          ]
+        }
+      ],
+      "stateSha256": "8ace30073f2bf2ed3e0646d5f0796e7eb8855aa1524789158dc80f4c98c264c6"
+    },
+    {
+      "input": "B2",
+      "actionCountBefore": 25,
+      "actionCountAfter": 27,
+      "response": "B2突破。第10ターン。B3：合計26以上。\n1、1、1、6、6。合計15。振り直し2回。敏捷使用可。\n確定可：敏捷の「1が3個」。",
+      "responseSha256": "82b252f5db55590dee7a7f1b45a059781aaa0d5d47a92087e2e5914bf3398c40",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "dungeon_floor_2"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "0272fff8ee333c0f79092a654d0bc4b8f814965c30672e28f0db86a1a670de13"
+    },
+    {
+      "input": "remaining",
+      "actionCountBefore": 27,
+      "actionCountAfter": 27,
+      "response": "残り8枠。\nダンジョン：B3（合計26以上）→B4（合計9以下）→B5（5個同じ目）。\n筋力：5が3個、6が3個。解放まであと1枠。\n敏捷：1が3個。\n知力：3が3個、4が3個。解放まであと1枠。\n現在1、1、1、6、6。振り直し2回。敏捷使用可。",
+      "responseSha256": "ad4c03c3c0c3bd9ea93388ef5b3547b7d8a05bdb835723c81f3948f39aaea20f",
+      "actions": [],
+      "stateSha256": "0272fff8ee333c0f79092a654d0bc4b8f814965c30672e28f0db86a1a670de13"
+    },
+    {
+      "input": "66",
+      "actionCountBefore": 27,
+      "actionCountAfter": 28,
+      "response": "1、2、6、6、6。合計21。振り直し1回。敏捷使用可。\n確定可：筋力の「6が3個」。",
+      "responseSha256": "ace5ee527399d29fa5e891016de4fd3fa0e92e386e9cc8f335abaff5be323ba6",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            1,
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "90b56613473ec2c050d587970c2d40529659ecf447e1502d7f0f8f875427df28"
+    },
+    {
+      "input": "666",
+      "actionCountBefore": 28,
+      "actionCountAfter": 29,
+      "response": "1、5、6、6、6。合計24。振り直しなし。敏捷使用可。\n確定可：筋力の「6が3個」。",
+      "responseSha256": "45b28754bc4c98d603b4a06a1be641faab4ab63b3cd2a36cdb49f67e23c620f5",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "37d5ca617767c1cb866b3b24ce61fc40c566268db20beba16fc93bb9b2f47a1a"
+    },
+    {
+      "input": "6s",
+      "actionCountBefore": 29,
+      "actionCountAfter": 31,
+      "response": "筋力の「6が3個」確定。筋力スキル解放：毎ターン1回、1個の出目を6にできます。\n第11ターン。B3：合計26以上。\n2、3、4、5、6。合計20。振り直し2回。筋力・敏捷使用可。\n確定可：なし。",
+      "responseSha256": "4328194ece975a7e4545343ee7e8907e1682f41ad04086713f3338f553a374cd",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "str_three_of_a_kind_6"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "795cf192e29f98943e74a59dae7ab9c1560e52282b36405277752075344b3459"
+    },
+    {
+      "input": "56",
+      "actionCountBefore": 31,
+      "actionCountAfter": 32,
+      "response": "1、2、2、5、6。合計16。振り直し1回。筋力・敏捷使用可。\n確定可：なし。",
+      "responseSha256": "7cbde15571b9af571f70931dff69d38b2e6b155d9bae4e8d1fd8a67016abe3df",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "9b04f063c8e21931cde34a7f673907f56d03f2a3d6ae8e333694f64cac9060f8"
+    },
+    {
+      "input": "56",
+      "actionCountBefore": 32,
+      "actionCountAfter": 33,
+      "response": "4、5、5、5、6。合計25。振り直しなし。筋力・敏捷使用可。\n確定可：筋力の「5が3個」。",
+      "responseSha256": "864360cd1b59464080817147eb6aac361dcdf0a99b9c8d3e073c4b9f481c514b",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "f90f43f659fc2d6118779bc5fd872d46ca7d9ae4235189d9bb06ccdb94128b45"
+    },
+    {
+      "input": "str 4 B3",
+      "actionCountBefore": 33,
+      "actionCountAfter": 36,
+      "response": "筋力で4を6にし、合計27でB3突破。\n第12ターン。B4：合計9以下。\n1、3、4、5、5。合計18。振り直し2回。筋力・敏捷使用可。\n確定可：なし。",
+      "responseSha256": "32e77aff9627c8f560222c692f1cc06c7f84837831f4ba647b761bd43da5ab13",
+      "actions": [
+        {
+          "type": "use_skill",
+          "skillId": "skill_str_mighty",
+          "targetDieIndex": 2
+        },
+        {
+          "type": "select_category",
+          "categoryId": "dungeon_floor_3"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "26fc5c02e5712d5c7de0f319a85489061bf1b15a3632e22290b1b88214832ebf"
+    },
+    {
+      "input": "1",
+      "actionCountBefore": 36,
+      "actionCountAfter": 37,
+      "response": "1、1、3、5、6。合計16。振り直し1回。筋力・敏捷使用可。\n確定可：なし。",
+      "responseSha256": "dc9b8890e4e5d57e5a40038fa062478988bfd21136d576375423fb9388c48797",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "fbc5aef27e00429d34ed4f247d7bb532bd486782f926001f9b3124b978a34c69"
+    },
+    {
+      "input": "remaining",
+      "actionCountBefore": 37,
+      "actionCountAfter": 37,
+      "response": "残り6枠。\nダンジョン：B4（合計9以下）→B5（5個同じ目）。\n筋力：5が3個。\n敏捷：1が3個。\n知力：3が3個、4が3個。解放まであと1枠。\n現在1、1、3、5、6。振り直し1回。筋力・敏捷使用可。",
+      "responseSha256": "12a23a9ec64b01e4bc4c33f29c10ec9bb787edca257df356e8d22db9e8848274",
+      "actions": [],
+      "stateSha256": "fbc5aef27e00429d34ed4f247d7bb532bd486782f926001f9b3124b978a34c69"
+    },
+    {
+      "input": "11",
+      "actionCountBefore": 37,
+      "actionCountAfter": 38,
+      "response": "1、1、2、5、5。合計14。振り直しなし。筋力・敏捷使用可。\n確定可：なし。",
+      "responseSha256": "d52355dca9029150a768e40124c911e8471385cda752cc487d706d514cfd59bd",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            2,
+            3
+          ]
+        }
+      ],
+      "stateSha256": "de752822d0adaf10e0d8c607d7a7f0979443754c3d73549ca6b8a877b684f109"
+    },
+    {
+      "input": "112",
+      "actionCountBefore": 38,
+      "actionCountAfter": 38,
+      "response": "振り直しは残っていません。変更なし。\n1、1、2、5、5。筋力・敏捷使用可。",
+      "responseSha256": "6582202e0d319f7dd1f4bf083ae5bcb0ae5b8d6c5ff129e5c4491f8f2f064989",
+      "actions": [],
+      "stateSha256": "de752822d0adaf10e0d8c607d7a7f0979443754c3d73549ca6b8a877b684f109"
+    },
+    {
+      "input": "dex 2 1s",
+      "actionCountBefore": 38,
+      "actionCountAfter": 41,
+      "response": "敏捷で2を1にし、敏捷の「1が3個」確定。\n第13ターン。B4：合計9以下。\n3、5、5、6、6。合計25。振り直し2回。筋力・敏捷使用可。\n確定可：なし。",
+      "responseSha256": "1df8553400c3832f0dd340cc73edb24377cb74d05b2ca3b6dff545af3ae4fb73",
+      "actions": [
+        {
+          "type": "use_skill",
+          "skillId": "skill_dex_acrobatics",
+          "targetDieIndex": 2
+        },
+        {
+          "type": "select_category",
+          "categoryId": "dex_three_of_a_kind_1"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "79ff7197657f3016055f4c44a0bf507b8f0f12193a202820cf9eaaba4e24728c"
+    },
+    {
+      "input": "3",
+      "actionCountBefore": 41,
+      "actionCountAfter": 42,
+      "response": "1、3、3、3、4。合計14。振り直し1回。筋力・敏捷使用可。\n確定可：知力の「3が3個」。",
+      "responseSha256": "cf2f46a4a3a014e469f17eb8cf068c664196827737c18cf85b72014f06423a45",
+      "actions": [
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "53bec8f3111593d5167563acf6f580983d70a211d8b7bc222f2f45d610b30ecb"
+    },
+    {
+      "input": "3s",
+      "actionCountBefore": 42,
+      "actionCountAfter": 44,
+      "response": "知力の「3が3個」確定。知力スキル解放：毎ターン1回、1個を裏返せます（1↔6、2↔5、3↔4）。\n第14ターン。B4：合計9以下。\n能力の残り：筋力の「5が3個」、知力の「4が3個」。\n1、1、3、3、4。合計12。振り直し2回。全スキル使用可。\n確定可：なし。",
+      "responseSha256": "9d37510486c4e26cad1ce659c96f36f303530ea638405f53191c5934679e841a",
+      "actions": [
+        {
+          "type": "select_category",
+          "categoryId": "int_three_of_a_kind_3"
+        },
+        {
+          "type": "roll_dice",
+          "indexesToReroll": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      ],
+      "stateSha256": "fe7d7614b9a451ed03d03ace05d82b211f887f5dcd8421d7cd1c5bfd8e5a8df9"
+    }
+  ],
+  "fork": {
+    "afterActionCount": 44,
+    "request": "11334が出た時点でB4を取る方法があった。そこまで巻き戻してフォークしよう。敗北ルートと続行ルートの両方をgoldenに入れてカバー範囲を広げたい。",
+    "response": "第14ターン開始に戻りました。B4：合計9以下。\n能力の残り：筋力の「5が3個」、知力の「4が3個」。\n1、1、3、3、4。合計12。振り直し2回。全スキル使用可。\n確定可：なし。",
+    "responseSha256": "3d54ecb512690e6797adf33100dd48a7c214e30b557d748066fa4fb9781d3148"
+  },
+  "branches": {
+    "loss": {
+      "exchanges": [
+        {
+          "input": "11",
+          "actionCountBefore": 44,
+          "actionCountAfter": 45,
+          "response": "1、1、6、6、6。合計20。振り直し1回。全スキル使用可。\n確定可：なし。",
+          "responseSha256": "7a1406630a4c17dd48416c793313da0f433809d1191b210e02d829dc5d0126a7",
+          "actions": [
+            {
+              "type": "roll_dice",
+              "indexesToReroll": [
+                1,
+                3,
+                4
+              ]
+            }
+          ],
+          "stateSha256": "fadf661098ef91b9a98a45add7dcc092f1f10d7fa6c378e14cdb1eedc177f51d"
+        },
+        {
+          "input": "11",
+          "actionCountBefore": 45,
+          "actionCountAfter": 46,
+          "response": "1、1、4、5、6。合計17。\n全スキルを組み合わせても残りの枠を達成できず、第14ターンで敗北。B3まで突破しました。",
+          "responseSha256": "c0fcdabedbbbc5da88b3e2653f610ca5988d12e35d318738837f24e44bdd9a26",
+          "actions": [
+            {
+              "type": "roll_dice",
+              "indexesToReroll": [
+                1,
+                3,
+                4
+              ]
+            }
+          ],
+          "stateSha256": "b0b861f3d89b63db0b4be5f0cf0e3718c154766653fca0ffcd42eebbeddd1670"
+        }
+      ],
+      "engineLogSha256": "adbfee7769da9eae79341e7c5bba96ae2e0c955be120fca10082c106ecebc8c9",
+      "terminalStatus": "lost"
+    },
+    "win": {
+      "exchanges": [
+        {
+          "input": "str 4 int 6 B4",
+          "actionCountBefore": 44,
+          "actionCountAfter": 48,
+          "response": "筋力で4を6、知力で6を1にし、合計9でB4突破。\n第15ターン。B5：5個すべて同じ目。\n能力の残り：筋力の「5が3個」、知力の「4が3個」。\n5、6、6、6、6。振り直し2回。全スキル使用可。\n確定可：なし。",
+          "responseSha256": "bdf9aa7290a420af290b821ad4622b95e4dab1c7d1efc83e22c05d7f5e29cc1b",
+          "actions": [
+            {
+              "type": "use_skill",
+              "skillId": "skill_str_mighty",
+              "targetDieIndex": 1
+            },
+            {
+              "type": "use_skill",
+              "skillId": "skill_int_metamorph",
+              "targetDieIndex": 1
+            },
+            {
+              "type": "select_category",
+              "categoryId": "dungeon_floor_4"
+            },
+            {
+              "type": "roll_dice",
+              "indexesToReroll": [
+                0,
+                1,
+                2,
+                3,
+                4
+              ]
+            }
+          ],
+          "stateSha256": "620f181ebbb8580ebd81acbdb2385c13bcdbaa239c8b8d3586e122924b8c9bbb"
+        },
+        {
+          "input": "str 5 B5",
+          "actionCountBefore": 48,
+          "actionCountAfter": 50,
+          "response": "筋力で5を6にし、6、6、6、6、6。B5突破、第15ターンで勝利。",
+          "responseSha256": "507c7de25c4f03d19d318d18bbb817f2fb6221eef66fffc267dcf64a25c1fec0",
+          "actions": [
+            {
+              "type": "use_skill",
+              "skillId": "skill_str_mighty",
+              "targetDieIndex": 3
+            },
+            {
+              "type": "select_category",
+              "categoryId": "dungeon_floor_5"
+            }
+          ],
+          "stateSha256": "a461f80e30dee40d365cde7a46212785959c724b95a1a87717940cecf356109e"
+        }
+      ],
+      "engineLogSha256": "c1f51712d2af47e021b5f8c70482e9a3e6fd4ccefd07d112d9ab70fe3191e72e",
+      "terminalStatus": "won"
+    }
+  }
+}
