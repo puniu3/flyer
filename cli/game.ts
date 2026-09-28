@@ -43,22 +43,28 @@ const categoryAliases = categoryIds.map(id => {
   const face = id.match(/three_of_a_kind_([1-6])$/)?.[1];
   if (face) aliases.push(`${face}x3`, `${face}×3`, `${face}*3`, `${face}が3つ`, `${face}を3個`);
   const floor = id.match(/dungeon_floor_([1-5])$/)?.[1];
-  if (floor) aliases.push(`b${floor}f`, `地下${floor}`, `地下${floor}f`);
+  if (floor) aliases.push(`b${floor}f`, `dungeon${floor}`, `地下${floor}`, `地下${floor}f`);
   const group = id.split("_")[0] as CategoryGroup;
   return { id, group, aliases: [...new Set(aliases.map(categoryKey))] };
 });
 
-function resolveCategory(command: string): CategoryId | undefined {
+function resolveCategory(command: string, state: GameState): CategoryId | undefined {
   let key = categoryKey(command);
+  if (["b", "dungeon", "ダンジョン", "地下"].includes(key)) {
+    return categoryIds.find(id => id.startsWith("dungeon_") && !state.categories[id]);
+  }
   const qualifier = Object.entries(groups).find(([, name]) => key.startsWith(name));
   if (qualifier) key = key.slice(qualifier[1].length).replace(/^ノ/, "");
   const candidates = categoryAliases.filter(category => !qualifier || category.group === qualifier[0]);
   const exact = candidates.filter(category => category.aliases.includes(key));
   if (exact.length) return exact.length === 1 ? exact[0].id : undefined;
-  if (!/^[a-zァ-ヶー]{2,}$/.test(key)) return undefined;
+  if (!/^[a-zァ-ヶー]+$/.test(key)) return undefined;
   if (["str", "dex", "int", "turn", "help", "look", "status", "remaining", "board", "skills", "rules", "roll", "new", "quit", "exit", "save"]
     .some(reserved => reserved.startsWith(key))) return undefined;
   const matches = candidates.filter(category => category.aliases.some(alias => alias.startsWith(key)));
+  if (matches.length > 1) {
+    throw new Error(`候補：${matches.map(category => categories[category.id].aliases[0]).join("、")}。枠名を指定してください。`);
+  }
   return matches.length === 1 ? matches[0].id : undefined;
 }
 
@@ -163,7 +169,7 @@ export const helpText = [
   "55：今ある5を2個残して、ほかを振り直す。残す出目は毎回、空白を入れずに指定。r：全部振り直す。",
   "\n枠の確定",
   "『確定可』から選び、枠の名前を入力します。日本語名でも入力できます。例：ワンペア、またはpair。",
-  "ダンジョン：B1、B2、B3、B4、B5。",
+  "ダンジョン：b または dungeon で次の階。B1〜B5でも指定できます。",
   "筋力：full house＝フルハウス、4 of＝フォーカード、5s、6s。",
   "敏捷：free＝自由枠、straight＝ストレート、1s、2s。",
   "知力：pair＝ワンペア、two pair＝ツーペア、3s、4s。",
@@ -242,7 +248,19 @@ function planCommand(initial: GameState, command: string): PlayerAction[] {
   if (!rest && actions.length) return actions;
   ensurePlaying();
   if (/^[1-6]{1,5}$/.test(rest) || ["r", "roll", "振る"].includes(rest)) {
-    if (!getView(state).rolls.canRoll) throw new Error("振り直しは残っていません。");
+    if (!getView(state).rolls.canRoll) {
+      let hint = "";
+      if (/^([1-6])\1{0,4}$/.test(rest)) {
+        const name = `${rest[0]}s`;
+        const suggested = command.slice(0, command.length - rest.length) + name;
+        const id = resolveCategory(name, state)!;
+        const category = getView(state).categories.find(category => category.id === id)!;
+        hint = category.isChecked ? `${name}の枠は使用済みです。`
+          : category.isSelectable ? `${rest[0]}の役なら${suggested}で確定できます。`
+          : `${rest[0]}の役は${suggested}。条件：${categories[id].condition}。`;
+      }
+      throw new Error(`振り直しは残っていません。${hint}`);
+    }
     const held = new Set<number>();
     for (const face of /^[1-6]+$/.test(rest) ? rest : "") {
       const index = state.dice.findIndex((value, i) => value === Number(face) && !held.has(i));
@@ -252,7 +270,7 @@ function planCommand(initial: GameState, command: string): PlayerAction[] {
     actions.push({ type: "roll_dice", indexesToReroll: state.dice.map((_, i) => i).filter(i => !held.has(i)) });
     return actions;
   }
-  const categoryId = resolveCategory(rest);
+  const categoryId = resolveCategory(rest, state);
   if (!categoryId) throw new Error("入力を解釈できません。helpで操作一覧。");
   const category = getView(state).categories.find(c => c.id === categoryId)!;
   if (category.isChecked) throw new Error(`${categoryLabel(categoryId)}は使用済みです。`);

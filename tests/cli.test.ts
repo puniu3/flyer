@@ -289,6 +289,96 @@ test("ambiguous names never depend on which slots remain playable", () => {
   }
 });
 
+test("dungeon shorthand selects exactly the next uncleared floor", () => {
+  for (const floor of [1, 2, 3, 4, 5]) {
+    for (const command of ["b", "Ｂ", "dungeon", "ダンジョン", "だんじょん", "地下", `dungeon ${floor}`]) {
+      const actual = fixture(floor === 4 ? [1, 1, 1, 1, 1] : [6, 6, 6, 6, 6]);
+      for (let previous = 1; previous < floor; previous++) {
+        actual.state.categories[`dungeon_floor_${previous}` as CategoryId] = true;
+      }
+      const expected = fixture([...actual.state.dice]);
+      expected.state.categories = { ...actual.state.categories };
+      assert.deepEqual(playCommand(actual, command), playCommand(expected, `B${floor}`), command);
+      assert.equal(actual.state.categories[`dungeon_floor_${floor}` as CategoryId], true);
+      assert.deepEqual(actual.dump(), expected.dump(), command);
+    }
+  }
+  const blocked = fixture([1, 1, 1, 1, 1]);
+  blocked.state.categories.dungeon_floor_1 = true;
+  const before = structuredClone(blocked.dump());
+  assert.match(playCommand(blocked, "b").text, /B2は確定できません。条件：合計24以上/);
+  assert.deepEqual(blocked.dump(), before);
+});
+
+test("single-letter names resolve only when category and command meanings do not collide", () => {
+  for (const [short, canonical] of [["p", "pair"], ["a", "any"], ["c", "chance"]]) {
+    const actual = fixture([2, 2, 3, 4, 5]);
+    const expected = fixture([2, 2, 3, 4, 5]);
+    assert.deepEqual(playCommand(actual, short), playCommand(expected, canonical));
+    assert.deepEqual(actual.dump(), expected.dump());
+  }
+  for (const used of [true, false]) {
+    const session = fixture([2, 2, 2, 4, 4]);
+    session.state.categories.dex_free = used;
+    session.state.categories.str_four_of_a_kind = used;
+    const before = structuredClone(session.dump());
+    assert.match(playCommand(session, "f").text, /候補：full house、4 of、free。/);
+    for (const command of ["d", "h", "q", "s", "st", "bo"]) {
+      assert.equal(playCommand(session, command).outcome, "invalid", command);
+    }
+    assert.deepEqual(session.dump(), before);
+  }
+});
+
+test("depleted numeric rerolls suggest the corresponding category without selecting it", () => {
+  for (const face of [1, 2, 3, 4, 5, 6] as const) {
+    for (const command of [String(face), String(face).repeat(3), String.fromCharCode(0xff10 + face)]) {
+      const session = fixture([face, face, face, 2, 5], 3);
+      const before = structuredClone(session.dump());
+      const result = playCommand(session, command);
+      assert.equal(result.outcome, "invalid");
+      assert.match(result.text, new RegExp(`振り直しは残っていません。${face}の役なら${face}sで確定できます。`));
+      assert.deepEqual(session.dump(), before);
+      assert.equal(playCommand(session, `${face}s`).outcome, "action");
+    }
+    const reroll = fixture([face, face, face, 2, 5], 2);
+    assert.equal(playCommand(reroll, String(face)).outcome, "action");
+    assert.equal(reroll.entries[0].action.type, "roll_dice");
+  }
+  const used = fixture([6, 6, 6, 2, 5], 3);
+  used.state.categories.str_three_of_a_kind_6 = true;
+  assert.match(playCommand(used, "6").text, /6sの枠は使用済みです。/);
+  const unmet = fixture([1, 2, 3, 4, 6], 3);
+  assert.match(playCommand(unmet, "6").text, /6の役は6s。条件：6が3個以上。/);
+  for (const command of ["r", "56", "12345"]) {
+    assert.match(playCommand(unmet, command).text, /^振り直しは残っていません。変更なし。/);
+  }
+});
+
+test("contextual aliases and hints preserve compound command atomicity", () => {
+  const actual = fixture([1, 4, 4, 4, 4]);
+  const expected = fixture([1, 4, 4, 4, 4]);
+  unlock(actual, "str");
+  unlock(expected, "str");
+  assert.deepEqual(playCommand(actual, "str 1 dungeon"), playCommand(expected, "str 1 B1"));
+  assert.deepEqual(actual.dump(), expected.dump());
+  for (const command of ["str 1 b", "str 1 f", "str 1 6"]) {
+    const session = fixture([1, 1, 1, 6, 6], 3);
+    session.state.categories.dungeon_floor_1 = true;
+    unlock(session, "str");
+    const before = structuredClone(session.dump());
+    const result = playCommand(session, command);
+    assert.equal(result.outcome, "invalid", command);
+    if (command.endsWith(" 6")) assert.match(result.text, /str 1 6sで確定できます/);
+    assert.deepEqual(session.dump(), before, command);
+    const control = fixture([1, 1, 1, 6, 6], 3);
+    control.state.categories.dungeon_floor_1 = true;
+    unlock(control, "str");
+    assert.deepEqual(playCommand(session, "str 1 6s"), playCommand(control, "str 1 6s"));
+    assert.deepEqual(session.dump(), control.dump());
+  }
+});
+
 test("new aliases work after skills and invalid compound commands remain atomic", () => {
   for (const alias of ["full", "boat", "3 + 2", "筋力のフルハウス"]) {
     const actual = fixture([2, 2, 2, 4, 3]);
@@ -378,7 +468,7 @@ test("every submitted input and exact response is logged with its decision conte
   assert.equal(calls[1].command, "remaining");
   assert.equal(records[0].event, "start");
   assert.deepEqual(records[records.length - 1], {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-10", rulesVersion: RULES_VERSION,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-11", rulesVersion: RULES_VERSION,
     timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
     context: calls[calls.length - 1].after, response: `保存先：${path}`, responseChannel: "stderr",
   });
