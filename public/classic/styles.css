@@ -955,5 +955,7 @@ dialog.guide-modal::backdrop {
   }
 }
 
-.edition-link { max-width: 1200px; margin: 0 auto; padding: 12px 16px 0; text-align: right; font-size: 14px; }
-.edition-link a { display: inline-block; padding: 8px; color: #574529; }
+.guide-credit { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; font-size: 11px; }
+.ui-links { white-space: nowrap; }
+.ui-links a { color: inherit; text-underline-offset: 2px; }
+.ui-links a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

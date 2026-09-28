@@ -7,23 +7,7 @@
     <title>チラシの裏ダンジョン</title>
   </head>
   <body>
-    <div id="app">
-      <main id="history" aria-label="履歴" tabindex="-1">
-        <div class="history-inner">
-          <h1>チラシの裏ダンジョン</h1>
-          <div id="messages"></div>
-        </div>
-      </main>
-      <footer class="composer">
-        <div class="composer-inner">
-          <button type="button" id="resume" hidden>再開</button>
-          <form id="command-form">
-            <input id="command" aria-label="コマンド" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" />
-            <button type="submit" id="submit">実行</button>
-          </form>
-        </div>
-      </footer>
-    </div>
-    <script type="module" src="../src/text-main.ts"></script>
+    <div id="app"></div>
+    <script type="module" src="../src/entry.ts"></script>
   </body>
 </html>

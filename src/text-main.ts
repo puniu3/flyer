@@ -1,6 +1,12 @@
 import "./text.css";
 import { helpText, normalizeCommand, playCommand, statusText } from "../cli/game";
 import { Session } from "./session";
+import shell from "./text-shell.html?raw";
+
+document.title = "チラシの裏ダンジョン";
+document.documentElement.lang = "ja";
+document.querySelector('meta[name="theme-color"]')?.setAttribute("content", "#eee9df");
+document.getElementById("app")!.innerHTML = shell;
 
 type Message = { input: string | null; response: string };
 
@@ -21,7 +27,8 @@ let paused = false;
 let composing = false;
 let followLatest = false;
 const webHelpText = helpText.slice(0, helpText.indexOf("\n終了と再開"))
-  + "\n終了と開始\nquit：終了。new：新しいランを開始。\n再読み込みやタブを閉じると進行は消えます。";
+  + "\n終了と開始\nquit：終了。new：新しいランを開始。\n再読み込みやタブを閉じると進行は消えます。"
+  + "\n\nUI切替: ?ui=3d / ?ui=classic";
 history.addEventListener("scroll", () => {
   followLatest = history.scrollHeight - history.scrollTop - history.clientHeight < 72;
 });
@@ -43,7 +50,7 @@ function append(message: Message, announce: boolean) {
     entry.append(command);
   }
   if (message.response) {
-    const response = document.createElement("p");
+    const response = document.createElement("div");
     response.className = "response";
     if (announce) {
       response.setAttribute("aria-live", "polite");

@@ -1,0 +1,10 @@
+document.title = "Flyer Dungeon · Classic";
+document.getElementById("app")!.id = "fd-stage";
+const style = document.createElement("link");
+style.rel = "stylesheet";
+style.href = `${import.meta.env.BASE_URL}classic/styles.css`;
+document.head.append(style);
+const script = document.createElement("script");
+script.type = "module";
+script.src = `${import.meta.env.BASE_URL}classic/main.js`;
+document.body.append(script);

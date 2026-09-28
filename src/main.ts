@@ -325,13 +325,13 @@ el("help").addEventListener("click", () => {
   const credit = document.createElement("p");
   credit.className = "guide-credit";
   credit.textContent = "2026 Curiosity Inc.";
-  const classic = document.createElement("a");
-  classic.className = "classic-link";
-  classic.href = `${import.meta.env.BASE_URL}classic/`;
-  classic.textContent = t("classic_link");
   const footer = document.createElement("footer");
   footer.className = "guide-footer";
-  footer.append(credit, classic);
+  const variants = document.createElement("span");
+  variants.className = "ui-links";
+  variants.lang = "en";
+  variants.innerHTML = '<a href="?ui=text">Text</a> / <a href="?ui=classic">Classic</a>';
+  footer.append(credit, variants);
   el("guide-content").append(footer);
   el<HTMLDialogElement>("guide").showModal();
 });

@@ -316,10 +316,11 @@ button[hidden] {
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 24px;
-  padding-top: 12px;
-  border-top: 1px solid #b5a182;
+  margin-top: 16px;
   color: #89775b;
+  font-size: 11px;
 }
 #guide .guide-credit { margin: 0; font-size: 11px; }
-#guide .classic-link { color: inherit; font-size: 11px; text-align: right; }
+#guide .ui-links { white-space: nowrap; }
+#guide .ui-links a { color: inherit; text-underline-offset: 2px; }
+#guide .ui-links a:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

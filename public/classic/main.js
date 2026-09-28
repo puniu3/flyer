@@ -416,7 +416,7 @@ var GuideModal = class {
             </ul>
           </section>
         </div>
-        <footer class="guide-credit">( ・3・)${t2("guide_credit")}</footer>
+        <footer class="guide-credit"><span>( ・3・)${t2("guide_credit")}</span><span class="ui-links" lang="en"><a href="${new URL("../?ui=3d", import.meta.url)}">3D</a> / <a href="${new URL("../?ui=text", import.meta.url)}">Text</a></span></footer>
       </div>
     `;
   }

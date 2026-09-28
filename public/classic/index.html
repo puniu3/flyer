@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flyer Dungeon · Classic</title>
-    <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
-  <nav class="edition-link"><a href="../">新版で遊ぶ / Play the new edition →</a></nav>
-  <div id="fd-stage"></div>
-  <script type='module' src="main.js"></script>
+  <script>
+    const target = new URL("../", location.href);
+    const query = new URLSearchParams(location.search);
+    if (!query.has("ui")) query.set("ui", "classic");
+    target.search = query.toString();
+    location.replace(target.href);
+  </script>
 </body>
 </html>
