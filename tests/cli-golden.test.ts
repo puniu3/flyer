@@ -34,7 +34,7 @@ const fixtureBytes = readFileSync(fixturePath);
 const golden: Golden = JSON.parse(fixtureBytes.toString("utf8"));
 const hash = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
 const thresholdChanges: { input: string; actionCountAfter: number; afterLine: string; insertLine: string }[] =
-  JSON.parse(readFileSync(new URL("./fixtures/cli-dialogue-threshold-5.json", import.meta.url), "utf8"));
+  [5, 6].flatMap(threshold => JSON.parse(readFileSync(new URL(`./fixtures/cli-dialogue-threshold-${threshold}.json`, import.meta.url), "utf8")));
 const compactChanges: { before: string; after: string }[] =
   JSON.parse(readFileSync(new URL("./fixtures/cli-dialogue-compact-abilities.json", import.meta.url), "utf8"));
 
@@ -68,7 +68,7 @@ test("the owner-approved dialogue fixture is unchanged", () => {
     }
   }
   assert.equal(hash(Buffer.from(golden.fork.response, "utf8")), golden.fork.responseSha256);
-  assert.equal(thresholdChanges.length, 5);
+  assert.equal(thresholdChanges.length, 6);
   for (const change of thresholdChanges) {
     assert.equal(golden.shared.filter(exchange => exchange.input === change.input
       && exchange.actionCountAfter === change.actionCountAfter).length, 1);

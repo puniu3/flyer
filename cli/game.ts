@@ -51,7 +51,7 @@ function nextDungeon(state: GameState): string {
 
 function unusedAbilitiesText(state: GameState): string {
   const remaining = getView(state).categories.filter(c => c.group !== "dungeon" && !c.isChecked);
-  if (remaining.length > 5) return "";
+  if (remaining.length > 6) return "";
   const summaries = skills.flatMap(skill => {
     const rows = remaining.filter(c => c.group === skill.group);
     const names = rows.map(c => c.id.includes("three_of_a_kind") ? `${c.id.slice(-1)}s` : categories[c.id].name);
@@ -119,12 +119,20 @@ function remainingText(state: GameState): string {
 }
 
 export const helpText = [
-  "55：5を2個残してほかを振り直す。r：全部振り直す。",
-  "B1〜B5、1s〜6s、pair、two pair、full house、4 of、straight、free：枠を確定。",
-  "str 4：筋力で4を1個6にする。dex 3：敏捷で3を1個減らす。int 5：知力で5を1個裏返す。対象は位置ではなく出目。",
-  "dex 3 int 5 B5：左から順に実行。保持指定または枠の確定は末尾に1つ。不正な入力は全体を取り消す。",
-  "remaining：残り枠。look：現在の状況。skills：スキル。rules：役とルール。",
-  "new：新しいラン。save：保存先。quit：終了。help：この説明。",
+  "5個のサイコロで条件を満たし、B1からB5まで順に突破する1人用ゲームです。",
+  "操作は1行入力してEnter。最初のサイコロは自動で振られています。振り直しは毎ターン最大2回です。",
+  "振り直す：55なら、今ある5を2個残してほかを振り直します。rなら全部。残す出目は毎回指定します。数字の間に空白は入れません。",
+  "確定する：『確定可』から1枠を選び、B1やpairのように入力します。振り直しを使い切る必要はありません。確定すると次のターンが自動で始まります。",
+  "役の入力名。筋力：full house＝フルハウス、4 of＝フォーカード、5s、6s。",
+  "敏捷：free＝自由枠、straight＝ストレート、1s、2s。知力：pair＝ワンペア、two pair＝ツーペア、3s、4s。",
+  "5sは『5が3個以上』の枠を確定する入力です。55は振り直し用です。日本語の役名だけでも入力できます。例：ワンペア。",
+  "『確定可』は今の出目で選べる枠。『残り』は未使用の枠で、今は選べないものも含みます。",
+  "look：現在の状況を再表示。remaining：未使用枠とスキル解放までの進み具合。確認の入力ではゲームは進みません。",
+  "skills：スキルの効果と使用可否。同じ能力の枠を3つ埋めると使えます。例：str 4は今ある4を1個6に変えます。対象は位置ではなく出目です。",
+  "スキルは単独でも、str 4 B3のように確定と続けても入力できます。不正な入力はその1行全体を取り消します。",
+  "rules：詳しいルールと全枠の条件。help：この説明。",
+  "進行は自動保存されます。save：保存先を表示。quit：終了。new：今のランを保存して、新しいランを開始。",
+  "終了後の再開は、ターミナルで npm run play -- --resume 保存先 を実行します。『保存先』を表示されたファイルのパスに置き換えてください。",
 ].join("\n");
 
 function queryText(state: GameState, command: string): string | undefined {
@@ -141,10 +149,27 @@ function queryText(state: GameState, command: string): string | undefined {
   }
   if (["rules", "ルール"].includes(command)) {
     return [
-      "各ターンは最初のロールと振り直し2回。達成した未使用枠を1つ確定すると次のターンへ。",
-      "同じ能力の枠を3つ埋めるとスキル解放。各スキルは毎ターン1回、ロールの前後に使用可。",
-      "B1から順に突破し、B5で勝利。最後のロール後、スキルを組み合わせても枠を達成できなければ敗北。",
-      ...categoryIds.map(id => `${categoryLabel(id)}：${categories[id].condition}。`),
+      "目的：B1、B2、B3、B4、B5の順に突破し、B5を確定すると勝利です。能力枠を全部埋める必要はありません。",
+      "枠とは、条件を満たしたときに選べる達成項目です。各枠は1ランに1回だけ使えます。",
+      "各ターンの流れ：6面サイコロ5個が自動で振られます。好きな出目を残して、最大2回振り直せます。残す出目は毎回選び直せます。5個とも残しても、振り直し1回分を使います。",
+      "条件を満たす未使用枠を1つ確定してターンを終えます。最初の出目でも確定できます。同時に複数の条件を満たしていても、選べるのは1枠です。",
+      "ダンジョンの次の階か、筋力・敏捷・知力の能力枠を選びます。能力枠には順番の制限がありません。",
+      "確定するとサイコロ5個と振り直し回数がリセットされ、次のターンが始まります。",
+      "敗北：振り直しが残っておらず、使えるスキルを組み合わせても未使用枠を確定できないと敗北です。『確定可：なし』だけでは敗北とは限りません。",
+      "\nダンジョンの条件。入力名はB1からB5。各階は直前の階を突破してから選べます。",
+      ...categoryIds.filter(id => id.startsWith("dungeon_")).map(id => `${categories[id].name}：${categories[id].condition}。`),
+      "\n能力枠の条件。かっこ内は入力名です。1sから6sは、その数字の出目が3個以上ある枠です。",
+      ...skills.flatMap(skill => categoryIds.filter(id => id.startsWith(`${skill.group}_`))
+        .map(id => `${categoryLabel(id)}（${categories[id].aliases[0]}）：${categories[id].condition}。`)),
+      "例：2、2、2、5、5はフルハウスです。ツーペアやワンペアとしても確定できます。5個同じ目はフルハウスにはなりません。",
+      "自由枠も1ランに1回だけです。選ぶと敏捷の枠が1つ埋まります。",
+      "\nスキル：同じ能力の4枠のうち3枠を埋めると解放され、以後のターンでも使えます。",
+      "各スキルは毎ターン1回。振り直しの前後や、振り直しを使い切った後にも使えます。次のターンには再び使えるようになります。",
+      "str 4：筋力で、今ある4を1個6にします。dex 3：敏捷で、今ある3を1個2にします。敏捷では1より小さくなりません。",
+      "int 5：知力で、今ある5を1個2にします。裏返す組み合わせは1と6、2と5、3と4です。",
+      "スキルの対象は今の出目で指定し、同じサイコロに別のスキルを続けて使えます。出目が変わらなくても、そのスキルの1回分を使います。",
+      "例：str 4 int 6は、筋力で4を6にした後、今ある6を1個1にします。スキルの後には、振り直しで残す出目か確定する枠を1つだけ続けられます。",
+      "現在使えるスキルはskills、未使用枠はremaining、入力方法はhelpで確認できます。",
     ].join("\n");
   }
   return undefined;

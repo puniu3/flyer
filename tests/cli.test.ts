@@ -135,7 +135,7 @@ test("three remaining ability slots are shown with every skill unlocked", () => 
   assert.match(text, /残り：筋力 6s。敏捷 2s。知力 4s。/);
 });
 
-test("remaining abilities appear at five slots, not six, and only in the turn summary", () => {
+test("remaining abilities appear at six slots, not seven, and only in the turn summary", () => {
   const session = fixture([1, 2, 3, 4, 5]);
   for (const id of Object.keys(session.state.categories) as CategoryId[]) {
     if (!id.startsWith("dungeon")) session.state.categories[id] = true;
@@ -144,10 +144,11 @@ test("remaining abilities appear at five slots, not six, and only in the turn su
     "dex_three_of_a_kind_2", "int_three_of_a_kind_3", "int_three_of_a_kind_4"] as CategoryId[]) {
     session.state.categories[id] = false;
   }
+  session.state.categories.str_four_of_a_kind = false;
   assert.doesNotMatch(statusText(session.state, true), /残り：/);
-  session.state.categories.int_three_of_a_kind_3 = true;
+  session.state.categories.str_four_of_a_kind = true;
   assert.equal(getView(session.state).skills.skill_str_mighty.status, "locked");
-  assert.match(statusText(session.state, true), /残り：筋力 5s、6s。敏捷 1s、2s。知力 4s。/);
+  assert.match(statusText(session.state, true), /残り：筋力 5s、6s。敏捷 1s、2s。知力 3s、4s。/);
   assert.doesNotMatch(statusText(session.state), /残り：/);
   assert.doesNotMatch(playCommand(session, "r").text, /残り：/);
 });
@@ -320,7 +321,7 @@ test("every submitted input and exact response is logged with its decision conte
   assert.equal(calls[1].command, "remaining");
   assert.equal(records[0].event, "start");
   assert.deepEqual(records[records.length - 1], {
-    logVersion: "flyer-cli-calls-1", uiVersion: "cli-5", rulesVersion: RULES_VERSION,
+    logVersion: "flyer-cli-calls-1", uiVersion: "cli-6", rulesVersion: RULES_VERSION,
     timestamp: records[records.length - 1].timestamp, event: "end", reason: "quit",
     context: calls[calls.length - 1].after, response: `保存先：${path}`, responseChannel: "stderr",
   });
