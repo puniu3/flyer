@@ -1,5 +1,5 @@
 import "./style.css";
-import { languages } from "./languages";
+import { languages, resolveLanguage } from "./languages";
 import { getView } from "./rules";
 import { DungeonScene, DEFAULT_CAMERA } from "./scene";
 import { TableAudio } from "./audio";
@@ -16,7 +16,7 @@ app.innerHTML = `<main class="stage" id="stage"><div class="table-ui" id="table-
 <dialog id="result"><h2 id="result-title"></h2><p id="result-copy"></p><button id="again">もう一度遊ぶ</button></dialog>`;
 const el = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
-let locale = readPreference("language", "ja");
+let locale: string = resolveLanguage(readPreference("language", ""), navigator.language);
 document.documentElement.lang = locale;
 let t = translator(locale);
 el("loading").textContent = t("loading");
